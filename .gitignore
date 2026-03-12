@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.next/
+.env
+
+# Playwright
+tests/playwright/
+.playwright-mcp/
+
+# Test uploads
+tests/uploads/
