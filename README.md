@@ -184,13 +184,31 @@ field: {
 }
 ```
 
-Dot-notation paths are supported for fields inside named tabs and nested groups:
+Dot-notation paths are supported for nested groups and named tab fields:
 
 ```ts
-// After a field inside a tab
+// After a field inside a named group
 field: {
   position: {
-    after: 'myTab.fieldName'
+    after: 'myGroup.fieldName'
+  }
+}
+
+// After a field inside a named tabs field (tab index is zero-based)
+field: {
+  position: {
+    after: 'myTabs.0.fieldName'
+  }
+}
+```
+
+Fields inside unnamed tabs are found automatically — no path prefix needed:
+
+```ts
+// Works even if 'alt' is inside an unnamed tab
+field: {
+  position: {
+    after: 'alt'
   }
 }
 ```
@@ -227,10 +245,9 @@ Documents are previewed via external viewer services:
 - `.ai`, `.eps`, `.ps` (PostScript)
 - `.psd` (Photoshop)
 - `.dxf` (AutoCAD)
-- `.svg`
 - `.xps`
 
-> **Note:** Document previews use external services (Google Docs Viewer, Microsoft Office Online) that fetch files by URL. This only works when your media URLs are publicly accessible. Google Docs Viewer also has a 25 MB file size limit.
+> **Note:** Document previews use external services (Google Docs Viewer, Microsoft Office Online) that fetch files by URL. This only works when your media URLs are publicly accessible. Google Docs Viewer has a 25 MB file size limit, Microsoft Office Online Viewer has a 10 MB limit.
 
 ## Adapters
 
@@ -322,7 +339,7 @@ The plugin exports four built-in viewer components that you can use in adapters 
 
 ### Adapter Props Reference
 
-`**ImageViewerProps**`
+**`ImageViewerProps`**
 
 | Prop        | Type     | Required |
 | ----------- | -------- | -------- |
@@ -447,7 +464,7 @@ The plugin must still be included to register viewer components and translations
 
 The plugin includes translations for 44 locales. Translations are automatically merged into your Payload i18n configuration under the `@seshuk/payload-media-preview` namespace.
 
-Supported locales: `ar`, `az`, `bg`, `bn` (BD/IN), `ca`, `cs`, `da`, `de`, `en`, `es`, `et`, `fa`, `fi`, `fr`, `he`, `hr`, `hu`, `hy`, `id`, `is`, `it`, `ja`, `ka`, `ko`, `lt`, `lv`, `mk`, `nb`, `nl`, `pl`, `pt`, `ro`, `rs` (Cyrillic/Latin), `ru`, `sk`, `sl`, `sv`, `th`, `tr`, `uk`, `vi`, `zh`, `zhTw`.
+Supported locales: `ar`, `az`, `bg`, `bn` (BD/IN), `ca`, `cs`, `da`, `de`, `en`, `es`, `et`, `fa`, `fr`, `he`, `hr`, `hu`, `hy`, `id`, `is`, `it`, `ja`, `ko`, `lt`, `lv`, `my`, `nb`, `nl`, `pl`, `pt`, `ro`, `rs` (Cyrillic/Latin), `ru`, `sk`, `sl`, `sv`, `ta`, `th`, `tr`, `uk`, `vi`, `zh`, `zhTw`.
 
 ## Exports
 
@@ -456,7 +473,7 @@ The package provides three entry points:
 | Entry Point                            | Description                                        | Usage                     |
 | -------------------------------------- | -------------------------------------------------- | ------------------------- |
 | `@seshuk/payload-media-preview`        | Plugin function and all public types               | Server-side config        |
-| `@seshuk/payload-media-preview/client` | Client components (Field, Cell, Modal, Viewers)    | `'use client'` components |
+| `@seshuk/payload-media-preview/client` | Client components (Field, Viewers)                 | `'use client'` components |
 | `@seshuk/payload-media-preview/rsc`    | Server components (MediaPreview, MediaPreviewCell) | React Server Components   |
 
 ## TypeScript
@@ -465,23 +482,25 @@ All types are exported from the main entry point:
 
 ```ts
 import type {
+  AudioViewerProps,
+  IframeViewerProps,
+  ImageViewerProps,
+  InsertPosition,
   MediaPreviewAdapter,
-  MediaPreviewAdapterResolveArgs,
   MediaPreviewAdapterInlineResult,
   MediaPreviewAdapterNewTabResult,
+  MediaPreviewAdapterResolveArgs,
   MediaPreviewAdapterResolveResult,
   MediaPreviewCollectionConfig,
   MediaPreviewContentMode,
   MediaPreviewContentModeType,
   MediaPreviewContentType,
   MediaPreviewFieldConfig,
+  MediaPreviewFieldOptions,
   MediaPreviewMode,
+  MediaPreviewPlugin,
   MediaPreviewPluginConfig,
-  InsertPosition,
-  ImageViewerProps,
   VideoViewerProps,
-  AudioViewerProps,
-  IframeViewerProps,
 } from '@seshuk/payload-media-preview'
 ```
 

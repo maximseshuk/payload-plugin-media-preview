@@ -53,7 +53,7 @@ export const MediaPreviewFieldClient: React.FC<Props> = ({
   const isDocumentFile = previewType === 'document'
   const isImageFile = previewType === 'image'
   const isVideoFile = previewType === 'video'
-  const canPreview = !isDocumentFile || canPreviewDocument(fileSize)
+  const canPreview = !isDocumentFile || canPreviewDocument(mimeType!, fileSize)
 
   const documentViewerUrl = useMemo<null | string>(() => {
     if (isDocumentFile && url && mimeType) {

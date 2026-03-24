@@ -1,6 +1,7 @@
 export const FIELD_BASE_CLASS = 'field-type'
 
 export const GOOGLE_VIEWER_MAX_SIZE = 25 * 1024 * 1024
+export const MICROSOFT_VIEWER_MAX_SIZE = 10 * 1024 * 1024
 
 export const MICROSOFT_OFFICE_TYPES = [
   'application/msword', // .doc
@@ -26,6 +27,5 @@ export const GOOGLE_VIEWER_TYPES = [
   'image/vnd.adobe.photoshop', // .psd
   'image/vnd.dxf', // .dxf
   'application/dxf', // .dxf
-  'image/svg+xml', // .svg
   'application/vnd.ms-xpsdocument', // .xps
 ]

@@ -2,7 +2,7 @@ import type { Field } from 'payload'
 
 import { describe, expect, it } from 'vitest'
 
-import { GOOGLE_VIEWER_MAX_SIZE } from '../src/components/MediaPreview.constants.js'
+import { GOOGLE_VIEWER_MAX_SIZE, MICROSOFT_VIEWER_MAX_SIZE } from '../src/components/MediaPreview.constants.js'
 import {
   canPreviewDocument,
   getDocumentViewerType,
@@ -48,14 +48,24 @@ describe('getPreviewType', () => {
 // Document preview
 
 describe('canPreviewDocument', () => {
-  it('allows undefined or within limit', () => {
-    expect(canPreviewDocument(undefined)).toBe(true)
-    expect(canPreviewDocument(1024)).toBe(true)
-    expect(canPreviewDocument(GOOGLE_VIEWER_MAX_SIZE)).toBe(true)
+  it('allows undefined or within Google limit', () => {
+    expect(canPreviewDocument('application/pdf', undefined)).toBe(true)
+    expect(canPreviewDocument('application/pdf', 1024)).toBe(true)
+    expect(canPreviewDocument('application/pdf', GOOGLE_VIEWER_MAX_SIZE)).toBe(true)
   })
 
-  it('rejects over limit', () => {
-    expect(canPreviewDocument(GOOGLE_VIEWER_MAX_SIZE + 1)).toBe(false)
+  it('rejects over Google limit', () => {
+    expect(canPreviewDocument('application/pdf', GOOGLE_VIEWER_MAX_SIZE + 1)).toBe(false)
+  })
+
+  it('allows within Microsoft limit', () => {
+    expect(canPreviewDocument('application/msword', undefined)).toBe(true)
+    expect(canPreviewDocument('application/msword', 1024)).toBe(true)
+    expect(canPreviewDocument('application/msword', MICROSOFT_VIEWER_MAX_SIZE)).toBe(true)
+  })
+
+  it('rejects over Microsoft limit', () => {
+    expect(canPreviewDocument('application/msword', MICROSOFT_VIEWER_MAX_SIZE + 1)).toBe(false)
   })
 })
 

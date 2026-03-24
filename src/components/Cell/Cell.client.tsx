@@ -56,7 +56,7 @@ export const MediaPreviewCellClient: React.FC<Props> = ({
   const isDocumentFile = previewType === 'document'
   const isImageFile = previewType === 'image'
   const isVideoFile = previewType === 'video'
-  const canPreview = !isDocumentFile || canPreviewDocument(fileSize)
+  const canPreview = !isDocumentFile || canPreviewDocument(mimeType!, fileSize)
 
   const modalMode = useMemo(
     () => (mode === 'fullscreen' ? 'fullscreen' : isTouchDevice ? 'fullscreen' : 'popup'),
