@@ -1,6 +1,6 @@
 {
   "name": "@seshuk/payload-media-preview",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Payload plugin for previewing images, videos, audio, and documents in the admin panel",
   "author": "Maxim Seshuk",
   "license": "MIT",
