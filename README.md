@@ -1,8 +1,16 @@
-# Media Preview Plugin for Payload CMS
+<div align="center">
 
-[![GitHub Release](https://img.shields.io/github/v/release/maximseshuk/payload-plugin-media-preview.svg)](https://github.com/maximseshuk/payload-plugin-media-preview/releases/) [![npm](https://img.shields.io/badge/npm-blue.svg)](https://www.npmjs.com/package/@seshuk/payload-media-preview) [![license](https://img.shields.io/badge/license-grey.svg)](https://github.com/maximseshuk/payload-plugin-media-preview/blob/main/LICENSE) [![NPM Downloads](https://img.shields.io/npm/dm/@seshuk/payload-media-preview)](https://www.npmjs.com/package/@seshuk/payload-media-preview) [![Ko-fi](https://img.shields.io/badge/Ko--fi-Buy_me_a_coffee-ff5f5f?logo=ko-fi)](https://ko-fi.com/V7V61UCT39)
+<h1>Media Preview Plugin for Payload CMS</h1>
 
-Preview images, videos, audio, and documents directly in the Payload CMS admin panel.
+<p>Preview images, videos, audio, and documents directly in the Payload CMS admin panel.</p>
+
+<a href="https://www.npmjs.com/package/@seshuk/payload-media-preview"><img src="https://img.shields.io/npm/v/@seshuk/payload-media-preview?style=flat-square&logo=npm" alt="npm version" /></a>
+<a href="https://www.npmjs.com/package/@seshuk/payload-media-preview"><img src="https://img.shields.io/npm/dm/@seshuk/payload-media-preview?style=flat-square" alt="npm downloads" /></a>
+<a href="https://github.com/maximseshuk/payload-plugin-media-preview/releases/"><img src="https://img.shields.io/github/v/release/maximseshuk/payload-plugin-media-preview?style=flat-square&logo=github" alt="GitHub release" /></a>
+<a href="https://github.com/maximseshuk/payload-plugin-media-preview/blob/main/LICENSE"><img src="https://img.shields.io/github/license/maximseshuk/payload-plugin-media-preview?style=flat-square" alt="license" /></a>
+<a href="https://ko-fi.com/V7V61UCT39"><img src="https://img.shields.io/badge/Ko--fi-Buy_me_a_coffee-ff5f5f?style=flat-square&logo=ko-fi&logoColor=white" alt="Ko-fi" /></a>
+
+</div>
 
 ## Features
 
