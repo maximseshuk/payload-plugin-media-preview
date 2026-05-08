@@ -57,10 +57,7 @@ export const resolveAdapter = (
   return null
 }
 
-export const resolveAdapterViewer = (
-  payloadLike: PayloadLike,
-  match: AdapterMatch | null,
-): null | React.ReactNode => {
+export const resolveAdapterViewer = (payloadLike: PayloadLike, match: AdapterMatch | null): null | React.ReactNode => {
   if (!match || match.result.mode !== 'inline') {
     return null
   }

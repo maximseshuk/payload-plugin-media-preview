@@ -6,8 +6,17 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const fixturesDir = path.resolve(__dirname, 'fixtures')
-const BASE_URL = 'http://localhost:3000'
-const ALL_COLLECTIONS = ['media-default', 'media-fullscreen', 'media-newtab', 'media-position', 'media-adapter', 'media-custom', 'media-adapter-newtab', 'media-standalone']
+const BASE_URL = 'http://localhost:47391'
+const ALL_COLLECTIONS = [
+  'media-default',
+  'media-fullscreen',
+  'media-newtab',
+  'media-position',
+  'media-adapter',
+  'media-custom',
+  'media-adapter-newtab',
+  'media-standalone',
+]
 
 // Helpers
 
@@ -50,9 +59,7 @@ const openFieldPreview = async (page: Page) => {
 const openCellPreview = async (page: Page, collection: string, rowText?: string) => {
   await page.goto(`/admin/collections/${collection}`)
 
-  const row = rowText
-    ? page.locator('tr', { hasText: rowText }).first()
-    : page.locator('.cell-mediaPreview').first()
+  const row = rowText ? page.locator('tr', { hasText: rowText }).first() : page.locator('.cell-mediaPreview').first()
 
   await expect(row).toBeVisible({ timeout: 10000 })
   await page.waitForLoadState('networkidle')
@@ -71,9 +78,7 @@ test.describe('Media Preview Plugin', () => {
 
   test.afterEach(async () => {
     await Promise.all(
-      ALL_COLLECTIONS.map((slug) =>
-        fetch(`${BASE_URL}/api/${slug}?where[id][exists]=true`, { method: 'DELETE' }),
-      ),
+      ALL_COLLECTIONS.map((slug) => fetch(`${BASE_URL}/api/${slug}?where[id][exists]=true`, { method: 'DELETE' })),
     )
   })
 

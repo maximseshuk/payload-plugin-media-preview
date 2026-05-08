@@ -29,7 +29,7 @@ export const mediaPreviewField = (props?: MediaPreviewFieldOptions): UIField => 
     type: 'ui',
     admin: {
       components: {
-        ...(overrides?.admin?.components || {}),
+        ...overrides?.admin?.components,
         Cell: {
           clientProps: {
             contentMode,
@@ -51,7 +51,7 @@ export const mediaPreviewField = (props?: MediaPreviewFieldOptions): UIField => 
           },
         },
       },
-      ...(overrides?.admin || {}),
+      ...overrides?.admin,
     },
   }
 }

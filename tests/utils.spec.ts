@@ -36,11 +36,7 @@ describe('getPreviewType', () => {
     expect(getPreviewType(mime)).toBe(expected)
   })
 
-  it.each([
-    'application/octet-stream',
-    'application/zip',
-    undefined,
-  ])('%s → unsupported', (mime) => {
+  it.each(['application/octet-stream', 'application/zip', undefined])('%s → unsupported', (mime) => {
     expect(getPreviewType(mime)).toBe('unsupported')
   })
 })
@@ -84,13 +80,15 @@ describe('getDocumentViewerType', () => {
 
 describe('viewer URLs', () => {
   it('getGoogleViewerUrl', () => {
-    expect(getGoogleViewerUrl('https://example.com/doc.pdf'))
-      .toBe('https://docs.google.com/viewer?url=https%3A%2F%2Fexample.com%2Fdoc.pdf&embedded=true')
+    expect(getGoogleViewerUrl('https://example.com/doc.pdf')).toBe(
+      'https://docs.google.com/viewer?url=https%3A%2F%2Fexample.com%2Fdoc.pdf&embedded=true',
+    )
   })
 
   it('getMicrosoftViewerUrl', () => {
-    expect(getMicrosoftViewerUrl('https://example.com/doc.docx'))
-      .toBe('https://view.officeapps.live.com/op/embed.aspx?src=https%3A%2F%2Fexample.com%2Fdoc.docx')
+    expect(getMicrosoftViewerUrl('https://example.com/doc.docx')).toBe(
+      'https://view.officeapps.live.com/op/embed.aspx?src=https%3A%2F%2Fexample.com%2Fdoc.docx',
+    )
   })
 })
 

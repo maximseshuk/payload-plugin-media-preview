@@ -293,6 +293,7 @@ export const MediaPreviewModal: React.FC<MediaPreviewModalProps> = ({
         className="media-preview-modal__wrapper"
         onClick={handleBackdropClick}
         onKeyDown={handleBackdropClick}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- backdrop wrapper, not a real button
         role="button"
         tabIndex={-1}
       >

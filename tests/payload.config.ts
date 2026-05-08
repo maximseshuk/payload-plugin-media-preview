@@ -3,7 +3,7 @@ import type { MediaPreviewAdapter } from '@seshuk/payload-media-preview'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { en } from '@payloadcms/translations/languages/en'
 import { mediaPreview, mediaPreviewField } from '@seshuk/payload-media-preview'
-import { MongoMemoryReplSet } from 'mongodb-memory-server'
+import { MongoMemoryServer } from 'mongodb-memory-server'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildConfig } from 'payload'
@@ -73,13 +73,8 @@ const createUploadCollection = (slug: string, extraFields: any[] = []) => ({
 
 const buildConfigAsync = async () => {
   if (process.env.NODE_ENV === 'test' || process.env.USE_MEMORY_DB === '1') {
-    const memoryDB = await MongoMemoryReplSet.create({
-      replSet: {
-        count: 1,
-        dbName: 'payloadmemory',
-      },
-    })
-    process.env.DATABASE_URL = `${memoryDB.getUri()}&retryWrites=true`
+    const memoryDB = await MongoMemoryServer.create()
+    process.env.DATABASE_URL = memoryDB.getUri()
   }
 
   return buildConfig({
@@ -101,15 +96,9 @@ const buildConfigAsync = async () => {
       createUploadCollection('media-default'),
       createUploadCollection('media-fullscreen'),
       createUploadCollection('media-newtab'),
-      createUploadCollection('media-position', [
-        { name: 'alt', type: 'text' },
-      ]),
-      createUploadCollection('media-adapter', [
-        { name: 'externalVideoId', type: 'text' },
-      ]),
-      createUploadCollection('media-adapter-newtab', [
-        { name: 'externalUrl', type: 'text' },
-      ]),
+      createUploadCollection('media-position', [{ name: 'alt', type: 'text' }]),
+      createUploadCollection('media-adapter', [{ name: 'externalVideoId', type: 'text' }]),
+      createUploadCollection('media-adapter-newtab', [{ name: 'externalUrl', type: 'text' }]),
       createUploadCollection('media-custom', [
         { name: 'provider', type: 'text' },
         { name: 'embedId', type: 'text' },
@@ -148,10 +137,7 @@ const buildConfigAsync = async () => {
       })
 
       if (existingUser.docs.length === 0) {
-        await payload.create({
-          collection: 'users',
-          data: devUser,
-        })
+        await payload.create({ collection: 'users', data: devUser })
       }
     },
     plugins: [

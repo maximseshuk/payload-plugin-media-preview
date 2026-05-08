@@ -5,9 +5,9 @@ export const ca: PluginDefaultTranslationsObject = {
     close: 'Tancar',
     label: 'Vista prèvia',
     open: 'Obrir',
-    titleAudio: 'Previsualització d\'àudio',
+    titleAudio: "Previsualització d'àudio",
     titleDocument: 'Previsualització de document',
-    titleImage: 'Previsualització d\'imatge',
+    titleImage: "Previsualització d'imatge",
     titleVideo: 'Previsualització de vídeo',
   },
 }

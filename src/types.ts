@@ -83,11 +83,7 @@ export type MediaPreviewAdapter = {
 
 // Field position
 
-export type InsertPosition =
-  | 'first'
-  | 'last'
-  | { after: string; before?: never }
-  | { after?: never; before: string }
+export type InsertPosition = 'first' | 'last' | { after: string; before?: never } | { after?: never; before: string }
 
 // Content mode
 

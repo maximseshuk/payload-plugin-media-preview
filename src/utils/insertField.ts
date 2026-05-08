@@ -1,11 +1,7 @@
 import type { InsertPosition } from '@/types.js'
 import type { Field } from 'payload'
 
-export const insertField = (
-  fields: Field[],
-  position: InsertPosition,
-  fieldToInsert: Field,
-): Field[] => {
+export const insertField = (fields: Field[], position: InsertPosition, fieldToInsert: Field): Field[] => {
   if (position === 'first') {
     return [fieldToInsert, ...fields]
   }
@@ -35,20 +31,16 @@ const insertFieldByPath = (
   const [currentPart, ...remainingParts] = pathParts
 
   if (remainingParts.length === 0) {
-    const targetIndex = fields.findIndex(f => 'name' in f && f.name === currentPart)
+    const targetIndex = fields.findIndex((f) => 'name' in f && f.name === currentPart)
 
     if (targetIndex !== -1) {
       const insertIndex = placement === 'before' ? targetIndex : targetIndex + 1
-      return [
-        ...fields.slice(0, insertIndex),
-        fieldToInsert,
-        ...fields.slice(insertIndex),
-      ]
+      return [...fields.slice(0, insertIndex), fieldToInsert, ...fields.slice(insertIndex)]
     }
     return fields
   }
 
-  return fields.map(field => {
+  return fields.map((field) => {
     if ('name' in field && field.name === currentPart) {
       const remainingPath = remainingParts.join('.')
 
@@ -93,7 +85,7 @@ const insertFieldByPath = (
     }
 
     if ('tabs' in field && Array.isArray(field.tabs)) {
-      const updatedTabs = field.tabs.map(tab => {
+      const updatedTabs = field.tabs.map((tab) => {
         if ('fields' in tab && Array.isArray(tab.fields)) {
           const updatedFields = insertFieldByPath(tab.fields, targetPath, fieldToInsert, placement)
           if (updatedFields !== tab.fields) {

@@ -7,7 +7,7 @@ export const fr: PluginDefaultTranslationsObject = {
     open: 'Ouvrir',
     titleAudio: 'Aperçu audio',
     titleDocument: 'Aperçu du document',
-    titleImage: 'Aperçu de l\'image',
+    titleImage: "Aperçu de l'image",
     titleVideo: 'Aperçu vidéo',
   },
 }

@@ -2,7 +2,12 @@ import { formatAbsoluteURL } from '@payloadcms/ui/utilities/formatAbsoluteURL'
 
 import type { DocumentViewerType, PreviewType } from './MediaPreview.types.js'
 
-import { GOOGLE_VIEWER_MAX_SIZE, GOOGLE_VIEWER_TYPES, MICROSOFT_OFFICE_TYPES, MICROSOFT_VIEWER_MAX_SIZE } from './MediaPreview.constants.js'
+import {
+  GOOGLE_VIEWER_MAX_SIZE,
+  GOOGLE_VIEWER_TYPES,
+  MICROSOFT_OFFICE_TYPES,
+  MICROSOFT_VIEWER_MAX_SIZE,
+} from './MediaPreview.constants.js'
 
 export const getPreviewType = (mimeType?: string): PreviewType => {
   if (!mimeType) {

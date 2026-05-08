@@ -12,19 +12,20 @@ import { mediaPreview } from '../src/index.js'
 type Collections = NonNullable<Config['collections']>
 type Fields = Collections[number]['fields']
 
-const baseConfig = (collections: Collections = []): Config => ({
-  collections: [{ slug: 'users', auth: true, fields: [] }, ...collections],
-  i18n: {},
-}) as Config
+const baseConfig = (collections: Collections = []): Config =>
+  ({
+    collections: [{ slug: 'users', auth: true, fields: [] }, ...collections],
+    i18n: {},
+  }) as Config
 
-const uploadCollection = (slug: string, fields: Fields = []) => ({
-  slug,
-  fields,
-  upload: true,
-}) as Collections[number]
+const uploadCollection = (slug: string, fields: Fields = []) =>
+  ({
+    slug,
+    fields,
+    upload: true,
+  }) as Collections[number]
 
-const hasField = (fields: Fields, name: string) =>
-  fields.some((f) => 'name' in f && f.name === name)
+const hasField = (fields: Fields, name: string) => fields.some((f) => 'name' in f && f.name === name)
 
 const adapter = (name: string, field?: string): MediaPreviewAdapter => ({
   name,
@@ -123,9 +124,7 @@ describe('adapters', () => {
       collections: { media: { adapters: [local] } },
     })(config)
 
-    const names = result.custom?.['@seshuk/payload-media-preview']?.adapters.map(
-      (a: MediaPreviewAdapter) => a.name,
-    )
+    const names = result.custom?.['@seshuk/payload-media-preview']?.adapters.map((a: MediaPreviewAdapter) => a.name)
     expect(names).toContain('global')
     expect(names).toContain('local')
   })
@@ -163,8 +162,7 @@ describe('adapters', () => {
 // Field position
 
 describe('field position', () => {
-  const getName = (field?: Fields[number]) =>
-    field && 'name' in field ? field.name : undefined
+  const getName = (field?: Fields[number]) => (field && 'name' in field ? field.name : undefined)
 
   it('defaults to last', () => {
     const config = baseConfig([uploadCollection('media')])
