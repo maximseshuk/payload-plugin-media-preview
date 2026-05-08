@@ -105,6 +105,17 @@
     "@payloadcms/ui": "^3.53.0",
     "payload": "^3.53.0"
   },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "onFail": "error"
+    },
+    "runtime": {
+      "name": "node",
+      "version": "^20.19.0 || >=22.18.0",
+      "onFail": "error"
+    }
+  },
   "engines": {
     "node": "^18.20.2 || >=20.9.0"
   },
