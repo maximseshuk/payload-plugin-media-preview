@@ -75,10 +75,10 @@
   },
   "devDependencies": {
     "@next/env": "^16.2.6",
-    "@payloadcms/db-mongodb": "^3.83.0",
-    "@payloadcms/next": "^3.83.0",
-    "@payloadcms/translations": "^3.83.0",
-    "@payloadcms/ui": "^3.83.0",
+    "@payloadcms/db-mongodb": "^3.84.1",
+    "@payloadcms/next": "^3.84.1",
+    "@payloadcms/translations": "^3.84.1",
+    "@payloadcms/ui": "^3.84.1",
     "@playwright/test": "^1.59.1",
     "@swc/cli": "^0.8.1",
     "@swc/core": "^1.15.33",
@@ -91,12 +91,12 @@
     "next": "16.2.6",
     "oxfmt": "^0.48.0",
     "oxlint": "^1.63.0",
-    "payload": "^3.83.0",
+    "payload": "^3.84.1",
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "rimraf": "6.1.3",
     "sharp": "0.34.5",
-    "typescript": "5.9.3",
+    "typescript": "6.0.3",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.5"
   },
@@ -108,7 +108,8 @@
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "onFail": "error"
+      "version": "11.0.8",
+      "onFail": "download"
     },
     "runtime": {
       "name": "node",
@@ -118,6 +119,5 @@
   },
   "engines": {
     "node": "^18.20.2 || >=20.9.0"
-  },
-  "packageManager": "pnpm@10.32.1"
+  }
 }
