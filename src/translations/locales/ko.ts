@@ -1,7 +1,7 @@
 import type { PluginDefaultTranslationsObject } from '../types.js'
 
 export const ko: PluginDefaultTranslationsObject = {
-  '@seshuk/payload-media-preview': {
+  '@seshuk/payload-plugin-media-preview': {
     close: '닫기',
     label: '미리보기',
     open: '열기',

@@ -1,7 +1,7 @@
 import type { PluginDefaultTranslationsObject } from '../types.js'
 
 export const ta: PluginDefaultTranslationsObject = {
-  '@seshuk/payload-media-preview': {
+  '@seshuk/payload-plugin-media-preview': {
     close: 'மூடு',
     label: 'முன்னோட்டம்',
     open: 'திற',

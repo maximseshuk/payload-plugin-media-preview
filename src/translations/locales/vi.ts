@@ -1,7 +1,7 @@
 import type { PluginDefaultTranslationsObject } from '../types.js'
 
 export const vi: PluginDefaultTranslationsObject = {
-  '@seshuk/payload-media-preview': {
+  '@seshuk/payload-plugin-media-preview': {
     close: 'Đóng',
     label: 'Xem trước',
     open: 'Mở',

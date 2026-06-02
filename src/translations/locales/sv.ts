@@ -1,7 +1,7 @@
 import type { PluginDefaultTranslationsObject } from '../types.js'
 
 export const sv: PluginDefaultTranslationsObject = {
-  '@seshuk/payload-media-preview': {
+  '@seshuk/payload-plugin-media-preview': {
     close: 'Stäng',
     label: 'Förhandsgranskning',
     open: 'Öppna',

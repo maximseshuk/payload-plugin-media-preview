@@ -90,7 +90,7 @@ export const MediaPreviewCellClient: React.FC<Props> = ({
             icon={<ExternalLinkIcon className="media-preview-cell__icon" />}
             size="small"
           >
-            {t('@seshuk/payload-media-preview:open')}
+            {t('@seshuk/payload-plugin-media-preview:open')}
           </Pill>
         </a>
       </div>
@@ -137,8 +137,8 @@ export const MediaPreviewCellClient: React.FC<Props> = ({
             size="small"
           >
             {modalMode === 'popup' && showModal
-              ? t('@seshuk/payload-media-preview:close')
-              : t('@seshuk/payload-media-preview:open')}
+              ? t('@seshuk/payload-plugin-media-preview:close')
+              : t('@seshuk/payload-plugin-media-preview:open')}
           </Pill>
         </button>
       </div>

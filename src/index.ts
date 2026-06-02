@@ -65,7 +65,7 @@ export const mediaPreview =
       const typedLocale = locale as AcceptedLanguages
       pluginTranslations[typedLocale] = {
         ...incomingConfig.i18n?.translations?.[typedLocale],
-        '@seshuk/payload-media-preview': i18nObject?.['@seshuk/payload-media-preview'],
+        '@seshuk/payload-plugin-media-preview': i18nObject?.['@seshuk/payload-plugin-media-preview'],
       } as PluginDefaultTranslationsObject
     }
 
@@ -110,7 +110,7 @@ export const mediaPreview =
       }),
       custom: {
         ...incomingConfig.custom,
-        '@seshuk/payload-media-preview': {
+        '@seshuk/payload-plugin-media-preview': {
           adapters: allAdapters,
         },
       },

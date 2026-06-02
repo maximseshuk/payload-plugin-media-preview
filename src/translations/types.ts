@@ -1,5 +1,5 @@
 export type PluginDefaultTranslationsObject = {
-  '@seshuk/payload-media-preview': {
+  '@seshuk/payload-plugin-media-preview': {
     close: string
     label: string
     open: string

@@ -1,7 +1,7 @@
 import type { PluginDefaultTranslationsObject } from '../types.js'
 
 export const my: PluginDefaultTranslationsObject = {
-  '@seshuk/payload-media-preview': {
+  '@seshuk/payload-plugin-media-preview': {
     close: 'ပိတ်မည်',
     label: 'အစမ်းကြည့်ရှုခြင်း',
     open: 'ဖွင့်မည်',

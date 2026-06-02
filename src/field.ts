@@ -23,7 +23,7 @@ export const mediaPreviewField = (props?: MediaPreviewFieldOptions): UIField => 
 
   return {
     // @ts-expect-error - Payload supports label as a function but types are incorrect
-    label: ({ t }) => t('@seshuk/payload-media-preview:label'),
+    label: ({ t }) => t('@seshuk/payload-plugin-media-preview:label'),
     ...overrides,
     name: 'mediaPreview',
     type: 'ui',
@@ -35,7 +35,7 @@ export const mediaPreviewField = (props?: MediaPreviewFieldOptions): UIField => 
             contentMode,
             mode,
           },
-          path: '@seshuk/payload-media-preview/rsc#MediaPreviewCell',
+          path: '@seshuk/payload-plugin-media-preview/rsc#MediaPreviewCell',
           serverProps: {
             adapterNames,
           },
@@ -45,7 +45,7 @@ export const mediaPreviewField = (props?: MediaPreviewFieldOptions): UIField => 
             contentMode,
             mode,
           },
-          path: '@seshuk/payload-media-preview/rsc#MediaPreview',
+          path: '@seshuk/payload-plugin-media-preview/rsc#MediaPreview',
           serverProps: {
             adapterNames,
           },

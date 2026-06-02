@@ -34,7 +34,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 1. Injecting a virtual `mediaPreview` UI field (no DB storage) into each configured upload collection
 2. Registering adapter Viewer components in `admin.dependencies`
-3. Storing adapters in `config.custom['@seshuk/payload-media-preview']` for runtime resolution
+3. Storing adapters in `config.custom['@seshuk/payload-plugin-media-preview']` for runtime resolution
 4. Merging i18n translations (40+ locales)
 
 **Three export paths** (all use `.js` extension in imports):
@@ -58,7 +58,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Path alias: `@/*` maps to `./src/*`
 - All internal imports MUST use `.js` extension (ESM requirement)
 - SCSS for component styles (BEM-like, co-located with components)
-- i18n namespace: `@seshuk/payload-media-preview`
+- i18n namespace: `@seshuk/payload-plugin-media-preview`
 - Build: SWC for JS output, tsc for declarations only (`tsconfig.build.json`)
 
 ## Testing

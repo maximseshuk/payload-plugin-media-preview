@@ -19,7 +19,7 @@ export type AdapterMatch = {
 }
 
 const getAdapters = (config: SanitizedConfig): MediaPreviewAdapter[] => {
-  const pluginData = config.custom?.['@seshuk/payload-media-preview'] as
+  const pluginData = config.custom?.['@seshuk/payload-plugin-media-preview'] as
     | { adapters?: MediaPreviewAdapter[] }
     | undefined
   return pluginData?.adapters ?? []

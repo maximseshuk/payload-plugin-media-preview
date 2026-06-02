@@ -4,8 +4,8 @@
 
 <p>Preview images, videos, audio, and documents directly in the Payload CMS admin panel.</p>
 
-<a href="https://www.npmjs.com/package/@seshuk/payload-media-preview"><img src="https://img.shields.io/npm/v/@seshuk/payload-media-preview?style=flat-square&logo=npm" alt="npm version" /></a>
-<a href="https://www.npmjs.com/package/@seshuk/payload-media-preview"><img src="https://img.shields.io/npm/dm/@seshuk/payload-media-preview?style=flat-square" alt="npm downloads" /></a>
+<a href="https://www.npmjs.com/package/@seshuk/payload-plugin-media-preview"><img src="https://img.shields.io/npm/v/@seshuk/payload-plugin-media-preview?style=flat-square&logo=npm" alt="npm version" /></a>
+<a href="https://www.npmjs.com/package/@seshuk/payload-plugin-media-preview"><img src="https://img.shields.io/npm/dm/@seshuk/payload-plugin-media-preview?style=flat-square" alt="npm downloads" /></a>
 <a href="https://github.com/maximseshuk/payload-plugin-media-preview/releases/"><img src="https://img.shields.io/github/v/release/maximseshuk/payload-plugin-media-preview?style=flat-square&logo=github" alt="GitHub release" /></a>
 <a href="https://github.com/maximseshuk/payload-plugin-media-preview/blob/main/LICENSE"><img src="https://img.shields.io/github/license/maximseshuk/payload-plugin-media-preview?style=flat-square" alt="license" /></a>
 <a href="https://ko-fi.com/V7V61UCT39"><img src="https://img.shields.io/badge/Ko--fi-Buy_me_a_coffee-ff5f5f?style=flat-square&logo=ko-fi&logoColor=white" alt="Ko-fi" /></a>
@@ -47,17 +47,17 @@
 ## Installation
 
 ```bash
-pnpm add @seshuk/payload-media-preview
+pnpm add @seshuk/payload-plugin-media-preview
 # or
-npm install @seshuk/payload-media-preview
+npm install @seshuk/payload-plugin-media-preview
 # or
-yarn add @seshuk/payload-media-preview
+yarn add @seshuk/payload-plugin-media-preview
 ```
 
 ## Quick Start
 
 ```ts
-import { mediaPreview } from '@seshuk/payload-media-preview'
+import { mediaPreview } from '@seshuk/payload-plugin-media-preview'
 import { buildConfig } from 'payload'
 
 export default buildConfig({
@@ -271,7 +271,7 @@ The `Component` field is only needed for `inline` mode. Adapters that only use `
 ### Examples
 
 ```ts
-import type { IframeViewerProps, MediaPreviewAdapter } from '@seshuk/payload-media-preview'
+import type { IframeViewerProps, MediaPreviewAdapter } from '@seshuk/payload-plugin-media-preview'
 
 // Inline — custom component in modal
 const videoAdapter: MediaPreviewAdapter = {
@@ -301,7 +301,7 @@ const externalPreview: MediaPreviewAdapter = {
 // Built-in viewer with typed props via satisfies
 const iframeAdapter: MediaPreviewAdapter = {
   name: 'iframe',
-  Component: '@seshuk/payload-media-preview/client#IframeViewer',
+  Component: '@seshuk/payload-plugin-media-preview/client#IframeViewer',
   resolve: ({ url }) => {
     if (!url) return null
     return {
@@ -340,10 +340,10 @@ The plugin exports four built-in viewer components that you can use in adapters 
 
 | Component      | Import Path                                         | Props Type          |
 | -------------- | --------------------------------------------------- | ------------------- |
-| `ImageViewer`  | `@seshuk/payload-media-preview/client#ImageViewer`  | `ImageViewerProps`  |
-| `VideoViewer`  | `@seshuk/payload-media-preview/client#VideoViewer`  | `VideoViewerProps`  |
-| `AudioViewer`  | `@seshuk/payload-media-preview/client#AudioViewer`  | `AudioViewerProps`  |
-| `IframeViewer` | `@seshuk/payload-media-preview/client#IframeViewer` | `IframeViewerProps` |
+| `ImageViewer`  | `@seshuk/payload-plugin-media-preview/client#ImageViewer`  | `ImageViewerProps`  |
+| `VideoViewer`  | `@seshuk/payload-plugin-media-preview/client#VideoViewer`  | `VideoViewerProps`  |
+| `AudioViewer`  | `@seshuk/payload-plugin-media-preview/client#AudioViewer`  | `AudioViewerProps`  |
+| `IframeViewer` | `@seshuk/payload-plugin-media-preview/client#IframeViewer` | `IframeViewerProps` |
 
 ### Adapter Props Reference
 
@@ -403,8 +403,8 @@ The plugin automatically injects the preview field into configured collections. 
 Use `field: false` in the collection config to register adapters without injecting the field. This lets you place the field manually while keeping all adapter and translation registration:
 
 ```ts
-import type { MediaPreviewAdapter } from '@seshuk/payload-media-preview'
-import { mediaPreview, mediaPreviewField } from '@seshuk/payload-media-preview'
+import type { MediaPreviewAdapter } from '@seshuk/payload-plugin-media-preview'
+import { mediaPreview, mediaPreviewField } from '@seshuk/payload-plugin-media-preview'
 
 const videoAdapter: MediaPreviewAdapter = {
   name: 'video-embed',
@@ -448,7 +448,7 @@ export default buildConfig({
 If you don't need per-collection adapters, you can omit the collection from the plugin config entirely and use global adapters:
 
 ```ts
-import { mediaPreview, mediaPreviewField } from '@seshuk/payload-media-preview'
+import { mediaPreview, mediaPreviewField } from '@seshuk/payload-plugin-media-preview'
 
 export default buildConfig({
   collections: [
@@ -470,7 +470,7 @@ The plugin must still be included to register viewer components and translations
 
 ## Internationalization
 
-The plugin includes translations for 44 locales. Translations are automatically merged into your Payload i18n configuration under the `@seshuk/payload-media-preview` namespace.
+The plugin includes translations for 44 locales. Translations are automatically merged into your Payload i18n configuration under the `@seshuk/payload-plugin-media-preview` namespace.
 
 Supported locales: `ar`, `az`, `bg`, `bn` (BD/IN), `ca`, `cs`, `da`, `de`, `en`, `es`, `et`, `fa`, `fr`, `he`, `hr`, `hu`, `hy`, `id`, `is`, `it`, `ja`, `ko`, `lt`, `lv`, `my`, `nb`, `nl`, `pl`, `pt`, `ro`, `rs` (Cyrillic/Latin), `ru`, `sk`, `sl`, `sv`, `ta`, `th`, `tr`, `uk`, `vi`, `zh`, `zhTw`.
 
@@ -480,9 +480,9 @@ The package provides three entry points:
 
 | Entry Point                            | Description                                        | Usage                     |
 | -------------------------------------- | -------------------------------------------------- | ------------------------- |
-| `@seshuk/payload-media-preview`        | Plugin function and all public types               | Server-side config        |
-| `@seshuk/payload-media-preview/client` | Client components (Field, Viewers)                 | `'use client'` components |
-| `@seshuk/payload-media-preview/rsc`    | Server components (MediaPreview, MediaPreviewCell) | React Server Components   |
+| `@seshuk/payload-plugin-media-preview`        | Plugin function and all public types               | Server-side config        |
+| `@seshuk/payload-plugin-media-preview/client` | Client components (Field, Viewers)                 | `'use client'` components |
+| `@seshuk/payload-plugin-media-preview/rsc`    | Server components (MediaPreview, MediaPreviewCell) | React Server Components   |
 
 ## TypeScript
 
@@ -509,7 +509,7 @@ import type {
   MediaPreviewPlugin,
   MediaPreviewPluginConfig,
   VideoViewerProps,
-} from '@seshuk/payload-media-preview'
+} from '@seshuk/payload-plugin-media-preview'
 ```
 
 ---

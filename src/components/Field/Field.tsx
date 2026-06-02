@@ -79,7 +79,7 @@ export const MediaPreviewFieldClient: React.FC<Props> = ({
           size="medium"
           url={href}
         >
-          {t('@seshuk/payload-media-preview:open')}
+          {t('@seshuk/payload-plugin-media-preview:open')}
         </Button>
       </div>
     ),
@@ -124,7 +124,7 @@ export const MediaPreviewFieldClient: React.FC<Props> = ({
           onClick={handleToggleModal}
           size="medium"
         >
-          {t('@seshuk/payload-media-preview:open')}
+          {t('@seshuk/payload-plugin-media-preview:open')}
         </Button>
       </div>
 

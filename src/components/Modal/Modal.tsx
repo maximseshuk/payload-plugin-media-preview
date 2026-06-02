@@ -250,12 +250,12 @@ export const MediaPreviewModal: React.FC<MediaPreviewModalProps> = ({
         }}
         title={
           isVideo
-            ? t('@seshuk/payload-media-preview:titleVideo')
+            ? t('@seshuk/payload-plugin-media-preview:titleVideo')
             : isImage
-              ? t('@seshuk/payload-media-preview:titleImage')
+              ? t('@seshuk/payload-plugin-media-preview:titleImage')
               : isAudio
-                ? t('@seshuk/payload-media-preview:titleAudio')
-                : t('@seshuk/payload-media-preview:titleDocument')
+                ? t('@seshuk/payload-plugin-media-preview:titleAudio')
+                : t('@seshuk/payload-plugin-media-preview:titleDocument')
         }
       />
     )
@@ -289,7 +289,7 @@ export const MediaPreviewModal: React.FC<MediaPreviewModalProps> = ({
       slug={modalSlug}
     >
       <div
-        aria-label={t('@seshuk/payload-media-preview:close')}
+        aria-label={t('@seshuk/payload-plugin-media-preview:close')}
         className="media-preview-modal__wrapper"
         onClick={handleBackdropClick}
         onKeyDown={handleBackdropClick}
@@ -298,7 +298,7 @@ export const MediaPreviewModal: React.FC<MediaPreviewModalProps> = ({
         tabIndex={-1}
       >
         <button
-          aria-label={t('@seshuk/payload-media-preview:close')}
+          aria-label={t('@seshuk/payload-plugin-media-preview:close')}
           className="drawer-close-button media-preview-modal__close"
           onClick={handleModalClose}
           type="button"

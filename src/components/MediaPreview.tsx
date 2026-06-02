@@ -52,8 +52,8 @@ export const MediaPreview: React.FC<MediaPreviewProps> = (props) => {
   const adapterNewTabUrl = adapterMatch?.result.mode === 'newTab' ? adapterMatch.result.url : undefined
 
   let fieldLabel: string | undefined
-  if (label === '@seshuk/payload-media-preview:label') {
-    fieldLabel = reqT('@seshuk/payload-media-preview:label')
+  if (label === '@seshuk/payload-plugin-media-preview:label') {
+    fieldLabel = reqT('@seshuk/payload-plugin-media-preview:label')
   } else if (label) {
     const translatedLabel = getTranslation(label, req.i18n)
     fieldLabel = translatedLabel && translatedLabel !== '' ? translatedLabel : undefined

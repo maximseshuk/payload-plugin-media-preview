@@ -1,8 +1,8 @@
-import type { MediaPreviewAdapter } from '@seshuk/payload-media-preview'
+import type { MediaPreviewAdapter } from '@seshuk/payload-plugin-media-preview'
 
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { en } from '@payloadcms/translations/languages/en'
-import { mediaPreview, mediaPreviewField } from '@seshuk/payload-media-preview'
+import { mediaPreview, mediaPreviewField } from '@seshuk/payload-plugin-media-preview'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -20,7 +20,7 @@ const devUser = {
 
 const testAdapter: MediaPreviewAdapter = {
   name: 'test-adapter',
-  Component: '@seshuk/payload-media-preview/client#IframeViewer',
+  Component: '@seshuk/payload-plugin-media-preview/client#IframeViewer',
   resolve: ({ doc }) => {
     const externalVideoId = doc.externalVideoId as string | undefined
     if (externalVideoId) {

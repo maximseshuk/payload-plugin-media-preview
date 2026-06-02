@@ -68,7 +68,7 @@ describe('mediaPreview plugin', () => {
     const media = result.collections!.find((c) => c.slug === 'media')
     expect(hasField(media!.fields, 'mediaPreview')).toBe(false)
 
-    const stored = result.custom?.['@seshuk/payload-media-preview']
+    const stored = result.custom?.['@seshuk/payload-plugin-media-preview']
     expect(stored?.adapters).toHaveLength(1)
     expect(stored?.adapters[0].name).toBe('test')
   })
@@ -85,8 +85,8 @@ describe('mediaPreview plugin', () => {
     const result = mediaPreview({ collections: { media: true } })(config)
     const en = result.i18n?.translations?.en as Record<string, Record<string, string>>
 
-    expect(en?.['@seshuk/payload-media-preview']?.open).toBe('Open')
-    expect(en?.['@seshuk/payload-media-preview']?.close).toBe('Close')
+    expect(en?.['@seshuk/payload-plugin-media-preview']?.open).toBe('Open')
+    expect(en?.['@seshuk/payload-plugin-media-preview']?.close).toBe('Close')
   })
 })
 
@@ -108,7 +108,7 @@ describe('adapters', () => {
     const a = adapter('test')
 
     const result = mediaPreview({ adapters: [a], collections: { media: true } })(config)
-    const stored = result.custom?.['@seshuk/payload-media-preview']
+    const stored = result.custom?.['@seshuk/payload-plugin-media-preview']
 
     expect(stored?.adapters).toHaveLength(1)
     expect(stored?.adapters[0].name).toBe('test')
@@ -124,7 +124,7 @@ describe('adapters', () => {
       collections: { media: { adapters: [local] } },
     })(config)
 
-    const names = result.custom?.['@seshuk/payload-media-preview']?.adapters.map((a: MediaPreviewAdapter) => a.name)
+    const names = result.custom?.['@seshuk/payload-plugin-media-preview']?.adapters.map((a: MediaPreviewAdapter) => a.name)
     expect(names).toContain('global')
     expect(names).toContain('local')
   })
@@ -205,8 +205,8 @@ describe('mediaPreviewField', () => {
     const fieldComp = field.admin?.components?.Field as { path: string }
     const cellComp = field.admin?.components?.Cell as { path: string }
 
-    expect(fieldComp?.path).toBe('@seshuk/payload-media-preview/rsc#MediaPreview')
-    expect(cellComp?.path).toBe('@seshuk/payload-media-preview/rsc#MediaPreviewCell')
+    expect(fieldComp?.path).toBe('@seshuk/payload-plugin-media-preview/rsc#MediaPreview')
+    expect(cellComp?.path).toBe('@seshuk/payload-plugin-media-preview/rsc#MediaPreviewCell')
   })
 
   it('passes mode and contentMode as clientProps', () => {
