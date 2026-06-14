@@ -124,7 +124,9 @@ describe('adapters', () => {
       collections: { media: { adapters: [local] } },
     })(config)
 
-    const names = result.custom?.['@seshuk/payload-plugin-media-preview']?.adapters.map((a: MediaPreviewAdapter) => a.name)
+    const names = result.custom?.['@seshuk/payload-plugin-media-preview']?.adapters.map(
+      (a: MediaPreviewAdapter) => a.name,
+    )
     expect(names).toContain('global')
     expect(names).toContain('local')
   })

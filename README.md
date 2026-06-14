@@ -338,8 +338,8 @@ mediaPreview({
 
 The plugin exports four built-in viewer components that you can use in adapters with `inline` mode:
 
-| Component      | Import Path                                         | Props Type          |
-| -------------- | --------------------------------------------------- | ------------------- |
+| Component      | Import Path                                                | Props Type          |
+| -------------- | ---------------------------------------------------------- | ------------------- |
 | `ImageViewer`  | `@seshuk/payload-plugin-media-preview/client#ImageViewer`  | `ImageViewerProps`  |
 | `VideoViewer`  | `@seshuk/payload-plugin-media-preview/client#VideoViewer`  | `VideoViewerProps`  |
 | `AudioViewer`  | `@seshuk/payload-plugin-media-preview/client#AudioViewer`  | `AudioViewerProps`  |
@@ -478,8 +478,8 @@ Supported locales: `ar`, `az`, `bg`, `bn` (BD/IN), `ca`, `cs`, `da`, `de`, `en`,
 
 The package provides three entry points:
 
-| Entry Point                            | Description                                        | Usage                     |
-| -------------------------------------- | -------------------------------------------------- | ------------------------- |
+| Entry Point                                   | Description                                        | Usage                     |
+| --------------------------------------------- | -------------------------------------------------- | ------------------------- |
 | `@seshuk/payload-plugin-media-preview`        | Plugin function and all public types               | Server-side config        |
 | `@seshuk/payload-plugin-media-preview/client` | Client components (Field, Viewers)                 | `'use client'` components |
 | `@seshuk/payload-plugin-media-preview/rsc`    | Server components (MediaPreview, MediaPreviewCell) | React Server Components   |

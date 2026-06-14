@@ -9,8 +9,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm test:e2e` — run E2E tests (Playwright, starts dev server automatically)
 - `pnpm test:e2e:ui` — run E2E tests with Playwright UI
 - `pnpm typecheck` — TypeScript check (`tsc --noEmit`)
-- `pnpm lint` — ESLint
-- `pnpm build` — clean + copyfiles + tsc types + SWC compile
+- `pnpm lint` — oxlint
+- `pnpm build` — rslib build
+- `pnpm release:patch` / `release:minor` / `release:major` — bump version, create git tag (push tag to publish)
 - `pnpm dev` — Next.js dev server using `tests/payload.config.ts` as test app (port 3000)
 - `pnpm dev:generate-importmap` — regenerate import map after adding/changing components
 - After adding/changing custom viewer components in tests, run `pnpm dev:generate-importmap` before running E2E tests
@@ -59,7 +60,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - All internal imports MUST use `.js` extension (ESM requirement)
 - SCSS for component styles (BEM-like, co-located with components)
 - i18n namespace: `@seshuk/payload-plugin-media-preview`
-- Build: SWC for JS output, tsc for declarations only (`tsconfig.build.json`)
+- Build: rslib (bundleless ESM + dts, SCSS copied to dist)
 
 ## Testing
 
