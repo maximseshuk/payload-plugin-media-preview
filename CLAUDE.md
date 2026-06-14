@@ -65,7 +65,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Testing
 
 - **Unit tests** (vitest): Pure tests with `globals: true` — no DB, no server, mock configs inline. 30s timeout.
-- **E2E tests** (Playwright): Run against the test app in `tests/`. Uses MongoDB Memory Server in-memory DB. `CLEAN_DB=1` env var triggers database drop on init. Test fixtures in `tests/fixtures/`. Dev server auto-starts via Playwright config.
+- **E2E tests** (Playwright): Run against the test app in `tests/`. Uses SQLite in-memory DB (`@payloadcms/db-sqlite` with `:memory:`), enabled via `USE_MEMORY_DB=1`. Test fixtures in `tests/fixtures/`. Dev server auto-starts via Playwright config.
 - E2E tests run serially (`fullyParallel: false`). Tests use `afterEach` with DELETE API calls to clean up uploads between tests.
 - Test app login: `dev@example.com` / `test`
 - Test collections: `media-default` (basic), `media-fullscreen`, `media-newtab` (video/document in new tab), `media-position` (field after 'alt'), `media-adapter` (IframeViewer via adapter), `media-adapter-newtab` (newTab adapter), `media-custom` (custom component via adapter)

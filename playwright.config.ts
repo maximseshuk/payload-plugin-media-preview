@@ -20,7 +20,7 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   webServer: {
-    command: 'CLEAN_DB=1 USE_MEMORY_DB=1 PORT=47391 pnpm dev',
+    command: 'USE_MEMORY_DB=1 PORT=47391 pnpm dev',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
     url: 'http://localhost:47391/admin',

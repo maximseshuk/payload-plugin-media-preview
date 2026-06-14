@@ -1,9 +1,8 @@
 import type { MediaPreviewAdapter } from '@seshuk/payload-plugin-media-preview'
 
-import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { sqliteAdapter } from '@payloadcms/db-sqlite'
 import { en } from '@payloadcms/translations/languages/en'
 import { mediaPreview, mediaPreviewField } from '@seshuk/payload-plugin-media-preview'
-import { MongoMemoryServer } from 'mongodb-memory-server'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildConfig } from 'payload'
@@ -72,10 +71,7 @@ const createUploadCollection = (slug: string, extraFields: any[] = []) => ({
 })
 
 const buildConfigAsync = async () => {
-  if (process.env.NODE_ENV === 'test' || process.env.USE_MEMORY_DB === '1') {
-    const memoryDB = await MongoMemoryServer.create()
-    process.env.DATABASE_URL = memoryDB.getUri()
-  }
+  const useMemory = process.env.NODE_ENV === 'test' || process.env.USE_MEMORY_DB === '1'
 
   return buildConfig({
     admin: {
@@ -117,8 +113,10 @@ const buildConfigAsync = async () => {
         },
       },
     ],
-    db: mongooseAdapter({
-      url: process.env.DATABASE_URL || 'mongodb://127.0.0.1/payload-media-preview',
+    db: sqliteAdapter({
+      client: {
+        url: useMemory ? ':memory:' : process.env.DATABASE_URI || `file:${path.resolve(dirname, 'payload.db')}`,
+      },
     }),
     i18n: {
       supportedLanguages: {
@@ -127,10 +125,6 @@ const buildConfigAsync = async () => {
       },
     },
     onInit: async (payload) => {
-      if (process.env.CLEAN_DB) {
-        await payload.db.connection.dropDatabase()
-      }
-
       const existingUser = await payload.find({
         collection: 'users',
         where: { email: { equals: devUser.email } },

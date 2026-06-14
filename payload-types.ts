@@ -98,7 +98,7 @@ export interface Config {
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: string;
+    defaultIDType: number;
   };
   fallbackLocale: null;
   globals: {};
@@ -136,7 +136,7 @@ export interface UserAuthOperations {
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
+  id: number;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -161,7 +161,7 @@ export interface User {
  * via the `definition` "media-default".
  */
 export interface MediaDefault {
-  id: string;
+  id: number;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -179,7 +179,7 @@ export interface MediaDefault {
  * via the `definition` "media-fullscreen".
  */
 export interface MediaFullscreen {
-  id: string;
+  id: number;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -197,7 +197,7 @@ export interface MediaFullscreen {
  * via the `definition` "media-newtab".
  */
 export interface MediaNewtab {
-  id: string;
+  id: number;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -215,7 +215,7 @@ export interface MediaNewtab {
  * via the `definition` "media-position".
  */
 export interface MediaPosition {
-  id: string;
+  id: number;
   alt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -234,7 +234,7 @@ export interface MediaPosition {
  * via the `definition` "media-adapter".
  */
 export interface MediaAdapter {
-  id: string;
+  id: number;
   externalVideoId?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -253,7 +253,7 @@ export interface MediaAdapter {
  * via the `definition` "media-adapter-newtab".
  */
 export interface MediaAdapterNewtab {
-  id: string;
+  id: number;
   externalUrl?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -272,7 +272,7 @@ export interface MediaAdapterNewtab {
  * via the `definition` "media-custom".
  */
 export interface MediaCustom {
-  id: string;
+  id: number;
   provider?: string | null;
   embedId?: string | null;
   updatedAt: string;
@@ -292,7 +292,7 @@ export interface MediaCustom {
  * via the `definition` "media-standalone".
  */
 export interface MediaStandalone {
-  id: string;
+  id: number;
   externalVideoId?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -311,7 +311,7 @@ export interface MediaStandalone {
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: string;
+  id: number;
   key: string;
   data:
     | {
@@ -328,48 +328,48 @@ export interface PayloadKv {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string;
+  id: number;
   document?:
     | ({
         relationTo: 'users';
-        value: string | User;
+        value: number | User;
       } | null)
     | ({
         relationTo: 'media-default';
-        value: string | MediaDefault;
+        value: number | MediaDefault;
       } | null)
     | ({
         relationTo: 'media-fullscreen';
-        value: string | MediaFullscreen;
+        value: number | MediaFullscreen;
       } | null)
     | ({
         relationTo: 'media-newtab';
-        value: string | MediaNewtab;
+        value: number | MediaNewtab;
       } | null)
     | ({
         relationTo: 'media-position';
-        value: string | MediaPosition;
+        value: number | MediaPosition;
       } | null)
     | ({
         relationTo: 'media-adapter';
-        value: string | MediaAdapter;
+        value: number | MediaAdapter;
       } | null)
     | ({
         relationTo: 'media-adapter-newtab';
-        value: string | MediaAdapterNewtab;
+        value: number | MediaAdapterNewtab;
       } | null)
     | ({
         relationTo: 'media-custom';
-        value: string | MediaCustom;
+        value: number | MediaCustom;
       } | null)
     | ({
         relationTo: 'media-standalone';
-        value: string | MediaStandalone;
+        value: number | MediaStandalone;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -379,10 +379,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: number;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   key?: string | null;
   value?:
@@ -402,7 +402,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
+  id: number;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;

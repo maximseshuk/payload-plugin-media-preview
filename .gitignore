@@ -10,3 +10,7 @@ tests/playwright/
 
 # Test uploads
 tests/uploads/
+
+# SQLite test database
+tests/payload.db
+tests/payload.db-*
