@@ -305,6 +305,7 @@ export const MediaPreviewModal: React.FC<MediaPreviewModalProps> = ({
         >
           <XIcon />
         </button>
+        {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- inside Payload Modal, native dialog behavior is unwanted */}
         <div className="media-preview-modal__content" role="dialog" tabIndex={-1}>
           <div className="media-preview-modal__body">{viewerContent}</div>
         </div>
