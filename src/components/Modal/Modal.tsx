@@ -9,7 +9,7 @@ import { createPortal } from 'react-dom'
 
 import { MediaPreviewViewer } from '../Viewer/Viewer.js'
 import { AUDIO_DIMENSIONS, POPUP_DIMENSIONS, SPACING } from './Modal.constants.js'
-import './Modal.scss'
+import './Modal.css'
 
 type MediaPreviewModalProps = {
   customViewer?: React.ReactNode
@@ -293,19 +293,19 @@ export const MediaPreviewModal: React.FC<MediaPreviewModalProps> = ({
         className="media-preview-modal__wrapper"
         onClick={handleBackdropClick}
         onKeyDown={handleBackdropClick}
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- backdrop wrapper, not a real button
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
         role="button"
         tabIndex={-1}
       >
         <button
           aria-label={t('@seshuk/payload-plugin-media-preview:close')}
-          className="drawer-close-button media-preview-modal__close"
+          className="media-preview-modal__close"
           onClick={handleModalClose}
           type="button"
         >
           <XIcon />
         </button>
-        {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- inside Payload Modal, native dialog behavior is unwanted */}
+        {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role */}
         <div className="media-preview-modal__content" role="dialog" tabIndex={-1}>
           <div className="media-preview-modal__body">{viewerContent}</div>
         </div>

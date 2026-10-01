@@ -41,8 +41,8 @@
 
 ## Requirements
 
-- Payload `^3.53.0`
-- Node.js `^18.20.2 || >=20.9.0`
+- Payload `4.0.0-canary.37`
+- Node.js `>=24.15.0`
 
 ## Installation
 
@@ -467,6 +467,8 @@ export default buildConfig({
 ```
 
 The plugin must still be included to register viewer components and translations. Pass `adapterNames` to `mediaPreviewField()` to use adapters — those adapters must be registered via the plugin's `adapters` (global) or collection `adapters` config.
+
+The list view only loads the fields of its visible columns. For collections listed in the plugin config, the plugin loads the whole document when the preview column is visible, so the cell has the file data and every field your adapters read. Unlisted collections don't get this, so their preview cell can show `—`. List them with `field: false` to keep it working.
 
 ## Internationalization
 

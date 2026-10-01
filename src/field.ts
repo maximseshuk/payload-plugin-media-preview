@@ -22,7 +22,7 @@ export const mediaPreviewField = (props?: MediaPreviewFieldOptions): UIField => 
   const { adapterNames, contentMode, mode = 'auto', overrides } = props || {}
 
   return {
-    // @ts-expect-error - Payload supports label as a function but types are incorrect
+    // @ts-expect-error
     label: ({ t }) => t('@seshuk/payload-plugin-media-preview:label'),
     ...overrides,
     name: 'mediaPreview',

@@ -47,9 +47,9 @@ export const canPreviewDocument = (mimeType: string, fileSize?: number): boolean
 }
 
 export const getMicrosoftViewerUrl = (fileUrl: string): string => {
-  return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(formatAbsoluteURL(fileUrl))}`
+  return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(formatAbsoluteURL(fileUrl) ?? fileUrl)}`
 }
 
 export const getGoogleViewerUrl = (fileUrl: string): string => {
-  return `https://docs.google.com/viewer?url=${encodeURIComponent(formatAbsoluteURL(fileUrl))}&embedded=true`
+  return `https://docs.google.com/viewer?url=${encodeURIComponent(formatAbsoluteURL(fileUrl) ?? fileUrl)}&embedded=true`
 }

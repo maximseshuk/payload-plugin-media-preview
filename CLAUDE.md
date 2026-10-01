@@ -58,9 +58,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - Path alias: `@/*` maps to `./src/*`
 - All internal imports MUST use `.js` extension (ESM requirement)
-- SCSS for component styles (BEM-like, co-located with components)
+- Plain CSS for component styles (BEM-like, co-located with components; Payload 4 `--color-*`, `--spacer-*`, `--radius-*` tokens)
 - i18n namespace: `@seshuk/payload-plugin-media-preview`
-- Build: rslib (bundleless ESM + dts, SCSS copied to dist)
+- Build: rslib (bundleless ESM + dts, CSS copied to dist)
 
 ## Testing
 

@@ -1,6 +1,6 @@
 {
   "name": "@seshuk/payload-plugin-media-preview",
-  "version": "1.1.1",
+  "version": "2.0.0-beta.1",
   "description": "Payload plugin for previewing images, videos, audio, and documents in the admin panel",
   "license": "MIT",
   "author": "Maxim Seshuk",
@@ -75,10 +75,10 @@
   },
   "devDependencies": {
     "@next/env": "^16.2.9",
-    "@payloadcms/db-sqlite": "^3.85.1",
-    "@payloadcms/next": "^3.85.1",
-    "@payloadcms/translations": "^3.85.1",
-    "@payloadcms/ui": "^3.85.1",
+    "@payloadcms/db-sqlite": "4.0.0-canary.37",
+    "@payloadcms/next": "4.0.0-canary.37",
+    "@payloadcms/translations": "4.0.0-canary.37",
+    "@payloadcms/ui": "4.0.0-canary.37",
     "@playwright/test": "^1.60.0",
     "@rsbuild/plugin-react": "^2.0.1",
     "@rslib/core": "^0.22.1",
@@ -89,7 +89,7 @@
     "next": "16.2.9",
     "oxfmt": "^0.54.0",
     "oxlint": "^1.69.0",
-    "payload": "^3.85.1",
+    "payload": "4.0.0-canary.37",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "sharp": "0.35.1",
@@ -98,9 +98,9 @@
     "vitest": "^4.1.8"
   },
   "peerDependencies": {
-    "@payloadcms/translations": "^3.53.0",
-    "@payloadcms/ui": "^3.53.0",
-    "payload": "^3.53.0"
+    "@payloadcms/translations": "4.0.0-canary.37",
+    "@payloadcms/ui": "4.0.0-canary.37",
+    "payload": "4.0.0-canary.37"
   },
   "devEngines": {
     "packageManager": {
@@ -110,11 +110,11 @@
     },
     "runtime": {
       "name": "node",
-      "version": "^20.19.0 || >=22.18.0",
+      "version": ">=24.15.0",
       "onFail": "error"
     }
   },
   "engines": {
-    "node": "^18.20.2 || >=20.9.0"
+    "node": ">=24.15.0"
   }
 }

@@ -127,11 +127,12 @@ const buildConfigAsync = async () => {
     onInit: async (payload) => {
       const existingUser = await payload.find({
         collection: 'users',
+        overrideAccess: true,
         where: { email: { equals: devUser.email } },
       })
 
       if (existingUser.docs.length === 0) {
-        await payload.create({ collection: 'users', data: devUser })
+        await payload.create({ collection: 'users', data: devUser, overrideAccess: true })
       }
     },
     plugins: [

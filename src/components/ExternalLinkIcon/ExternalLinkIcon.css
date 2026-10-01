@@ -1,8 +1,6 @@
-@import '~@payloadcms/ui/scss';
-
 .icon--external-link {
-  height: $baseline;
-  width: $baseline;
+  height: var(--spacer-4);
+  width: var(--spacer-4);
   shape-rendering: auto;
   vector-effect: non-scaling-stroke;
   transform: scale(0.9);

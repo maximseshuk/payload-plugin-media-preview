@@ -4,12 +4,12 @@ export const GOOGLE_VIEWER_MAX_SIZE = 25 * 1024 * 1024
 export const MICROSOFT_VIEWER_MAX_SIZE = 10 * 1024 * 1024
 
 export const MICROSOFT_OFFICE_TYPES = [
-  'application/msword', // .doc
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
-  'application/vnd.ms-excel', // .xls
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
-  'application/vnd.ms-powerpoint', // .ppt
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 ]
 
 export const GOOGLE_VIEWER_TYPES = [
@@ -22,10 +22,10 @@ export const GOOGLE_VIEWER_TYPES = [
   'application/x-javascript',
   'text/x-c',
   'text/x-c++',
-  'application/vnd.apple.pages', // .pages
-  'application/postscript', // .ai, .eps, .ps
-  'image/vnd.adobe.photoshop', // .psd
-  'image/vnd.dxf', // .dxf
-  'application/dxf', // .dxf
-  'application/vnd.ms-xpsdocument', // .xps
+  'application/vnd.apple.pages',
+  'application/postscript',
+  'image/vnd.adobe.photoshop',
+  'image/vnd.dxf',
+  'application/dxf',
+  'application/vnd.ms-xpsdocument',
 ]

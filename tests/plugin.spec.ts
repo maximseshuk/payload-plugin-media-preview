@@ -1,13 +1,11 @@
-import type { Config } from 'payload'
+import type { Config, PayloadRequest, SelectType } from 'payload'
 
 import { describe, expect, it } from 'vitest'
 
-import type { MediaPreviewAdapter } from '../src/types.js'
+import type { MediaPreviewAdapter, MediaPreviewPluginConfig } from '../src/types.js'
 
 import { mediaPreviewField } from '../src/field.js'
 import { mediaPreview } from '../src/index.js'
-
-// Helpers
 
 type Collections = NonNullable<Config['collections']>
 type Fields = Collections[number]['fields']
@@ -32,8 +30,6 @@ const adapter = (name: string, field?: string): MediaPreviewAdapter => ({
   Component: `test-package/client#${name}`,
   resolve: ({ doc }) => (field && doc[field] ? { mode: 'inline', props: { [field]: doc[field] } } : null),
 })
-
-// Plugin
 
 describe('mediaPreview plugin', () => {
   it('injects field only into configured upload collections', () => {
@@ -89,8 +85,6 @@ describe('mediaPreview plugin', () => {
     expect(en?.['@seshuk/payload-plugin-media-preview']?.close).toBe('Close')
   })
 })
-
-// Adapters
 
 describe('adapters', () => {
   it('registers Component in admin.dependencies', () => {
@@ -161,7 +155,35 @@ describe('adapters', () => {
   })
 })
 
-// Field position
+describe('select', () => {
+  const selectFn = (collection: Collections[number], collections: MediaPreviewPluginConfig['collections']) => {
+    const result = mediaPreview({ collections })(baseConfig([collection]))
+    return result.collections!.find((c) => c.slug === collection.slug)!.select!
+  }
+  const args = (select?: SelectType) => ({ operation: 'read' as const, req: {} as PayloadRequest, select })
+
+  it('loads the whole document when the preview column is selected', () => {
+    const select = selectFn(uploadCollection('media'), { media: true })
+
+    expect(select(args({ id: true, mediaPreview: true }))).toEqual({ mediaPreview: false })
+    expect(select(args({ group: { mediaPreview: true } }))).toEqual({ mediaPreview: false })
+  })
+
+  it('keeps other selects unchanged', () => {
+    const select = selectFn(uploadCollection('media'), { media: { field: false } })
+
+    expect(select(args())).toBeUndefined()
+    expect(select(args({ id: true, filename: true }))).toEqual({ id: true, filename: true })
+    expect(select(args({ mediaPreview: false }))).toEqual({ mediaPreview: false })
+  })
+
+  it('applies on top of the collection select function', () => {
+    const collection = { ...uploadCollection('media'), select: () => ({ mediaPreview: true }) } as Collections[number]
+    const select = selectFn(collection, { media: true })
+
+    expect(select(args({ id: true }))).toEqual({ mediaPreview: false })
+  })
+})
 
 describe('field position', () => {
   const getName = (field?: Fields[number]) => (field && 'name' in field ? field.name : undefined)
@@ -194,8 +216,6 @@ describe('field position', () => {
     expect(getName(fields[0])).toBe('mediaPreview')
   })
 })
-
-// Field definition
 
 describe('mediaPreviewField', () => {
   it('creates UI field with correct name, type and component paths', () => {

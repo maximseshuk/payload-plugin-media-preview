@@ -1,0 +1,39 @@
+td.cell-mediaPreview {
+  position: static !important;
+  z-index: auto !important;
+
+  &:has(.media-preview-cell) {
+    vertical-align: middle !important;
+  }
+}
+
+.media-preview-cell__button-wrapper {
+  all: unset;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.media-preview-cell__pill {
+  color: var(--color-text);
+  box-shadow: 0 0 0 var(--stroke-width-small) var(--color-border);
+  cursor: pointer;
+  gap: var(--spacer-1-5) !important;
+  padding-inline: var(--spacer-2) !important;
+  background-color: transparent;
+  transition: background-color 0.15s ease;
+
+  &:hover,
+  &.media-preview-cell__pill--active {
+    background-color: var(--color-bg-hover);
+  }
+}
+
+.media-preview-cell__icon {
+  width: var(--spacer-3);
+  height: var(--spacer-3);
+  flex-shrink: 0;
+
+  .stroke {
+    stroke-width: 1;
+  }
+}

@@ -18,8 +18,6 @@ const ALL_COLLECTIONS = [
   'media-standalone',
 ]
 
-// Helpers
-
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const uploadFile = async (
@@ -71,8 +69,6 @@ const openCellPreview = async (page: Page, collection: string, rowText?: string)
   return popup
 }
 
-// Tests
-
 test.describe('Media Preview Plugin', () => {
   test.describe.configure({ mode: 'serial' })
 
@@ -81,8 +77,6 @@ test.describe('Media Preview Plugin', () => {
       ALL_COLLECTIONS.map((slug) => fetch(`${BASE_URL}/api/${slug}?where[id][exists]=true`, { method: 'DELETE' })),
     )
   })
-
-  // Image
 
   test('image: shows preview button after upload', async ({ page }) => {
     await uploadFile(page, 'media-default')
@@ -130,8 +124,6 @@ test.describe('Media Preview Plugin', () => {
     await expect(popup).not.toBeAttached({ timeout: 10000 })
   })
 
-  // Video
-
   test('video: shows player in modal', async ({ page }) => {
     await uploadFile(page, 'media-default', { fixture: 'test-video.mp4' })
     const modal = await openFieldPreview(page)
@@ -143,8 +135,6 @@ test.describe('Media Preview Plugin', () => {
     const popup = await openCellPreview(page, 'media-default', '.mp4')
     await expect(popup.locator('video')).toBeAttached()
   })
-
-  // Audio
 
   test('audio: shows player in modal', async ({ page }) => {
     await uploadFile(page, 'media-default', { fixture: 'test-audio.mp3' })
@@ -158,8 +148,6 @@ test.describe('Media Preview Plugin', () => {
     await expect(popup.locator('audio')).toBeAttached()
   })
 
-  // Document
-
   test('document: shows iframe in modal', async ({ page }) => {
     await uploadFile(page, 'media-default', { fixture: 'test-document.pdf' })
     const modal = await openFieldPreview(page)
@@ -172,8 +160,6 @@ test.describe('Media Preview Plugin', () => {
     await expect(popup.locator('iframe')).toBeAttached()
   })
 
-  // Modes
-
   test('fullscreen mode when configured', async ({ page }) => {
     await uploadFile(page, 'media-fullscreen')
     await openFieldPreview(page)
@@ -184,14 +170,10 @@ test.describe('Media Preview Plugin', () => {
     await expect(page.locator('.media-preview__button-wrapper a[target="_blank"]')).toBeVisible()
   })
 
-  // Field position
-
   test('position: shows preview after alt field', async ({ page }) => {
     await uploadFile(page, 'media-position', { extraFields: { alt: 'test alt' } })
     await expect(page.locator('.media-preview__button-wrapper button')).toBeVisible()
   })
-
-  // Built-in adapter (IframeViewer)
 
   test('adapter: renders iframe when externalVideoId is set', async ({ page }) => {
     await uploadFile(page, 'media-adapter', { extraFields: { externalVideoId: 'abc123' } })
@@ -206,8 +188,6 @@ test.describe('Media Preview Plugin', () => {
     const modal = await openFieldPreview(page)
     await expect(modal.locator('img')).toBeVisible()
   })
-
-  // Custom adapter
 
   test('custom adapter: renders in field modal', async ({ page }) => {
     await uploadFile(page, 'media-custom', { extraFields: { embedId: 'dQw4w9WgXcQ', provider: 'youtube' } })
@@ -237,8 +217,6 @@ test.describe('Media Preview Plugin', () => {
     await expect(modal.locator('img')).toBeVisible()
   })
 
-  // Adapter newTab
-
   test('adapter newTab: renders link button in field when externalUrl is set', async ({ page }) => {
     await uploadFile(page, 'media-adapter-newtab', { extraFields: { externalUrl: 'https://example.com/preview' } })
     const link = page.locator('.media-preview__button-wrapper a[target="_blank"]')
@@ -251,8 +229,6 @@ test.describe('Media Preview Plugin', () => {
     const modal = await openFieldPreview(page)
     await expect(modal.locator('img')).toBeVisible()
   })
-
-  // Standalone field (field: false)
 
   test('standalone: shows preview button with manually inserted field', async ({ page }) => {
     await uploadFile(page, 'media-standalone')

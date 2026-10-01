@@ -1,7 +1,5 @@
 import type { Plugin, UIField, UploadCollectionSlug } from 'payload'
 
-// Viewer component props
-
 export type VideoViewerProps = {
   autoPlay?: boolean
   className?: string
@@ -41,8 +39,6 @@ export type IframeViewerProps = {
   title?: string
 }
 
-// Adapter
-
 export type MediaPreviewAdapterResolveArgs = {
   doc: Record<string, unknown>
   mimeType?: string
@@ -81,11 +77,7 @@ export type MediaPreviewAdapter = {
   resolve: (args: MediaPreviewAdapterResolveArgs) => MediaPreviewAdapterResolveResult | null
 }
 
-// Field position
-
 export type InsertPosition = 'first' | 'last' | { after: string; before?: never } | { after?: never; before: string }
-
-// Content mode
 
 export type MediaPreviewContentType = 'audio' | 'document' | 'image' | 'video'
 export type MediaPreviewContentModeType = 'inline' | 'newTab'
@@ -102,8 +94,6 @@ export type MediaPreviewMode = 'auto' | 'fullscreen'
  * @default 'inline' for all content types
  */
 export type MediaPreviewContentMode = Record<MediaPreviewContentType, MediaPreviewContentModeType>
-
-// Collection config
 
 export type MediaPreviewFieldConfig = {
   /** Payload UI field overrides (`name` and `type` cannot be changed). */
@@ -134,8 +124,6 @@ export type MediaPreviewCollectionConfig = {
   mode?: MediaPreviewMode
 }
 
-// Plugin config
-
 export type MediaPreviewPluginConfig = {
   /** Adapters available to all collections. */
   adapters?: MediaPreviewAdapter[]
@@ -146,8 +134,6 @@ export type MediaPreviewPluginConfig = {
 }
 
 export type MediaPreviewPlugin = (pluginConfig: MediaPreviewPluginConfig) => Plugin
-
-// Internal props
 
 export type MediaPreviewFieldProps = {
   adapterNames?: string[]

@@ -10,7 +10,7 @@ export default defineConfig({
   source: {
     tsconfigPath: './tsconfig.build.json',
     entry: {
-      index: ['./src/**/*.{ts,tsx}', '!src/**/*.scss'],
+      index: ['./src/**/*.{ts,tsx}', '!src/**/*.css'],
     },
   },
   lib: [
@@ -27,7 +27,7 @@ export default defineConfig({
   ],
   output: {
     target: 'web',
-    copy: [{ from: '**/*.scss', context: path.join(__dirname, 'src') }],
+    copy: [{ from: '**/*.css', context: path.join(__dirname, 'src') }],
   },
   plugins: [pluginReact()],
 })

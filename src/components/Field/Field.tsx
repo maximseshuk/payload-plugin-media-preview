@@ -16,7 +16,7 @@ import {
   getPreviewType,
 } from '../MediaPreview.utils.js'
 import { MediaPreviewModal } from '../Modal/Modal.js'
-import './Field.scss'
+import './Field.css'
 
 type Props = {
   adapterNewTabUrl?: string
@@ -119,7 +119,7 @@ export const MediaPreviewFieldClient: React.FC<Props> = ({
       <div className="media-preview__button-wrapper">
         <Button
           buttonStyle="secondary"
-          icon={<EyeIcon active={false} />}
+          icon={<EyeIcon active={false} size={24} />}
           iconPosition="left"
           onClick={handleToggleModal}
           size="medium"

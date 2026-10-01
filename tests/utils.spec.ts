@@ -12,8 +12,6 @@ import {
 } from '../src/components/MediaPreview.utils.js'
 import { insertField } from '../src/utils/insertField.js'
 
-// Preview type detection
-
 describe('getPreviewType', () => {
   it.each([
     ['video/mp4', 'video'],
@@ -40,8 +38,6 @@ describe('getPreviewType', () => {
     expect(getPreviewType(mime)).toBe('unsupported')
   })
 })
-
-// Document preview
 
 describe('canPreviewDocument', () => {
   it('allows undefined or within Google limit', () => {
@@ -76,8 +72,6 @@ describe('getDocumentViewerType', () => {
   })
 })
 
-// Viewer URLs
-
 describe('viewer URLs', () => {
   it('getGoogleViewerUrl', () => {
     expect(getGoogleViewerUrl('https://example.com/doc.pdf')).toBe(
@@ -91,8 +85,6 @@ describe('viewer URLs', () => {
     )
   })
 })
-
-// insertField
 
 describe('insertField', () => {
   const field: Field = { name: 'test', type: 'text' }

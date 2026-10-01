@@ -5,7 +5,7 @@ import React from 'react'
 
 import { resolveAdapter, resolveAdapterViewer } from '../adapterResolver.js'
 import { MediaPreviewCellClient } from './Cell.client.js'
-import './Cell.scss'
+import './Cell.css'
 
 type Props = {
   adapterNames?: string[]

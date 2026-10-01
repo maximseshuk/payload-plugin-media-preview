@@ -1,5 +1,5 @@
 import type { AcceptedLanguages } from '@payloadcms/translations'
-import type { AdminDependencies, Config } from 'payload'
+import type { AdminDependencies, CollectionConfig, Config, SelectFn, SelectType } from 'payload'
 
 import type { PluginDefaultTranslationsObject } from './translations/types.js'
 import type { MediaPreviewAdapter, MediaPreviewCollectionConfig, MediaPreviewPluginConfig } from './types.js'
@@ -30,6 +30,18 @@ export type {
   MediaPreviewPluginConfig,
   VideoViewerProps,
 } from './types.js'
+
+const selectsPreview = (select: SelectType): boolean =>
+  Object.entries(select).some(([key, value]) =>
+    key === 'mediaPreview' ? value === true : typeof value === 'object' && selectsPreview(value),
+  )
+
+const withPreviewSelect =
+  (select: CollectionConfig['select']): SelectFn =>
+  (args) => {
+    const resolved = select?.(args) ?? args.select
+    return resolved && selectsPreview(resolved) ? { mediaPreview: false } : resolved
+  }
 
 export const mediaPreview =
   (pluginConfig: MediaPreviewPluginConfig) =>
@@ -85,9 +97,10 @@ export const mediaPreview =
         }
 
         const resolved: MediaPreviewCollectionConfig = collConfig === true ? {} : collConfig
+        const select = withPreviewSelect(collection.select)
 
         if (resolved.field === false) {
-          return collection
+          return Object.assign({}, collection, { select })
         }
 
         const fieldConfig = typeof resolved.field === 'object' ? resolved.field : {}
@@ -106,7 +119,7 @@ export const mediaPreview =
           }),
         )
 
-        return Object.assign({}, collection, { fields })
+        return Object.assign({}, collection, { fields, select })
       }),
       custom: {
         ...incomingConfig.custom,

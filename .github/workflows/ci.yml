@@ -22,7 +22,7 @@ jobs:
           version: 11
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
       - run: pnpm install
       - run: pnpm lint
@@ -40,7 +40,7 @@ jobs:
           version: 11
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
       - run: pnpm install
       - run: pnpm exec playwright install --with-deps chromium
