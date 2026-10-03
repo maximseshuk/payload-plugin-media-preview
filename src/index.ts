@@ -1,19 +1,23 @@
 import type { AcceptedLanguages } from '@payloadcms/translations'
 import type { AdminDependencies, CollectionConfig, Config, SelectFn, SelectType } from 'payload'
 
-import type { CollectionSettings, PluginData } from './settings.js'
-import type { PluginDefaultTranslationsObject } from './translations/types.js'
-import type { MediaPreviewAdapter, MediaPreviewCollectionConfig, MediaPreviewPluginConfig } from './types.js'
+import { endpoints } from '@/server/endpoints.js'
+import { mediaPreviewField } from '@/server/field.js'
+import { buildFilePreviewMap, mergeFilePreview } from '@/server/filePreviewMap.js'
+import { insertField } from '@/server/insertField.js'
+import type { CollectionSettings, PluginData } from '@/server/settings.js'
+import { resolveExternalViewer } from '@/server/settings.js'
+import { PLUGIN_KEY } from '@/shared/constants.js'
+import { translations } from '@/shared/translations/index.js'
+import type { PluginDefaultTranslationsObject } from '@/shared/translations/types.js'
+import type {
+  MediaPreviewAdapter,
+  MediaPreviewCollectionConfig,
+  MediaPreviewPluginConfig,
+} from '@/shared/types/index.js'
 
-import { endpoints } from './endpoints.js'
-import { mediaPreviewField } from './field.js'
-import { PLUGIN_KEY, resolveExternalViewer } from './settings.js'
-import { translations } from './translations/index.js'
-import { buildFilePreviewMap, mergeFilePreview } from './utils/filePreviewMap.js'
-import { insertField } from './utils/insertField.js'
-
-export { mediaPreviewField } from './field.js'
-export type { MediaPreviewFieldOptions } from './field.js'
+export { mediaPreviewField } from '@/server/field.js'
+export type { MediaPreviewFieldOptions } from '@/server/field.js'
 export type {
   AudioViewerProps,
   IframeViewerProps,
@@ -35,7 +39,7 @@ export type {
   MediaPreviewPlugin,
   MediaPreviewPluginConfig,
   VideoViewerProps,
-} from './types.js'
+} from '@/shared/types/index.js'
 
 const selectsPreview = (select: SelectType): boolean =>
   Object.entries(select).some(([key, value]) =>

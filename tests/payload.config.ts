@@ -1,10 +1,10 @@
-import type { MediaPreviewAdapter } from '@seshuk/payload-plugin-media-preview'
-
-import { sqliteAdapter } from '@payloadcms/db-sqlite'
-import { en } from '@payloadcms/translations/languages/en'
-import { mediaPreview, mediaPreviewField } from '@seshuk/payload-plugin-media-preview'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import { en } from '@payloadcms/translations/languages/en'
+import type { MediaPreviewAdapter } from '@seshuk/payload-plugin-media-preview'
+import { mediaPreview, mediaPreviewField } from '@seshuk/payload-plugin-media-preview'
+import { testDatabase } from '@seshuk/payload-plugin-tooling/test-database'
 import { buildConfig } from 'payload'
 import { ru } from 'payload/i18n/ru'
 import sharp from 'sharp'
@@ -102,8 +102,6 @@ const createUploadCollection = (slug: string, extraFields: any[] = []) => ({
 })
 
 const buildConfigAsync = async () => {
-  const useMemory = process.env.NODE_ENV === 'test' || process.env.USE_MEMORY_DB === '1'
-
   return buildConfig({
     admin: {
       autoLogin: {
@@ -147,11 +145,7 @@ const buildConfigAsync = async () => {
         },
       },
     ],
-    db: sqliteAdapter({
-      client: {
-        url: useMemory ? ':memory:' : process.env.DATABASE_URI || `file:${path.resolve(dirname, 'payload.db')}`,
-      },
-    }),
+    db: await testDatabase(),
     i18n: {
       supportedLanguages: {
         en,
@@ -215,6 +209,7 @@ const buildConfigAsync = async () => {
     sharp,
     telemetry: false,
     typescript: {
+      outputFile: path.resolve(dirname, 'payload-types.ts'),
       declare: {
         ignoreTSError: true,
       },
