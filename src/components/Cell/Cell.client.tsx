@@ -3,161 +3,118 @@
 import type { PluginMediaPreviewTranslations, PluginMediaPreviewTranslationsKeys } from '@/translations/index.js'
 import type { MediaPreviewContentMode, MediaPreviewMode } from '@/types.js'
 
-import { Pill, useTranslation } from '@payloadcms/ui'
-import { EyeIcon } from '@payloadcms/ui/icons/Eye'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Button, Popup, useTranslation } from '@payloadcms/ui'
+import { DocumentIcon } from '@payloadcms/ui/icons/Document'
+import { NewTabIcon } from '@payloadcms/ui/icons/NewTab'
+import { PreviewIcon } from '@payloadcms/ui/icons/Preview'
+import React, { useEffect, useState } from 'react'
 
-import { ExternalLinkIcon } from '../ExternalLinkIcon/ExternalLinkIcon.js'
-import {
-  canPreviewDocument,
-  getDocumentViewerType,
-  getGoogleViewerUrl,
-  getMicrosoftViewerUrl,
-  getPreviewType,
-} from '../MediaPreview.utils.js'
+import type { PreviewData } from '../MediaPreview.types.js'
+
+import { getContentType } from '../MediaPreview.utils.js'
 import { MediaPreviewModal } from '../Modal/Modal.js'
+import { MediaPreviewViewer } from '../Viewer/Viewer.js'
 
 type Props = {
   adapterNewTabUrl?: string
   contentMode?: Partial<MediaPreviewContentMode>
   customViewer?: React.ReactNode
-  media: {
-    fileSize?: number
-    height?: number
-    mimeType?: string
-    url?: string
-    width?: number
-  }
   mode?: MediaPreviewMode
+  preview: PreviewData
   rowId?: number | string
 }
+
+const buttonProps = { buttonStyle: 'secondary', iconPosition: 'left', margin: false, size: 'medium' } as const
 
 export const MediaPreviewCellClient: React.FC<Props> = ({
   adapterNewTabUrl,
   contentMode,
   customViewer,
-  media,
   mode = 'auto',
+  preview,
   rowId,
 }) => {
-  const { fileSize, height, mimeType, url, width } = media
+  const { filename, hint, kind, url } = preview
   const [isTouchDevice, setIsTouchDevice] = useState(false)
-  const [showModal, setShowModal] = useState(false)
-  const buttonRef = useRef<HTMLButtonElement>(null)
+  const [open, setOpen] = useState(false)
   const { t } = useTranslation<PluginMediaPreviewTranslations, PluginMediaPreviewTranslationsKeys>()
-
-  const audioViewerMode = contentMode?.audio ?? 'inline'
-  const documentViewerMode = contentMode?.document ?? 'inline'
-  const imageViewerMode = contentMode?.image ?? 'inline'
-  const videoViewerMode = contentMode?.video ?? 'inline'
-
-  const previewType = useMemo(() => getPreviewType(mimeType), [mimeType])
-  const isAudioFile = previewType === 'audio'
-  const isDocumentFile = previewType === 'document'
-  const isImageFile = previewType === 'image'
-  const isVideoFile = previewType === 'video'
-  const canPreview = !isDocumentFile || canPreviewDocument(mimeType!, fileSize)
-
-  const modalMode = useMemo(
-    () => (mode === 'fullscreen' ? 'fullscreen' : isTouchDevice ? 'fullscreen' : 'popup'),
-    [mode, isTouchDevice],
-  )
-
-  const documentViewerUrl = useMemo<null | string>(() => {
-    if (isDocumentFile && url && mimeType) {
-      const viewerType = getDocumentViewerType(mimeType)
-      return viewerType === 'microsoft' ? getMicrosoftViewerUrl(url) : getGoogleViewerUrl(url)
-    }
-    return null
-  }, [isDocumentFile, url, mimeType])
+  const label = t('@seshuk/payload-plugin-media-preview:open')
 
   useEffect(() => {
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
   }, [])
 
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation()
-    setShowModal((prev) => !prev)
-  }, [])
-
-  const renderNewTabLink = useCallback(
-    (href: string) => (
-      <div className="media-preview-cell">
-        <a className="media-preview-cell__button-wrapper" href={href} rel="noopener noreferrer" target="_blank">
-          <Pill
-            alignIcon="left"
-            className="media-preview-cell__pill"
-            icon={<ExternalLinkIcon className="media-preview-cell__icon" />}
-            size="small"
-          >
-            {t('@seshuk/payload-plugin-media-preview:open')}
-          </Pill>
-        </a>
-      </div>
-    ),
-    [t],
+  const newTabLink = (href: string) => (
+    <Button {...buttonProps} el="anchor" icon={<NewTabIcon size={16} />} newTab url={href}>
+      {label}
+    </Button>
   )
 
-  if (previewType === 'unsupported' || !url || !canPreview) {
-    if (!customViewer) {
-      return <span>—</span>
-    }
-  }
-
   if (adapterNewTabUrl) {
-    return renderNewTabLink(adapterNewTabUrl)
+    return newTabLink(adapterNewTabUrl)
   }
 
   if (!customViewer) {
-    if (isVideoFile && videoViewerMode === 'newTab' && url) {
-      return renderNewTabLink(url)
+    if (!url) {
+      return <span>—</span>
     }
-
-    if (isAudioFile && audioViewerMode === 'newTab' && url) {
-      return renderNewTabLink(url)
-    }
-
-    if (isImageFile && imageViewerMode === 'newTab' && url) {
-      return renderNewTabLink(url)
-    }
-
-    if (isDocumentFile && documentViewerMode === 'newTab' && documentViewerUrl) {
-      return renderNewTabLink(documentViewerUrl)
+    if (contentMode?.[getContentType(kind)] === 'newTab') {
+      return newTabLink(url)
     }
   }
 
-  return (
-    <>
-      <div className="media-preview-cell">
-        <button className="media-preview-cell__button-wrapper" onClick={handleClick} ref={buttonRef} type="button">
-          <Pill
-            alignIcon="left"
-            className={`media-preview-cell__pill ${showModal ? 'media-preview-cell__pill--active' : ''}`}
-            icon={<EyeIcon active={modalMode === 'popup' && showModal} className="media-preview-cell__icon" />}
-            size="small"
-          >
-            {modalMode === 'popup' && showModal
-              ? t('@seshuk/payload-plugin-media-preview:close')
-              : t('@seshuk/payload-plugin-media-preview:open')}
-          </Pill>
-        </button>
-      </div>
+  const viewer = customViewer || <MediaPreviewViewer preview={preview} />
+  const icon = hint && !customViewer ? <DocumentIcon size={16} /> : <PreviewIcon active={false} size={16} />
 
-      <MediaPreviewModal
-        customViewer={customViewer}
-        media={{
-          documentViewerUrl,
-          height,
-          mimeType,
-          url,
-          width,
-        }}
-        mode={modalMode}
-        onClose={() => setShowModal(false)}
-        rowId={rowId}
-        show={showModal}
-        triggerRef={buttonRef}
-      />
-    </>
+  if (mode === 'fullscreen' || isTouchDevice) {
+    return (
+      <>
+        <Button
+          {...buttonProps}
+          icon={icon}
+          onClick={(e) => {
+            e.stopPropagation()
+            setOpen(true)
+          }}
+        >
+          {label}
+        </Button>
+        <MediaPreviewModal onClose={() => setOpen(false)} rowId={rowId} show={open} title={filename}>
+          {viewer}
+        </MediaPreviewModal>
+      </>
+    )
+  }
+
+  return (
+    <Popup
+      horizontalAlign="center"
+      onToggleClose={() => setOpen(false)}
+      onToggleOpen={setOpen}
+      portalClassName="media-preview-popup"
+      render={() =>
+        open && (
+          <div className="media-preview-popup__body" data-popup-prevent-close>
+            {viewer}
+          </div>
+        )
+      }
+      renderButton={({ active, onClick, ...triggerProps }) => (
+        <Button
+          {...triggerProps}
+          {...buttonProps}
+          icon={icon}
+          onClick={(e) => {
+            e.stopPropagation()
+            onClick(e)
+          }}
+          selected={active}
+        >
+          {label}
+        </Button>
+      )}
+      size="large"
+      theme="auto"
+    />
   )
 }

@@ -1,4 +1,3 @@
-export { MediaPreviewFieldClient } from '@/components/Field/Field.js'
 export { AudioViewer } from '@/components/Viewer/AudioViewer.js'
 export { IframeViewer } from '@/components/Viewer/IframeViewer.js'
 export { ImageViewer } from '@/components/Viewer/ImageViewer.js'

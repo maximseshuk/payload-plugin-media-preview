@@ -1,11 +1,15 @@
-import type { Config, PayloadRequest, SelectType } from 'payload'
+import type { Config, PayloadRequest, SanitizedConfig, SelectType, UIField } from 'payload'
 
 import { describe, expect, it } from 'vitest'
 
 import type { MediaPreviewAdapter, MediaPreviewPluginConfig } from '../src/types.js'
 
+import { getExternalViewerHint } from '../src/components/getPreviewData.js'
 import { mediaPreviewField } from '../src/field.js'
 import { mediaPreview } from '../src/index.js'
+import { FILE_PREVIEW_COMPONENT } from '../src/utils/filePreviewMap.js'
+
+const DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 
 type Collections = NonNullable<Config['collections']>
 type Fields = Collections[number]['fields']
@@ -83,6 +87,129 @@ describe('mediaPreview plugin', () => {
 
     expect(en?.['@seshuk/payload-plugin-media-preview']?.open).toBe('Open')
     expect(en?.['@seshuk/payload-plugin-media-preview']?.close).toBe('Close')
+  })
+})
+
+describe('filePreview', () => {
+  const getUpload = (config: Config, slug = 'media') =>
+    config.collections!.find((c) => c.slug === slug)!.upload as Exclude<Collections[number]['upload'], boolean>
+  const getMap = (config: Config, slug = 'media') =>
+    getUpload(config, slug)?.admin?.components?.filePreview as Record<string, { path: string; serverProps: object }>
+
+  it('registers the plugin component for types Payload does not preview', () => {
+    const result = mediaPreview({ collections: { media: true } })(baseConfig([uploadCollection('media')]))
+    const map = getMap(result)
+
+    expect(map[DOCX]).toEqual({ path: FILE_PREVIEW_COMPONENT, serverProps: { collectionSlug: 'media' } })
+    expect(map['text/*']?.path).toBe(FILE_PREVIEW_COMPONENT)
+    expect(map['*']?.path).toBe(FILE_PREVIEW_COMPONENT)
+    expect(map['image/*']).toBe(false)
+    expect(map['video/*']).toBe(false)
+    expect(map['application/pdf']).toBe(false)
+  })
+
+  it('registers adapter mimeTypes', () => {
+    const a = { ...adapter('stream'), mimeTypes: ['video/*'] }
+    const result = mediaPreview({ collections: { media: { adapters: [a] } } })(baseConfig([uploadCollection('media')]))
+
+    expect(getMap(result)['video/*']?.path).toBe(FILE_PREVIEW_COMPONENT)
+  })
+
+  it('registers the map with field: false', () => {
+    const result = mediaPreview({ collections: { media: { field: false } } })(baseConfig([uploadCollection('media')]))
+    expect(getMap(result)[DOCX]).toBeDefined()
+  })
+
+  it('does not register with filePreview: false', () => {
+    const result = mediaPreview({ collections: { media: { filePreview: false } } })(
+      baseConfig([uploadCollection('media')]),
+    )
+    expect(getUpload(result)).toBe(true)
+  })
+
+  it('keeps the user filePreview', () => {
+    const collection = (filePreview: unknown) =>
+      ({
+        slug: 'media',
+        fields: [],
+        upload: { admin: { components: { filePreview } }, staticDir: 'uploads' },
+      }) as Collections[number]
+
+    const single = mediaPreview({ collections: { media: true } })(baseConfig([collection('./Custom#Preview')]))
+    expect(getUpload(single).admin?.components?.filePreview).toBe('./Custom#Preview')
+
+    const merged = mediaPreview({ collections: { media: true } })(
+      baseConfig([collection({ [DOCX]: './Docx#Preview' })]),
+    )
+    expect(getMap(merged)[DOCX]).toBe('./Docx#Preview')
+    expect(getMap(merged)['text/*']?.path).toBe(FILE_PREVIEW_COMPONENT)
+    expect(getUpload(merged).staticDir).toBe('uploads')
+
+    const fallback = { '*': './Any#Preview' }
+    const withFallback = mediaPreview({ collections: { media: true } })(baseConfig([collection(fallback)]))
+    expect(getMap(withFallback)).toEqual(fallback)
+  })
+})
+
+describe('externalViewer', () => {
+  const getSettings = (config: Config) => config.custom?.['@seshuk/payload-plugin-media-preview']?.collections
+  const paths = (config: Config) => (config.endpoints ?? []).map((e) => e.path)
+
+  it('is off by default and adds no endpoints', () => {
+    const result = mediaPreview({ collections: { media: true } })(baseConfig([uploadCollection('media')]))
+
+    expect(getSettings(result).media.externalViewer).toBe(false)
+    expect(paths(result)).toEqual([])
+  })
+
+  it('adds the endpoints when a collection enables it', () => {
+    const result = mediaPreview({ collections: { media: { externalViewer: { office: true } } } })(
+      baseConfig([uploadCollection('media')]),
+    )
+
+    expect(getSettings(result).media.externalViewer).toEqual({ expiresIn: 600, google: false, office: true })
+    expect(paths(result)).toEqual(['/media-preview/url', '/media-preview/file/:token/:filename'])
+  })
+
+  it('lets the collection override the global value', () => {
+    const result = mediaPreview({
+      collections: { docs: true, media: { externalViewer: false } },
+      externalViewer: true,
+    })(baseConfig([uploadCollection('media'), uploadCollection('docs')]))
+
+    expect(getSettings(result).media.externalViewer).toBe(false)
+    expect(getSettings(result).docs.externalViewer).toMatchObject({ google: true, office: true })
+  })
+
+  it('stores collection adapter names', () => {
+    const result = mediaPreview({
+      adapters: [adapter('global')],
+      collections: { docs: true, media: { adapters: [adapter('local')] } },
+    })(baseConfig([uploadCollection('media'), uploadCollection('docs')]))
+
+    expect(getSettings(result).media.adapterNames).toEqual(['local'])
+    expect(getSettings(result).docs.adapterNames).toEqual(['global'])
+  })
+
+  it('does not give one collection the adapters of another', () => {
+    const signer = { ...adapter('signer'), mimeTypes: ['video/*'], signUrl: () => 'https://cdn.example.com/a' }
+    const result = mediaPreview({
+      collections: { docs: { externalViewer: true }, media: { adapters: [signer], externalViewer: true } },
+    })(baseConfig([uploadCollection('media'), uploadCollection('docs')]))
+    const config = {
+      ...result,
+      routes: { api: '/api' },
+      serverURL: 'http://localhost:3000',
+    } as unknown as SanitizedConfig
+    const doc = { filesize: 1000, mimeType: DOCX, url: '/api/docs/file/a.docx' }
+
+    expect(getSettings(result).docs.adapterNames).toEqual([])
+    expect(getExternalViewerHint(config, 'docs', doc)).toBe('privateServer')
+    expect(getExternalViewerHint(config, 'media', { ...doc, url: '/api/media/file/a.docx' })).toBeUndefined()
+
+    const docs = result.collections!.find((c) => c.slug === 'docs')!
+    const cell = docs.fields.find((f) => 'name' in f && f.name === 'mediaPreview') as UIField
+    expect(cell.admin!.components!.Cell).toMatchObject({ serverProps: { adapterNames: [] } })
   })
 })
 
@@ -218,32 +345,27 @@ describe('field position', () => {
 })
 
 describe('mediaPreviewField', () => {
-  it('creates UI field with correct name, type and component paths', () => {
+  it('creates UI field with only a list Cell component', () => {
     const field = mediaPreviewField()
 
     expect(field.name).toBe('mediaPreview')
     expect(field.type).toBe('ui')
 
-    const fieldComp = field.admin?.components?.Field as { path: string }
     const cellComp = field.admin?.components?.Cell as { path: string }
 
-    expect(fieldComp?.path).toBe('@seshuk/payload-plugin-media-preview/rsc#MediaPreview')
+    expect(field.admin?.components?.Field).toBeUndefined()
     expect(cellComp?.path).toBe('@seshuk/payload-plugin-media-preview/rsc#MediaPreviewCell')
   })
 
-  it('passes mode and contentMode as clientProps', () => {
-    const field = mediaPreviewField({ contentMode: { video: 'newTab' }, mode: 'fullscreen' })
+  it('passes mode, contentMode and adapterNames to the Cell', () => {
+    const field = mediaPreviewField({ adapterNames: ['test'], contentMode: { video: 'newTab' }, mode: 'fullscreen' })
 
-    const comp = field.admin?.components?.Field as { clientProps: Record<string, unknown> }
-    expect(comp?.clientProps?.mode).toBe('fullscreen')
-    expect((comp?.clientProps?.contentMode as Record<string, string>)?.video).toBe('newTab')
-  })
-
-  it('passes adapterNames as serverProps', () => {
-    const field = mediaPreviewField({ adapterNames: ['test'] })
-
-    const comp = field.admin?.components?.Field as { serverProps: Record<string, unknown> }
-    expect(comp?.serverProps?.adapterNames).toEqual(['test'])
+    const comp = field.admin?.components?.Cell as {
+      clientProps: Record<string, unknown>
+      serverProps: Record<string, unknown>
+    }
+    expect(comp?.clientProps).toEqual({ contentMode: { video: 'newTab' }, mode: 'fullscreen' })
+    expect(comp?.serverProps).toEqual({ adapterNames: ['test'] })
   })
 
   it('applies overrides', () => {

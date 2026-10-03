@@ -16,6 +16,9 @@ const ALL_COLLECTIONS = [
   'media-custom',
   'media-adapter-newtab',
   'media-standalone',
+  'media-external',
+  'media-stream',
+  'media-async',
 ]
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -47,9 +50,9 @@ const uploadFile = async (
   await wait(1000)
 }
 
-const openFieldPreview = async (page: Page) => {
-  await page.locator('.media-preview__button-wrapper button').click()
-  const modal = page.locator('.media-preview-modal--fullscreen')
+const openFullscreen = async (page: Page) => {
+  await page.locator('.media-preview-file__fullscreen').click()
+  const modal = page.locator('.media-preview-modal')
   await expect(modal).toBeVisible()
   return modal
 }
@@ -64,7 +67,7 @@ const openCellPreview = async (page: Page, collection: string, rowText?: string)
   const btn = row.locator(rowText ? '.cell-mediaPreview button' : 'button')
   await btn.click()
 
-  const popup = page.locator('.media-preview-modal--popup')
+  const popup = page.locator('.media-preview-popup')
   await expect(popup).toBeAttached({ timeout: 10000 })
   return popup
 }
@@ -78,22 +81,90 @@ test.describe('Media Preview Plugin', () => {
     )
   })
 
-  test('image: shows preview button after upload', async ({ page }) => {
+  test('image: keeps the Payload preview in the edit view', async ({ page }) => {
     await uploadFile(page, 'media-default')
-    await expect(page.locator('.media-preview__button-wrapper button')).toBeVisible()
+    await expect(page.locator('.file-preview img')).toBeVisible()
+    await expect(page.locator('.media-preview-file')).toHaveCount(0)
   })
 
-  test('image: opens fullscreen modal', async ({ page }) => {
-    await uploadFile(page, 'media-default')
-    const modal = await openFieldPreview(page)
-    await expect(modal.locator('img')).toBeVisible()
+  test('text: renders as plain text in the edit view', async ({ page }) => {
+    await uploadFile(page, 'media-default', { fixture: 'test-text.txt' })
+    await expect(page.locator('.media-preview-file .view-lines')).toContainText('<b>markup</b>')
+    await expect(page.locator('.media-preview-file b')).toHaveCount(0)
   })
 
-  test('image: closes modal on close button', async ({ page }) => {
-    await uploadFile(page, 'media-default')
-    const modal = await openFieldPreview(page)
+  test('ts: detects code by extension and highlights it', async ({ page }) => {
+    await uploadFile(page, 'media-default', { fixture: 'test-code.ts' })
+    const code = page.locator('.media-preview-file .media-preview-viewer__code--ready')
+    await expect(code.locator('.view-lines')).toContainText('export const greet')
+    await expect(code.locator('.view-lines span[class*="mtk"]:not(.mtk1)').first()).toBeAttached()
+    await expect(code.locator('.minimap')).toBeHidden()
+  })
+
+  test('zip: shows the download card in the edit view', async ({ page }) => {
+    await uploadFile(page, 'media-default', { fixture: 'test-archive.zip' })
+    const card = page.locator('.media-preview-file .media-preview-card')
+    await expect(card).toContainText('No preview for this file type.')
+    await expect(card.locator('a[download]')).toBeVisible()
+    await expect(page.locator('.file-preview .thumbnail')).toHaveCount(0)
+  })
+
+  test('text: opens fullscreen modal', async ({ page }) => {
+    await uploadFile(page, 'media-default', { fixture: 'test-text.txt' })
+    const modal = await openFullscreen(page)
+    await expect(modal.locator('.media-preview-modal__title')).toHaveText('test-text.txt')
+    await expect(modal.locator('.view-lines')).toContainText('Second line')
     await page.locator('button.media-preview-modal__close').click()
     await expect(modal).not.toBeVisible()
+  })
+
+  test('json: renders pretty-printed', async ({ page }) => {
+    await uploadFile(page, 'media-default', { fixture: 'test-data.json' })
+    await expect(page.locator('.media-preview-file .view-lines')).toContainText('"nested": {')
+  })
+
+  test('csv: renders as a table', async ({ page }) => {
+    await uploadFile(page, 'media-default', { fixture: 'test-table.csv' })
+    const table = page.locator('.media-preview-file table')
+    await expect(table.locator('tr')).toHaveCount(3)
+    await expect(table).toContainText('says "hi"')
+  })
+
+  test('docx: shows the download card when external viewers are off', async ({ page }) => {
+    await uploadFile(page, 'media-default', { fixture: 'test-document.docx' })
+    const card = page.locator('.media-preview-file .media-preview-card')
+    await expect(card).toContainText('No preview for this file type.')
+    await expect(card.locator('a[download]')).toBeVisible()
+    await expect(page.locator('.media-preview-file__fullscreen')).toHaveCount(0)
+  })
+
+  test('docx: shows the private server hint on localhost', async ({ page }) => {
+    await uploadFile(page, 'media-external', { fixture: 'test-document.docx' })
+    await expect(page.locator('.media-preview-card')).toContainText('Preview needs a public server address.')
+  })
+
+  test('stream adapter: renders iframe in the edit view', async ({ page }) => {
+    await uploadFile(page, 'media-stream', { extraFields: { streamId: 'abc123' }, fixture: 'test-video.mp4' })
+    const iframe = page.locator('.media-preview-file iframe')
+    await expect(iframe).toHaveAttribute('src', 'https://example.com/stream/abc123')
+  })
+
+  test('stream adapter: falls back to the native player', async ({ page }) => {
+    await uploadFile(page, 'media-stream', { fixture: 'test-video.mp4' })
+    await expect(page.locator('.media-preview-file video')).toBeAttached()
+  })
+
+  test('async adapter: renders iframe in the edit view', async ({ page }) => {
+    await uploadFile(page, 'media-async', { extraFields: { assetId: 'a1' }, fixture: 'test-video.mp4' })
+    const iframe = page.locator('.media-preview-file iframe')
+    await expect(iframe).toHaveAttribute('src', 'https://example.com/async/a1')
+    await expect(iframe).toHaveAttribute('title', 'Asset a1')
+  })
+
+  test('async adapter: renders iframe in cell popup', async ({ page }) => {
+    await uploadFile(page, 'media-async', { extraFields: { assetId: 'a2' }, fixture: 'test-video.mp4' })
+    const popup = await openCellPreview(page, 'media-async')
+    await expect(popup.locator('iframe')).toHaveAttribute('src', 'https://example.com/async/a2')
   })
 
   test('image: shows preview in list view cell', async ({ page }) => {
@@ -117,17 +188,11 @@ test.describe('Media Preview Plugin', () => {
     await page.waitForLoadState('networkidle')
 
     await cell.locator('button').click()
-    const popup = page.locator('.media-preview-modal--popup')
+    const popup = page.locator('.media-preview-popup')
     await expect(popup).toBeAttached({ timeout: 10000 })
 
     await cell.locator('button').click()
     await expect(popup).not.toBeAttached({ timeout: 10000 })
-  })
-
-  test('video: shows player in modal', async ({ page }) => {
-    await uploadFile(page, 'media-default', { fixture: 'test-video.mp4' })
-    const modal = await openFieldPreview(page)
-    await expect(modal.locator('video')).toBeVisible()
   })
 
   test('video: shows player in cell popup', async ({ page }) => {
@@ -136,67 +201,61 @@ test.describe('Media Preview Plugin', () => {
     await expect(popup.locator('video')).toBeAttached()
   })
 
-  test('audio: shows player in modal', async ({ page }) => {
-    await uploadFile(page, 'media-default', { fixture: 'test-audio.mp3' })
-    const modal = await openFieldPreview(page)
-    await expect(modal.locator('audio')).toBeAttached()
-  })
-
   test('audio: shows player in cell popup', async ({ page }) => {
     await uploadFile(page, 'media-default', { fixture: 'test-audio.mp3' })
     const popup = await openCellPreview(page, 'media-default', '.mp3')
     await expect(popup.locator('audio')).toBeAttached()
   })
 
-  test('document: shows iframe in modal', async ({ page }) => {
-    await uploadFile(page, 'media-default', { fixture: 'test-document.pdf' })
-    const modal = await openFieldPreview(page)
-    await expect(modal.locator('iframe')).toBeVisible()
-  })
-
-  test('document: shows iframe in cell popup', async ({ page }) => {
+  test('pdf: shows iframe in cell popup', async ({ page }) => {
     await uploadFile(page, 'media-default', { fixture: 'test-document.pdf' })
     const popup = await openCellPreview(page, 'media-default', '.pdf')
     await expect(popup.locator('iframe')).toBeAttached()
   })
 
+  test('text: shows text in cell popup', async ({ page }) => {
+    await uploadFile(page, 'media-default', { fixture: 'test-text.txt' })
+    const popup = await openCellPreview(page, 'media-default', '.txt')
+    await expect(popup.locator('.view-lines')).toContainText('Second line')
+  })
+
+  test('zip: opens the download card from the cell', async ({ page }) => {
+    await uploadFile(page, 'media-default', { fixture: 'test-archive.zip' })
+    const popup = await openCellPreview(page, 'media-default', '.zip')
+    await expect(popup.locator('.media-preview-card')).toContainText('No preview for this file type.')
+    await page.keyboard.press('Escape')
+    await expect(popup).not.toBeAttached()
+  })
+
   test('fullscreen mode when configured', async ({ page }) => {
     await uploadFile(page, 'media-fullscreen')
-    await openFieldPreview(page)
+    await page.goto('/admin/collections/media-fullscreen')
+    await page.locator('.cell-mediaPreview button').first().click()
+    await expect(page.locator('.media-preview-modal')).toBeVisible()
   })
 
   test('newTab mode renders link for video', async ({ page }) => {
     await uploadFile(page, 'media-newtab', { fixture: 'test-video.mp4' })
-    await expect(page.locator('.media-preview__button-wrapper a[target="_blank"]')).toBeVisible()
+    await page.goto('/admin/collections/media-newtab')
+    await expect(page.locator('.cell-mediaPreview a[target="_blank"]').first()).toBeVisible({ timeout: 10000 })
   })
 
-  test('position: shows preview after alt field', async ({ page }) => {
+  test('position: shows the column after alt', async ({ page }) => {
     await uploadFile(page, 'media-position', { extraFields: { alt: 'test alt' } })
-    await expect(page.locator('.media-preview__button-wrapper button')).toBeVisible()
+    await page.goto('/admin/collections/media-position')
+    await expect(page.locator('.cell-alt + .cell-mediaPreview').first()).toBeVisible({ timeout: 10000 })
   })
 
   test('adapter: renders iframe when externalVideoId is set', async ({ page }) => {
     await uploadFile(page, 'media-adapter', { extraFields: { externalVideoId: 'abc123' } })
-    const modal = await openFieldPreview(page)
-    const iframe = modal.locator('iframe')
-    await expect(iframe).toBeVisible()
-    await expect(iframe).toHaveAttribute('src', 'https://example.com/embed/abc123')
+    const popup = await openCellPreview(page, 'media-adapter')
+    await expect(popup.locator('iframe')).toHaveAttribute('src', 'https://example.com/embed/abc123')
   })
 
   test('adapter: falls back to default viewer when resolve returns null', async ({ page }) => {
     await uploadFile(page, 'media-adapter')
-    const modal = await openFieldPreview(page)
-    await expect(modal.locator('img')).toBeVisible()
-  })
-
-  test('custom adapter: renders in field modal', async ({ page }) => {
-    await uploadFile(page, 'media-custom', { extraFields: { embedId: 'dQw4w9WgXcQ', provider: 'youtube' } })
-    const modal = await openFieldPreview(page)
-
-    const viewer = modal.locator('[data-testid="custom-viewer"]')
-    await expect(viewer).toBeVisible()
-    await expect(viewer).toHaveAttribute('data-provider', 'youtube')
-    await expect(viewer).toHaveAttribute('data-embed-id', 'dQw4w9WgXcQ')
+    const popup = await openCellPreview(page, 'media-adapter')
+    await expect(popup.locator('img')).toBeAttached()
   })
 
   test('custom adapter: renders in cell popup', async ({ page }) => {
@@ -212,47 +271,9 @@ test.describe('Media Preview Plugin', () => {
 
   test('custom adapter: falls back to default viewer', async ({ page }) => {
     await uploadFile(page, 'media-custom')
-    const modal = await openFieldPreview(page)
-    await expect(modal.locator('[data-testid="custom-viewer"]')).not.toBeVisible()
-    await expect(modal.locator('img')).toBeVisible()
-  })
-
-  test('adapter newTab: renders link button in field when externalUrl is set', async ({ page }) => {
-    await uploadFile(page, 'media-adapter-newtab', { extraFields: { externalUrl: 'https://example.com/preview' } })
-    const link = page.locator('.media-preview__button-wrapper a[target="_blank"]')
-    await expect(link).toBeVisible()
-    await expect(link).toHaveAttribute('href', 'https://example.com/preview')
-  })
-
-  test('adapter newTab: falls back to default viewer when resolve returns null', async ({ page }) => {
-    await uploadFile(page, 'media-adapter-newtab')
-    const modal = await openFieldPreview(page)
-    await expect(modal.locator('img')).toBeVisible()
-  })
-
-  test('standalone: shows preview button with manually inserted field', async ({ page }) => {
-    await uploadFile(page, 'media-standalone')
-    await expect(page.locator('.media-preview__button-wrapper button')).toBeVisible()
-  })
-
-  test('standalone: opens fullscreen modal with image', async ({ page }) => {
-    await uploadFile(page, 'media-standalone')
-    const modal = await openFieldPreview(page)
-    await expect(modal.locator('img')).toBeVisible()
-  })
-
-  test('standalone: adapter works with manually inserted field', async ({ page }) => {
-    await uploadFile(page, 'media-standalone', { extraFields: { externalVideoId: 'xyz789' } })
-    const modal = await openFieldPreview(page)
-    const iframe = modal.locator('iframe')
-    await expect(iframe).toBeVisible()
-    await expect(iframe).toHaveAttribute('src', 'https://example.com/embed/xyz789')
-  })
-
-  test('standalone: shows preview in list view cell', async ({ page }) => {
-    await uploadFile(page, 'media-standalone')
-    await page.goto('/admin/collections/media-standalone')
-    await expect(page.locator('.cell-mediaPreview').first()).toBeVisible({ timeout: 10000 })
+    const popup = await openCellPreview(page, 'media-custom')
+    await expect(popup.locator('[data-testid="custom-viewer"]')).toHaveCount(0)
+    await expect(popup.locator('img')).toBeAttached()
   })
 
   test('adapter newTab: renders link in cell', async ({ page }) => {
@@ -261,5 +282,19 @@ test.describe('Media Preview Plugin', () => {
     const link = page.locator('.cell-mediaPreview a[target="_blank"]').first()
     await expect(link).toBeVisible({ timeout: 10000 })
     await expect(link).toHaveAttribute('href', 'https://example.com/preview')
+  })
+
+  test('standalone: shows preview in list view cell', async ({ page }) => {
+    await uploadFile(page, 'media-standalone')
+    await page.goto('/admin/collections/media-standalone')
+    await expect(page.locator('.cell-mediaPreview').first()).toBeVisible({ timeout: 10000 })
+  })
+
+  test('standalone: adapter works with manually inserted field', async ({ page }) => {
+    await uploadFile(page, 'media-standalone', { extraFields: { externalVideoId: 'xyz789' } })
+    await page.goto('/admin/collections/media-standalone')
+    await page.locator('.cell-mediaPreview button').first().click()
+    const modal = page.locator('.media-preview-modal')
+    await expect(modal.locator('iframe')).toHaveAttribute('src', 'https://example.com/embed/xyz789')
   })
 })

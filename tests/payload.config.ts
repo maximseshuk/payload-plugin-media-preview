@@ -62,6 +62,37 @@ const newTabAdapter: MediaPreviewAdapter = {
   },
 }
 
+const streamAdapter: MediaPreviewAdapter = {
+  name: 'stream-adapter',
+  Component: '@seshuk/payload-plugin-media-preview/client#IframeViewer',
+  mimeTypes: ['video/*', 'audio/*'],
+  resolve: ({ doc }) => {
+    const streamId = doc.streamId as string | undefined
+    return streamId
+      ? { mode: 'inline', props: { src: `https://example.com/stream/${streamId}`, title: 'Stream' } }
+      : null
+  },
+}
+
+const fetchProviderAsset = async (assetId: string) => {
+  await new Promise((resolve) => setTimeout(resolve, 300))
+  return { embedUrl: `https://example.com/async/${assetId}`, title: `Asset ${assetId}` }
+}
+
+const asyncAdapter: MediaPreviewAdapter = {
+  name: 'async-adapter',
+  Component: '@seshuk/payload-plugin-media-preview/client#IframeViewer',
+  mimeTypes: ['video/*'],
+  resolve: async ({ doc }) => {
+    const assetId = doc.assetId as string | undefined
+    if (!assetId) {
+      return null
+    }
+    const asset = await fetchProviderAsset(assetId)
+    return { mode: 'inline', props: { src: asset.embedUrl, title: asset.title } }
+  },
+}
+
 const createUploadCollection = (slug: string, extraFields: any[] = []) => ({
   slug,
   fields: [...extraFields],
@@ -95,6 +126,9 @@ const buildConfigAsync = async () => {
       createUploadCollection('media-position', [{ name: 'alt', type: 'text' }]),
       createUploadCollection('media-adapter', [{ name: 'externalVideoId', type: 'text' }]),
       createUploadCollection('media-adapter-newtab', [{ name: 'externalUrl', type: 'text' }]),
+      createUploadCollection('media-external'),
+      createUploadCollection('media-stream', [{ name: 'streamId', type: 'text' }]),
+      createUploadCollection('media-async', [{ name: 'assetId', type: 'text' }]),
       createUploadCollection('media-custom', [
         { name: 'provider', type: 'text' },
         { name: 'embedId', type: 'text' },
@@ -149,6 +183,9 @@ const buildConfigAsync = async () => {
             adapters: [customAdapter],
           },
           'media-default': true,
+          'media-external': {
+            externalViewer: true,
+          },
           'media-fullscreen': {
             mode: 'fullscreen',
           },
@@ -160,6 +197,12 @@ const buildConfigAsync = async () => {
           },
           'media-position': {
             field: { position: { after: 'alt' } },
+          },
+          'media-stream': {
+            adapters: [streamAdapter],
+          },
+          'media-async': {
+            adapters: [asyncAdapter],
           },
           'media-standalone': {
             adapters: [testAdapter],

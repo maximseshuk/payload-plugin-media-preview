@@ -74,6 +74,8 @@ export interface Config {
     'media-position': MediaPosition;
     'media-adapter': MediaAdapter;
     'media-adapter-newtab': MediaAdapterNewtab;
+    'media-external': MediaExternal;
+    'media-stream': MediaStream;
     'media-custom': MediaCustom;
     'media-standalone': MediaStandalone;
     'payload-kv': PayloadKv;
@@ -90,6 +92,8 @@ export interface Config {
     'media-position': MediaPositionSelect<false> | MediaPositionSelect<true>;
     'media-adapter': MediaAdapterSelect<false> | MediaAdapterSelect<true>;
     'media-adapter-newtab': MediaAdapterNewtabSelect<false> | MediaAdapterNewtabSelect<true>;
+    'media-external': MediaExternalSelect<false> | MediaExternalSelect<true>;
+    'media-stream': MediaStreamSelect<false> | MediaStreamSelect<true>;
     'media-custom': MediaCustomSelect<false> | MediaCustomSelect<true>;
     'media-standalone': MediaStandaloneSelect<false> | MediaStandaloneSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -272,6 +276,43 @@ export interface MediaAdapterNewtab {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media-external".
+ */
+export interface MediaExternal {
+  id: number;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media-stream".
+ */
+export interface MediaStream {
+  id: number;
+  streamId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media-custom".
  */
 export interface MediaCustom {
@@ -360,6 +401,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media-adapter-newtab';
         value: number | MediaAdapterNewtab;
+      } | null)
+    | ({
+        relationTo: 'media-external';
+        value: number | MediaExternal;
+      } | null)
+    | ({
+        relationTo: 'media-stream';
+        value: number | MediaStream;
       } | null)
     | ({
         relationTo: 'media-custom';
@@ -541,6 +590,41 @@ export interface MediaAdapterNewtabSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media-external_select".
+ */
+export interface MediaExternalSelect<T extends boolean = true> {
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media-stream_select".
+ */
+export interface MediaStreamSelect<T extends boolean = true> {
+  streamId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media-custom_select".
  */
 export interface MediaCustomSelect<T extends boolean = true> {
@@ -641,6 +725,8 @@ export interface CollectionQueryWidget {
       | 'media-position'
       | 'media-adapter'
       | 'media-adapter-newtab'
+      | 'media-external'
+      | 'media-stream'
       | 'media-custom'
       | 'media-standalone';
     where?:
@@ -673,6 +759,8 @@ export interface ActivityWidget {
           | 'media-position'
           | 'media-adapter'
           | 'media-adapter-newtab'
+          | 'media-external'
+          | 'media-stream'
           | 'media-custom'
           | 'media-standalone'
         )[]

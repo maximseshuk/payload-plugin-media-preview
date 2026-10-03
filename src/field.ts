@@ -2,14 +2,16 @@ import type { UIField } from 'payload'
 
 import type { MediaPreviewContentMode, MediaPreviewMode } from './types.js'
 
+/** Options of the list view preview column. The edit view preview lives in the upload panel. */
 export type MediaPreviewFieldOptions = {
   /** Which adapters to try when resolving a preview (by name). */
   adapterNames?: string[]
+  /** How the cell opens each content type. */
   contentMode?: Partial<MediaPreviewContentMode>
   /**
    * Preview display mode.
    *
-   * - `'auto'` — popup in cell (desktop), fullscreen in field and on mobile.
+   * - `'auto'` — popup on desktop, fullscreen on mobile.
    * - `'fullscreen'` — always fullscreen modal.
    * @default 'auto'
    */
@@ -36,16 +38,6 @@ export const mediaPreviewField = (props?: MediaPreviewFieldOptions): UIField => 
             mode,
           },
           path: '@seshuk/payload-plugin-media-preview/rsc#MediaPreviewCell',
-          serverProps: {
-            adapterNames,
-          },
-        },
-        Field: {
-          clientProps: {
-            contentMode,
-            mode,
-          },
-          path: '@seshuk/payload-plugin-media-preview/rsc#MediaPreview',
           serverProps: {
             adapterNames,
           },

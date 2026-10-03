@@ -1,5 +1,5 @@
 import { MediaPreviewCell as MediaPreviewCell_6a2946bba07d6063b2e03940438cdfa3 } from '@seshuk/payload-plugin-media-preview/rsc'
-import { MediaPreview as MediaPreview_6a2946bba07d6063b2e03940438cdfa3 } from '@seshuk/payload-plugin-media-preview/rsc'
+import { MediaPreviewFile as MediaPreviewFile_6a2946bba07d6063b2e03940438cdfa3 } from '@seshuk/payload-plugin-media-preview/rsc'
 import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { CollectionQueryWidget as CollectionQueryWidget_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { QueryPresetsWhereField as QueryPresetsWhereField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
@@ -12,7 +12,7 @@ import { CustomViewer as CustomViewer_9e15071a42359efc49dd9d0fdbcd5717 } from '.
 /** @type import('payload').ImportMap */
 export const importMap = {
   "@seshuk/payload-plugin-media-preview/rsc#MediaPreviewCell": MediaPreviewCell_6a2946bba07d6063b2e03940438cdfa3,
-  "@seshuk/payload-plugin-media-preview/rsc#MediaPreview": MediaPreview_6a2946bba07d6063b2e03940438cdfa3,
+  "@seshuk/payload-plugin-media-preview/rsc#MediaPreviewFile": MediaPreviewFile_6a2946bba07d6063b2e03940438cdfa3,
   "@payloadcms/ui/rsc#CollectionCards": CollectionCards_ab83ff7e88da8d3530831f296ec4756a,
   "@payloadcms/ui/rsc#CollectionQueryWidget": CollectionQueryWidget_ab83ff7e88da8d3530831f296ec4756a,
   "@payloadcms/ui#QueryPresetsWhereField": QueryPresetsWhereField_3817bf644402e67bfe6577f60ef982de,

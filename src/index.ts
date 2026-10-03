@@ -1,11 +1,15 @@
 import type { AcceptedLanguages } from '@payloadcms/translations'
 import type { AdminDependencies, CollectionConfig, Config, SelectFn, SelectType } from 'payload'
 
+import type { CollectionSettings, PluginData } from './settings.js'
 import type { PluginDefaultTranslationsObject } from './translations/types.js'
 import type { MediaPreviewAdapter, MediaPreviewCollectionConfig, MediaPreviewPluginConfig } from './types.js'
 
+import { endpoints } from './endpoints.js'
 import { mediaPreviewField } from './field.js'
+import { PLUGIN_KEY, resolveExternalViewer } from './settings.js'
 import { translations } from './translations/index.js'
+import { buildFilePreviewMap, mergeFilePreview } from './utils/filePreviewMap.js'
 import { insertField } from './utils/insertField.js'
 
 export { mediaPreviewField } from './field.js'
@@ -20,10 +24,12 @@ export type {
   MediaPreviewAdapterNewTabResult,
   MediaPreviewAdapterResolveArgs,
   MediaPreviewAdapterResolveResult,
+  MediaPreviewAdapterSignUrlArgs,
   MediaPreviewCollectionConfig,
   MediaPreviewContentMode,
   MediaPreviewContentModeType,
   MediaPreviewContentType,
+  MediaPreviewExternalViewer,
   MediaPreviewFieldConfig,
   MediaPreviewMode,
   MediaPreviewPlugin,
@@ -35,6 +41,27 @@ const selectsPreview = (select: SelectType): boolean =>
   Object.entries(select).some(([key, value]) =>
     key === 'mediaPreview' ? value === true : typeof value === 'object' && selectsPreview(value),
   )
+
+const withFilePreview = (
+  collection: CollectionConfig,
+  collAdapters: MediaPreviewAdapter[] = [],
+): CollectionConfig['upload'] => {
+  const upload = typeof collection.upload === 'object' ? collection.upload : {}
+  const ours = buildFilePreviewMap(
+    collection.slug,
+    collAdapters.flatMap((a) => a.mimeTypes ?? []),
+  )
+  return {
+    ...upload,
+    admin: {
+      ...upload.admin,
+      components: {
+        ...upload.admin?.components,
+        filePreview: mergeFilePreview(upload.admin?.components?.filePreview, ours),
+      },
+    },
+  }
+}
 
 const withPreviewSelect =
   (select: CollectionConfig['select']): SelectFn =>
@@ -72,6 +99,18 @@ export const mediaPreview =
       }
     }
 
+    const collectionSettings: Record<string, CollectionSettings> = {}
+    for (const [slug, collConfig] of Object.entries(pluginConfig.collections)) {
+      if (collConfig) {
+        const resolved: MediaPreviewCollectionConfig = collConfig === true ? {} : collConfig
+        collectionSettings[slug] = {
+          adapterNames: (resolved.adapters ?? pluginConfig.adapters ?? []).map((a) => a.name),
+          externalViewer: resolveExternalViewer(resolved.externalViewer ?? pluginConfig.externalViewer),
+        }
+      }
+    }
+    const hasExternalViewer = Object.values(collectionSettings).some((settings) => settings.externalViewer)
+
     const pluginTranslations = {} as Record<AcceptedLanguages, PluginDefaultTranslationsObject>
     for (const [locale, i18nObject] of Object.entries(translations)) {
       const typedLocale = locale as AcceptedLanguages
@@ -98,15 +137,16 @@ export const mediaPreview =
 
         const resolved: MediaPreviewCollectionConfig = collConfig === true ? {} : collConfig
         const select = withPreviewSelect(collection.select)
+        const collAdapters = resolved.adapters ?? pluginConfig.adapters ?? []
+        const upload = resolved.filePreview === false ? collection.upload : withFilePreview(collection, collAdapters)
 
         if (resolved.field === false) {
-          return Object.assign({}, collection, { select })
+          return Object.assign({}, collection, { select, upload })
         }
 
         const fieldConfig = typeof resolved.field === 'object' ? resolved.field : {}
         const position = fieldConfig.position ?? 'last'
-        const collAdapters = resolved.adapters ?? pluginConfig.adapters
-        const adapterNames = collAdapters?.map((a) => a.name)
+        const adapterNames = collAdapters.map((a) => a.name)
 
         const fields = insertField(
           collection.fields,
@@ -119,14 +159,16 @@ export const mediaPreview =
           }),
         )
 
-        return Object.assign({}, collection, { fields, select })
+        return Object.assign({}, collection, { fields, select, upload })
       }),
       custom: {
         ...incomingConfig.custom,
-        '@seshuk/payload-plugin-media-preview': {
+        [PLUGIN_KEY]: {
           adapters: allAdapters,
-        },
+          collections: collectionSettings,
+        } satisfies PluginData,
       },
+      endpoints: [...(incomingConfig.endpoints ?? []), ...(hasExternalViewer ? endpoints : [])],
       i18n: {
         ...incomingConfig.i18n,
         translations: {

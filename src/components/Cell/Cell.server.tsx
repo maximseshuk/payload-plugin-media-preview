@@ -4,6 +4,7 @@ import type { DefaultServerCellComponentProps } from 'payload'
 import React from 'react'
 
 import { resolveAdapter, resolveAdapterViewer } from '../adapterResolver.js'
+import { getPreviewData } from '../getPreviewData.js'
 import { MediaPreviewCellClient } from './Cell.client.js'
 import './Cell.css'
 
@@ -15,21 +16,22 @@ type Props = {
 
 export const MediaPreviewCell: React.FC<Props> = ({
   adapterNames,
+  collectionSlug,
   contentMode,
   mode = 'auto',
   payload: payloadInstance,
   rowData,
 }) => {
-  const fileSize = rowData?.filesize as number | undefined
-  const height = rowData?.height as number | undefined
-  const mimeType = rowData?.mimeType as string | undefined
-  const url = rowData?.url as string | undefined
-  const width = rowData?.width as number | undefined
+  if (!rowData || !collectionSlug) {
+    return null
+  }
+  const doc = rowData
+  const preview = getPreviewData(payloadInstance.config, collectionSlug, doc)
 
   const adapterMatch = resolveAdapter(payloadInstance, adapterNames, {
-    doc: rowData || {},
-    mimeType,
-    url,
+    doc,
+    mimeType: preview.mimeType,
+    url: preview.url,
   })
 
   const customViewer = resolveAdapterViewer(payloadInstance, adapterMatch)
@@ -40,15 +42,9 @@ export const MediaPreviewCell: React.FC<Props> = ({
       adapterNewTabUrl={adapterNewTabUrl}
       contentMode={contentMode}
       customViewer={customViewer}
-      media={{
-        fileSize,
-        height,
-        mimeType,
-        url,
-        width,
-      }}
       mode={mode}
-      rowId={rowData?.id}
+      preview={preview}
+      rowId={rowData.id}
     />
   )
 }
