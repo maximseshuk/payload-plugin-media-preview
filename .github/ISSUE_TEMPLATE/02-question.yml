@@ -28,11 +28,10 @@ body:
     id: current-config
     attributes:
       label: Current Configuration (if relevant)
-      description: Share your plugin setup
+      description: Share your plugin setup (**remove API keys and sensitive data**)
       placeholder: |
         ```typescript
         mediaPreview({
-          adapters: [],
           collections: {
             media: true,
           },

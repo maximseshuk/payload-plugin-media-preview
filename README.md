@@ -1,5 +1,9 @@
 <div align="center">
 
+<picture>
+  <img src="media/logo.svg" alt="Media Preview Plugin for Payload CMS" height="80" />
+</picture>
+
 <h1>Media Preview Plugin for Payload CMS</h1>
 
 <p>Preview images, videos, audio, and documents directly in the Payload CMS admin panel.</p>
