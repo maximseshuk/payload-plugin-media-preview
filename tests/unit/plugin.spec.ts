@@ -1,11 +1,13 @@
-import type { Config, PayloadRequest, SanitizedConfig, SelectType, UIField } from 'payload'
-import { describe, expect, it } from 'vitest'
+import type { Config, Payload, PayloadRequest, SanitizedConfig, SelectType, UIField, User } from 'payload'
+import { describe, expect, it, vi } from 'vitest'
 
 import { mediaPreview } from '@/index.js'
+import { resolveAdapter } from '@/server/adapterResolver.js'
 import { mediaPreviewField } from '@/server/field.js'
 import { FILE_PREVIEW_COMPONENT } from '@/server/filePreviewMap.js'
 import { getExternalViewerHint } from '@/server/getPreviewData.js'
-import type { MediaPreviewAdapter, MediaPreviewPluginConfig } from '@/shared/types/index.js'
+import { PLUGIN_KEY } from '@/shared/constants.js'
+import type { MediaPreviewAdapter, MediaPreviewPluginOptions } from '@/shared/types/index.js'
 
 const DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 
@@ -250,38 +252,62 @@ describe('adapters', () => {
     expect(names).toContain('local')
   })
 
-  it('resolve returns data for matching doc', () => {
-    const a = adapter('video', 'videoId')
-    expect(a.resolve({ doc: { videoId: 'abc' }, url: '' })).toEqual({ mode: 'inline', props: { videoId: 'abc' } })
+  const resolveArgs = (doc: Record<string, unknown>, extra: { mimeType?: string } = {}) => ({
+    collectionSlug: 'media',
+    doc,
+    payload: {} as Payload,
+    url: '',
+    ...extra,
   })
 
-  it('adapter resolve returns inline result with mode and props', () => {
+  it('resolve returns data for matching doc', async () => {
+    const a = adapter('video', 'videoId')
+    expect(await a.resolve(resolveArgs({ videoId: 'abc' }))).toEqual({ mode: 'inline', props: { videoId: 'abc' } })
+  })
+
+  it('adapter resolve returns inline result with mode and props', async () => {
     const a: MediaPreviewAdapter = {
       name: 'inline-test',
       Component: 'test-package/client#Viewer',
       resolve: () => ({ mode: 'inline', props: { src: 'https://example.com' } }),
     }
-    const result = a.resolve({ doc: {}, url: '' })
+    const result = await a.resolve(resolveArgs({}))
     expect(result).toEqual({ mode: 'inline', props: { src: 'https://example.com' } })
   })
 
-  it('adapter resolve returns newTab result with mode and url', () => {
+  it('adapter resolve returns newTab result with mode and url', async () => {
     const a: MediaPreviewAdapter = {
       name: 'newtab-test',
       resolve: () => ({ mode: 'newTab', url: 'https://example.com/view' }),
     }
-    const result = a.resolve({ doc: {}, url: '' })
+    const result = await a.resolve(resolveArgs({}))
     expect(result).toEqual({ mode: 'newTab', url: 'https://example.com/view' })
   })
 
-  it('resolve returns null for non-matching doc', () => {
+  it('resolve returns null for non-matching doc', async () => {
     const a = adapter('video', 'videoId')
-    expect(a.resolve({ doc: {}, mimeType: 'image/jpeg', url: '' })).toBeNull()
+    expect(await a.resolve(resolveArgs({}, { mimeType: 'image/jpeg' }))).toBeNull()
+  })
+
+  it('awaits async adapters and passes collectionSlug, payload and user', async () => {
+    const resolve = vi.fn(async () => ({ mode: 'newTab' as const, url: 'https://cdn.example.com/presigned' }))
+    const skip: MediaPreviewAdapter = { name: 'skip', resolve: async () => null }
+    const signer: MediaPreviewAdapter = { name: 'signer', resolve }
+    const payload = { config: { custom: { [PLUGIN_KEY]: { adapters: [skip, signer] } } } } as unknown as Payload
+    const user = { id: 1 } as unknown as User
+
+    const match = await resolveAdapter(undefined, { collectionSlug: 'media', doc: { id: 1 }, payload, user })
+
+    expect(match).toEqual({
+      adapterName: 'signer',
+      result: { mode: 'newTab', url: 'https://cdn.example.com/presigned' },
+    })
+    expect(resolve).toHaveBeenCalledWith({ collectionSlug: 'media', doc: { id: 1 }, payload, user })
   })
 })
 
 describe('select', () => {
-  const selectFn = (collection: Collections[number], collections: MediaPreviewPluginConfig['collections']) => {
+  const selectFn = (collection: Collections[number], collections: MediaPreviewPluginOptions['collections']) => {
     const result = mediaPreview({ collections })(baseConfig([collection]))
     return result.collections!.find((c) => c.slug === collection.slug)!.select!
   }
@@ -340,6 +366,57 @@ describe('field position', () => {
 
     expect(getName(fields[0])).toBe('mediaPreview')
   })
+
+  it('throws when the target field does not exist', () => {
+    const config = baseConfig([uploadCollection('media')])
+
+    expect(() => mediaPreview({ collections: { media: { field: { position: { after: 'alt' } } } } })(config)).toThrow(
+      'Field path "alt" not found',
+    )
+  })
+})
+
+describe('field options', () => {
+  const cellOf = (result: Config) => {
+    const field = result.collections!.find((c) => c.slug === 'media')!.fields.at(-1) as UIField
+    return field.admin?.components?.Cell as {
+      clientProps: Record<string, unknown>
+      serverProps: Record<string, unknown>
+    }
+  }
+
+  it('passes field mode and contentMode to the Cell', () => {
+    const result = mediaPreview({
+      adapters: [adapter('test')],
+      collections: { media: { field: { contentMode: { video: 'newTab' }, mode: 'fullscreen' } } },
+    })(baseConfig([uploadCollection('media')]))
+
+    expect(cellOf(result).clientProps).toEqual({ contentMode: { video: 'newTab' }, mode: 'fullscreen' })
+    expect(cellOf(result).serverProps).toEqual({ adapterNames: ['test'] })
+  })
+
+  it('adds the column with defaults for field: true', () => {
+    const result = mediaPreview({ collections: { media: { field: true } } })(baseConfig([uploadCollection('media')]))
+
+    expect(cellOf(result).clientProps).toEqual({ contentMode: undefined, mode: 'auto' })
+  })
+
+  it.each(['mode', 'contentMode'])('throws on the removed collection-level %s with a hint', (key) => {
+    const options = { collections: { media: { [key]: 'fullscreen' } } } as MediaPreviewPluginOptions
+
+    expect(() => mediaPreview(options)(baseConfig([uploadCollection('media')]))).toThrow(
+      `[@seshuk/payload-plugin-media-preview] collections.media.${key} was renamed to collections.media.field.${key}`,
+    )
+    expect(() => mediaPreview({ ...options, enabled: false })(baseConfig())).toThrow(/was renamed/)
+  })
+
+  it('skips a collection set to false', () => {
+    const result = mediaPreview({ collections: { media: false } })(baseConfig([uploadCollection('media')]))
+    const media = result.collections!.find((c) => c.slug === 'media')!
+
+    expect(hasField(media.fields, 'mediaPreview')).toBe(false)
+    expect(media.upload).toBe(true)
+  })
 })
 
 describe('mediaPreviewField', () => {
@@ -369,5 +446,19 @@ describe('mediaPreviewField', () => {
   it('applies overrides', () => {
     const field = mediaPreviewField({ overrides: { admin: { position: 'sidebar' } } })
     expect(field.admin?.position).toBe('sidebar')
+  })
+
+  it('keeps the plugin Cell next to override components', () => {
+    const field = mediaPreviewField({ overrides: { admin: { components: { Label: 'my-pkg#Label' } } } })
+    const cell = field.admin?.components?.Cell as { path: string }
+
+    expect(field.admin?.components?.Label).toBe('my-pkg#Label')
+    expect(cell.path).toBe('@seshuk/payload-plugin-media-preview/rsc#MediaPreviewCell')
+  })
+
+  it('uses an override Cell when set', () => {
+    const field = mediaPreviewField({ overrides: { admin: { components: { Cell: 'my-pkg#Cell' } } } })
+
+    expect(field.admin?.components?.Cell).toBe('my-pkg#Cell')
   })
 })

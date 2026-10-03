@@ -12,23 +12,25 @@ type Props = {
   mode?: MediaPreviewMode
 } & DefaultServerCellComponentProps
 
-export const MediaPreviewCell: React.FC<Props> = ({
+export const MediaPreviewCell = async ({
   adapterNames,
   collectionSlug,
   contentMode,
   mode = 'auto',
   payload: payloadInstance,
   rowData,
-}) => {
+}: Props) => {
   if (!rowData || !collectionSlug) {
     return null
   }
   const doc = rowData
   const preview = getPreviewData(payloadInstance.config, collectionSlug, doc)
 
-  const adapterMatch = resolveAdapter(payloadInstance, adapterNames, {
+  const adapterMatch = await resolveAdapter(adapterNames, {
+    collectionSlug,
     doc,
     mimeType: preview.mimeType,
+    payload: payloadInstance,
     url: preview.url,
   })
 

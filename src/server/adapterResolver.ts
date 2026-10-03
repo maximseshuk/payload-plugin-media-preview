@@ -19,13 +19,12 @@ export type AdapterMatch = {
   result: MediaPreviewAdapterInlineResult | MediaPreviewAdapterNewTabResult
 }
 
-export const resolveAdapter = (
-  payloadLike: PayloadLike,
+export const resolveAdapter = async (
   adapterNames: string[] | undefined,
   args: MediaPreviewAdapterResolveArgs,
-): AdapterMatch | null => {
-  for (const adapter of getCollectionAdapters(getPluginData(payloadLike.config), adapterNames)) {
-    const result = adapter.resolve(args)
+): Promise<AdapterMatch | null> => {
+  for (const adapter of getCollectionAdapters(getPluginData(args.payload.config), adapterNames)) {
+    const result = await adapter.resolve(args)
     if (result) {
       return {
         adapterName: adapter.name,

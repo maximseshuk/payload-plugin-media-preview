@@ -1,49 +1,39 @@
 import type { UIField } from 'payload'
 
-import type { MediaPreviewContentMode, MediaPreviewMode } from '@/shared/types/index.js'
+import type { MediaPreviewFieldOptions } from '@/shared/types/index.js'
 
-/** Options of the list view preview column. The edit view preview lives in the upload panel. */
-export type MediaPreviewFieldOptions = {
+/**
+ * The list view preview column, to place by hand. It doesn't change the edit view.
+ * Set `field: false` on the collection, so the plugin doesn't add a second column.
+ */
+export const mediaPreviewField = ({
+  adapterNames,
+  contentMode,
+  mode = 'auto',
+  overrides,
+}: Omit<MediaPreviewFieldOptions, 'position'> & {
   /** Which adapters to try when resolving a preview (by name). */
   adapterNames?: string[]
-  /** How the cell opens each content type. */
-  contentMode?: Partial<MediaPreviewContentMode>
-  /**
-   * Preview display mode.
-   *
-   * - `'auto'` — popup on desktop, fullscreen on mobile.
-   * - `'fullscreen'` — always fullscreen modal.
-   * @default 'auto'
-   */
-  mode?: MediaPreviewMode
-  /** Payload UI field overrides (`name` and `type` cannot be changed). */
-  overrides?: Partial<Omit<UIField, 'name' | 'type'>>
-}
-
-export const mediaPreviewField = (props?: MediaPreviewFieldOptions): UIField => {
-  const { adapterNames, contentMode, mode = 'auto', overrides } = props || {}
-
-  return {
-    // @ts-expect-error
-    label: ({ t }) => t('@seshuk/payload-plugin-media-preview:label'),
-    ...overrides,
-    name: 'mediaPreview',
-    type: 'ui',
-    admin: {
-      components: {
-        ...overrides?.admin?.components,
-        Cell: {
-          clientProps: {
-            contentMode,
-            mode,
-          },
-          path: '@seshuk/payload-plugin-media-preview/rsc#MediaPreviewCell',
-          serverProps: {
-            adapterNames,
-          },
+} = {}): UIField => ({
+  // @ts-expect-error
+  label: ({ t }) => t('@seshuk/payload-plugin-media-preview:label'),
+  ...overrides,
+  name: 'mediaPreview',
+  type: 'ui',
+  admin: {
+    ...overrides?.admin,
+    components: {
+      Cell: {
+        clientProps: {
+          contentMode,
+          mode,
+        },
+        path: '@seshuk/payload-plugin-media-preview/rsc#MediaPreviewCell',
+        serverProps: {
+          adapterNames,
         },
       },
-      ...overrides?.admin,
+      ...overrides?.admin?.components,
     },
-  }
-}
+  },
+})

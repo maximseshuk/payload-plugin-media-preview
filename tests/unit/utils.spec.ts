@@ -1,9 +1,8 @@
-import type { Field, SanitizedConfig } from 'payload'
+import type { SanitizedConfig } from 'payload'
 import { describe, expect, it } from 'vitest'
 
 import { buildFilePreviewMap, FILE_PREVIEW_COMPONENT, mergeFilePreview } from '@/server/filePreviewMap.js'
 import { getExternalViewerHint, getPreviewData } from '@/server/getPreviewData.js'
-import { insertField } from '@/server/insertField.js'
 import { resolveExternalViewer } from '@/server/settings.js'
 import { GOOGLE_VIEWER_MAX_SIZE, MICROSOFT_VIEWER_MAX_SIZE, TEXT_PREVIEW_MAX_SIZE } from '@/shared/constants.js'
 import { PLUGIN_KEY } from '@/shared/constants.js'
@@ -431,60 +430,5 @@ describe('mergeFilePreview', () => {
     const merged = mergeFilePreview({ 'application/*': 'user' }, ours) as Record<string, unknown>
     expect(merged[DOCX]).toBeUndefined()
     expect(merged['text/*']).toBe('ours')
-  })
-})
-
-describe('insertField', () => {
-  const field: Field = { name: 'test', type: 'text' }
-  const fields: Field[] = [
-    { name: 'first', type: 'text' },
-    { name: 'second', type: 'text' },
-    { name: 'third', type: 'text' },
-  ]
-
-  const getName = (f: Field) => ('name' in f ? f.name : undefined)
-
-  it('"first" inserts at beginning', () => {
-    const result = insertField(fields, 'first', field)
-    expect(getName(result[0])).toBe('test')
-    expect(result).toHaveLength(4)
-  })
-
-  it('"last" inserts at end', () => {
-    const result = insertField(fields, 'last', field)
-    expect(getName(result.at(-1)!)).toBe('test')
-    expect(result).toHaveLength(4)
-  })
-
-  it('{ after: "first" } inserts after target', () => {
-    const result = insertField(fields, { after: 'first' }, field)
-    expect(result.map(getName)).toEqual(['first', 'test', 'second', 'third'])
-  })
-
-  it('{ before: "third" } inserts before target', () => {
-    const result = insertField(fields, { before: 'third' }, field)
-    expect(result.map(getName)).toEqual(['first', 'second', 'test', 'third'])
-  })
-
-  it('returns unchanged if target not found', () => {
-    const result = insertField(fields, { after: 'nonexistent' }, field)
-    expect(result).toHaveLength(3)
-  })
-
-  it('handles nested fields with dot notation', () => {
-    const nested: Field[] = [
-      {
-        name: 'group',
-        type: 'group',
-        fields: [
-          { name: 'nested1', type: 'text' },
-          { name: 'nested2', type: 'text' },
-        ],
-      },
-    ]
-
-    const result = insertField(nested, { after: 'group.nested1' }, field)
-    const group = result[0] as { fields: Field[] } & Field
-    expect(group.fields.map(getName)).toEqual(['nested1', 'test', 'nested2'])
   })
 })

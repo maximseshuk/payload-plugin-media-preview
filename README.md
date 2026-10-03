@@ -8,7 +8,7 @@
 <a href="https://www.npmjs.com/package/@seshuk/payload-plugin-media-preview"><img src="https://img.shields.io/npm/dm/@seshuk/payload-plugin-media-preview?style=flat-square" alt="npm downloads" /></a>
 <a href="https://github.com/maximseshuk/payload-plugin-media-preview/releases/"><img src="https://img.shields.io/github/v/release/maximseshuk/payload-plugin-media-preview?style=flat-square&logo=github" alt="GitHub release" /></a>
 <a href="https://github.com/maximseshuk/payload-plugin-media-preview/blob/main/LICENSE"><img src="https://img.shields.io/github/license/maximseshuk/payload-plugin-media-preview?style=flat-square" alt="license" /></a>
-<a href="https://ko-fi.com/V7V61UCT39"><img src="https://img.shields.io/badge/Ko--fi-Buy_me_a_coffee-ff5f5f?style=flat-square&logo=ko-fi&logoColor=white" alt="Ko-fi" /></a>
+<a href="https://ko-fi.com/seshuk"><img src="https://img.shields.io/badge/Ko--fi-Buy_me_a_coffee-ff5f5f?style=flat-square&logo=ko-fi&logoColor=white" alt="Ko-fi" /></a>
 
 </div>
 
@@ -26,8 +26,8 @@
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Configuration](#configuration)
-  - [Plugin Config](#plugin-config)
-  - [Collection Config](#collection-config)
+  - [Plugin Options](#plugin-options)
+  - [Collection Options](#collection-options)
   - [Display Modes](#display-modes)
   - [Content Modes](#content-modes)
   - [Field Position](#field-position)
@@ -39,7 +39,7 @@
 - [Internationalization](#internationalization)
 - [Exports](#exports)
 - [TypeScript](#typescript)
-- [Breaking Changes in 2.0](#breaking-changes-in-20)
+- [Migrating from 1.x](#migrating-from-1x)
 - [License](#license)
 
 ## Requirements
@@ -81,43 +81,45 @@ This adds a preview column to your `media` collection's list view and previews t
 
 ## Configuration
 
-### Plugin Config
+### Plugin Options
 
-| Option           | Type                                          | Default | Description                                                                                 |
-| ---------------- | --------------------------------------------- | ------- | ------------------------------------------------------------------------------------------- |
-| `enabled`        | `boolean`                                     | `true`  | Enable or disable the plugin                                                                |
-| `adapters`       | `MediaPreviewAdapter[]`                       | `[]`    | Global adapters for collections that don't set their own                                    |
-| `collections`    | `Record<string, CollectionConfig \| true>`    | —       | Which upload collections to add preview to                                                  |
-| `externalViewer` | `boolean \| { office?, google?, expiresIn? }` | `false` | Microsoft and Google viewers for all collections. See [External Viewers](#external-viewers) |
+| Option           | Type                                           | Default | Description                                                                                 |
+| ---------------- | ---------------------------------------------- | ------- | ------------------------------------------------------------------------------------------- |
+| `enabled`        | `boolean`                                      | `true`  | Enable or disable the plugin                                                                |
+| `adapters`       | `MediaPreviewAdapter[]`                        | `[]`    | Global adapters for collections that don't set their own                                    |
+| `collections`    | `Record<string, boolean \| CollectionOptions>` | —       | Which upload collections to add preview to (`false` skips one)                              |
+| `externalViewer` | `boolean \| { office?, google?, expiresIn? }`  | `false` | Microsoft and Google viewers for all collections. See [External Viewers](#external-viewers) |
 
-### Collection Config
+### Collection Options
 
-Each collection entry can be `true` (all defaults) or an object:
+Each collection entry can be `true` (all defaults), `false` (skipped) or an object:
 
-| Option           | Type                                          | Default    | Description                                                          |
-| ---------------- | --------------------------------------------- | ---------- | -------------------------------------------------------------------- |
-| `mode`           | `'auto' \| 'fullscreen'`                      | `'auto'`   | List cell display mode                                               |
-| `contentMode`    | `Partial<MediaPreviewContentMode>`            | all inline | How the list cell opens each content type (`'inline'` or `'newTab'`) |
-| `adapters`       | `MediaPreviewAdapter[]`                       | —          | Per-collection adapters (override global)                            |
-| `field`          | `false \| { position?, overrides? }`          | `{}`       | List column config, or `false` to skip it (for manual placement)     |
-| `filePreview`    | `boolean`                                     | `true`     | Register the edit view preview. See [Edit View](#edit-view)          |
-| `externalViewer` | `boolean \| { office?, google?, expiresIn? }` | global     | Overrides the global `externalViewer` for this collection            |
+| Option           | Type                                          | Default | Description                                                       |
+| ---------------- | --------------------------------------------- | ------- | ----------------------------------------------------------------- |
+| `adapters`       | `MediaPreviewAdapter[]`                       | —       | Per-collection adapters (override global)                         |
+| `field`          | `boolean \| MediaPreviewFieldOptions`         | `true`  | List column options, or `false` to skip it (for manual placement) |
+| `filePreview`    | `boolean`                                     | `true`  | Register the edit view preview. See [Edit View](#edit-view)       |
+| `externalViewer` | `boolean \| { office?, google?, expiresIn? }` | global  | Overrides the global `externalViewer` for this collection         |
 
 **`field` options:**
 
-| Option      | Type                                       | Default  | Description                                                      |
-| ----------- | ------------------------------------------ | -------- | ---------------------------------------------------------------- |
-| `position`  | `'first' \| 'last' \| { after \| before }` | `'last'` | Where to insert the preview field, which sets the column order   |
-| `overrides` | `Partial<Omit<UIField, 'name' \| 'type'>>` | —        | Payload UI field overrides (`name` and `type` cannot be changed) |
+| Option        | Type                                                    | Default    | Description                                                                                                                                               |
+| ------------- | ------------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `position`    | `'first' \| 'last' \| 'sidebar' \| { after \| before }` | `'last'`   | Where to insert the preview field, which sets the column order                                                                                            |
+| `mode`        | `'auto' \| 'fullscreen'`                                | `'auto'`   | List cell display mode                                                                                                                                    |
+| `contentMode` | `Partial<MediaPreviewContentMode>`                      | all inline | How the list cell opens each content type (`'inline'` or `'newTab'`)                                                                                      |
+| `overrides`   | `Partial<Omit<UIField, 'name' \| 'type'>>`              | —          | Payload UI field overrides (`name` and `type` cannot be changed). `admin.components` is merged, so the plugin `Cell` stays unless you set your own `Cell` |
 
 ```ts
 mediaPreview({
   collections: {
     media: true,
     'hero-images': {
-      mode: 'fullscreen',
-      contentMode: { video: 'newTab' },
-      field: { position: { after: 'alt' } },
+      field: {
+        mode: 'fullscreen',
+        contentMode: { video: 'newTab' },
+        position: { after: 'alt' },
+      },
     },
   },
 })
@@ -125,7 +127,7 @@ mediaPreview({
 
 ### Display Modes
 
-The `mode` option controls how the list view cell shows previews. The edit view always uses Payload's upload panel, with a fullscreen button for plugin previews.
+The `field.mode` option controls how the list view cell shows previews. The edit view always uses Payload's upload panel, with a fullscreen button for plugin previews.
 
 #### `'auto'` (default)
 
@@ -142,14 +144,14 @@ Always uses a fullscreen modal, regardless of device.
 ```ts
 collections: {
   media: {
-    mode: 'fullscreen',
+    field: { mode: 'fullscreen' },
   },
 }
 ```
 
 ### Content Modes
 
-Control how the list cell opens each content type with the `contentMode` option. Each content type can be set to `'inline'` (default) or `'newTab'`:
+Control how the list cell opens each content type with the `field.contentMode` option. Each content type can be set to `'inline'` (default) or `'newTab'`:
 
 | Mode       | Behavior                               |
 | ---------- | -------------------------------------- |
@@ -161,11 +163,13 @@ Control how the list cell opens each content type with the `contentMode` option.
 ```ts
 collections: {
   media: {
-    contentMode: {
-      video: 'newTab',      // open videos in a new tab
-      document: 'newTab',   // open documents in a new tab
-      image: 'inline',      // show images in modal (default)
-      audio: 'inline',      // show audio in modal (default)
+    field: {
+      contentMode: {
+        video: 'newTab',
+        document: 'newTab',
+        image: 'inline',
+        audio: 'inline',
+      },
     },
   },
 }
@@ -186,6 +190,11 @@ field: {
   position: 'first'
 }
 
+// In the edit view sidebar (the list column goes last)
+field: {
+  position: 'sidebar'
+}
+
 // After a specific field
 field: {
   position: {
@@ -201,34 +210,17 @@ field: {
 }
 ```
 
-Dot-notation paths are supported for nested groups and named tab fields:
+Use dot paths for fields inside a named group or a named tab:
 
 ```ts
-// After a field inside a named group
 field: {
   position: {
-    after: 'myGroup.fieldName'
-  }
-}
-
-// After a field inside a named tabs field (tab index is zero-based)
-field: {
-  position: {
-    after: 'myTabs.0.fieldName'
+    after: 'meta.description'
   }
 }
 ```
 
-Fields inside unnamed tabs are found automatically — no path prefix needed:
-
-```ts
-// Works even if 'alt' is inside an unnamed tab
-field: {
-  position: {
-    after: 'alt'
-  }
-}
-```
+Rows, collapsibles and unnamed tabs add no path segment, so `{ after: 'alt' }` finds `alt` inside them. A bare name also finds a field inside a group or named tab when only one field has that name. If the name matches more than one field, or none, the plugin throws at startup and asks for the full path.
 
 ### Supported File Types
 
@@ -333,7 +325,7 @@ Adapters always apply in the list cell. The edit view shows the plugin preview o
 | ----------- | ---------------------------------------- | --------------------------------------------------------------------------------- |
 | `name`      | `string`                                 | Unique adapter name                                                               |
 | `Component` | `string`                                 | Component path for `inline` results                                               |
-| `resolve`   | `(args) => result \| null`               | Returns how to preview a document, or `null` to skip                              |
+| `resolve`   | `(args) => result \| null \| Promise<…>` | Returns how to preview a document, or `null` to skip. Can be async                |
 | `mimeTypes` | `string[]`                               | Types the adapter previews in the edit view, for example `['video/*', 'audio/*']` |
 | `signUrl`   | `(args) => string \| null \| Promise<…>` | Public URL for the external viewers. See [Signed URLs](#signed-urls)              |
 
@@ -414,11 +406,23 @@ A collection uses its own `adapters` when it sets them, and the global `adapters
 ### How Adapters Work
 
 1. When a document is loaded, the collection's adapters are tried in order
-2. Each adapter's `resolve()` function receives `{ doc, url, mimeType }`
+2. Each adapter's `resolve()` function receives `{ doc, url, mimeType, collectionSlug, payload, user }` and can return a Promise
 3. The first adapter to return a non-null value wins
 4. For `inline` results, the `props` are passed to the adapter's `Component`
 5. For `newTab` results, clicking the preview opens the URL in a new browser tab
 6. If no adapter matches, the default built-in viewer is used
+
+`user` is the logged-in user in the edit view upload panel. In the list view cell it is always `undefined`, because Payload does not pass the user to cells. Use `payload` for Local API calls, for example to presign a `newTab` URL:
+
+```ts
+const presigned: MediaPreviewAdapter = {
+  name: 'presigned',
+  resolve: async ({ doc }) =>
+    typeof doc.filename === 'string'
+      ? { mode: 'newTab', url: await createSignedUrl(`media/${doc.filename}`, 600) }
+      : null,
+}
+```
 
 ### Built-in Viewer Components
 
@@ -588,24 +592,49 @@ import type {
   MediaPreviewAdapterResolveArgs,
   MediaPreviewAdapterResolveResult,
   MediaPreviewAdapterSignUrlArgs,
-  MediaPreviewCollectionConfig,
+  MediaPreviewCollectionOptions,
   MediaPreviewContentMode,
   MediaPreviewContentModeType,
   MediaPreviewContentType,
   MediaPreviewExternalViewer,
-  MediaPreviewFieldConfig,
   MediaPreviewFieldOptions,
   MediaPreviewMode,
   MediaPreviewPlugin,
-  MediaPreviewPluginConfig,
+  MediaPreviewPluginOptions,
   VideoViewerProps,
 } from '@seshuk/payload-plugin-media-preview'
 ```
 
-## Breaking Changes in 2.0
+## Migrating from 1.x
 
+2.x needs Payload 4 and Node.js 24.15+. Payload 3 users stay on 1.x.
+
+- `mode` and `contentMode` move from the collection into `field`. The old keys throw at startup, for example `collections.media.mode was renamed to collections.media.field.mode`.
+
+  ```ts
+  // 1.x
+  media: { mode: 'fullscreen', contentMode: { video: 'newTab' } }
+
+  // 2.x
+  media: { field: { mode: 'fullscreen', contentMode: { video: 'newTab' } } }
+  ```
+
+- `contentMode` now only sets how the list cell opens files. It no longer changes the edit view, which always shows the file in Payload's upload panel. For example, `contentMode: { document: 'newTab' }` no longer opens documents in a new tab from the edit view.
+- `field.overrides.admin.components` is now merged with the plugin's components. In 1.x, setting any component (for example a `Label`) removed the preview `Cell`. Now the plugin `Cell` stays unless you set your own `Cell`.
+- Adapter `resolve()` can be async and receives `collectionSlug`, `payload` and `user` next to `doc`, `url` and `mimeType`. Sync adapters keep working. If you call `adapter.resolve()` yourself, for example in tests, `await` the result and pass the new required arguments.
+
+  ```ts
+  // 1.x
+  resolve: ({ doc }) => ({ mode: 'newTab', url: publicUrl(doc) })
+
+  // 2.x, can now be async and use payload
+  resolve: async ({ doc, payload }) => ({ mode: 'newTab', url: await presign(payload, doc) })
+  ```
+
+- Types are renamed: `MediaPreviewPluginConfig` → `MediaPreviewPluginOptions`, `MediaPreviewCollectionConfig` → `MediaPreviewCollectionOptions`. `MediaPreviewFieldConfig` is gone; the `field` object is `MediaPreviewFieldOptions`.
+- `field.position` throws when the field is not found or the name matches more than one field. Named tabs use their name in the path (`seo.title`), not the tab index (`myTabs.0.title`).
 - The edit view preview button and its `Field` component are removed. The edit view now uses Payload's `upload.admin.components.filePreview`. See [Edit View](#edit-view).
-- `mediaPreviewField()` only adds the list view column. `mode`, `contentMode` and `field` options apply to the list cell only.
+- `mediaPreviewField()` only adds the list view column.
 - PDF and text files no longer use the Google viewer. PDF uses the browser viewer, text is rendered by the plugin.
 - External viewers (Microsoft, Google) are off by default. Set `externalViewer` to turn them on.
 - `contentMode: { document: 'newTab' }` opens the file URL, not the external viewer.
@@ -631,4 +660,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 Built with ❤️ for the Payload CMS community.
 
-If you find this plugin useful, [buy me a coffee](https://ko-fi.com/V7V61UCT39).
+If you find this plugin useful, [buy me a coffee](https://ko-fi.com/seshuk).

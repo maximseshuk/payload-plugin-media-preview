@@ -53,7 +53,7 @@ const customAdapter: MediaPreviewAdapter = {
 
 const newTabAdapter: MediaPreviewAdapter = {
   name: 'newtab-adapter',
-  resolve: ({ doc }) => {
+  resolve: async ({ doc }) => {
     const externalUrl = doc.externalUrl as string | undefined
     if (externalUrl) {
       return { mode: 'newTab', url: externalUrl }
@@ -181,12 +181,14 @@ const buildConfigAsync = async () => {
             externalViewer: true,
           },
           'media-fullscreen': {
-            mode: 'fullscreen',
+            field: { mode: 'fullscreen' },
           },
           'media-newtab': {
-            contentMode: {
-              document: 'newTab',
-              video: 'newTab',
+            field: {
+              contentMode: {
+                document: 'newTab',
+                video: 'newTab',
+              },
             },
           },
           'media-position': {

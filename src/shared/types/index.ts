@@ -1,4 +1,7 @@
-import type { PayloadRequest, Plugin, UIField, UploadCollectionSlug } from 'payload'
+import type { InsertPosition } from '@seshuk/payload-plugin-tooling/fields'
+import type { Payload, PayloadRequest, Plugin, UIField, UploadCollectionSlug, User } from 'payload'
+
+export type { InsertPosition } from '@seshuk/payload-plugin-tooling/fields'
 
 export type VideoViewerProps = {
   autoPlay?: boolean
@@ -40,9 +43,17 @@ export type IframeViewerProps = {
 }
 
 export type MediaPreviewAdapterResolveArgs = {
+  /** Slug of the upload collection the document belongs to. */
+  collectionSlug: string
   doc: Record<string, unknown>
   mimeType?: string
+  payload: Payload
   url?: string
+  /**
+   * The logged-in user in the edit view upload panel.
+   * Always `undefined` in the list view cell, because Payload does not pass the user to cells.
+   */
+  user?: User
 }
 
 /** Returned by `resolve()` to render the adapter's component inside a modal. */
@@ -88,8 +99,12 @@ export type MediaPreviewAdapter = {
    * - Return `{ mode: 'inline', props }` to render `Component` in a modal.
    * - Return `{ mode: 'newTab', url }` to open a link in a new tab.
    * - Return `null` to skip this adapter.
+   *
+   * May be async, for example to presign a `newTab` URL.
    */
-  resolve: (args: MediaPreviewAdapterResolveArgs) => MediaPreviewAdapterResolveResult | null
+  resolve: (
+    args: MediaPreviewAdapterResolveArgs,
+  ) => MediaPreviewAdapterResolveResult | null | Promise<MediaPreviewAdapterResolveResult | null>
   /**
    * Return a public, short-lived URL of the file for an external viewer (Microsoft, Google),
    * e.g. a CDN URL with token auth. Return `null` to let the plugin decide.
@@ -123,8 +138,6 @@ export type MediaPreviewExternalViewer =
     }
   | boolean
 
-export type InsertPosition = 'first' | 'last' | { after: string; before?: never } | { after?: never; before: string }
-
 export type MediaPreviewContentType = 'audio' | 'document' | 'image' | 'video'
 export type MediaPreviewContentModeType = 'inline' | 'newTab'
 
@@ -141,62 +154,62 @@ export type MediaPreviewMode = 'auto' | 'fullscreen'
  */
 export type MediaPreviewContentMode = Record<MediaPreviewContentType, MediaPreviewContentModeType>
 
-export type MediaPreviewFieldConfig = {
-  /** Payload UI field overrides (`name` and `type` cannot be changed). */
-  overrides?: Partial<Omit<UIField, 'name' | 'type'>>
-  /**
-   * Position in the fields list, which sets the column order in the list view.
-   * @default 'last'
-   */
-  position?: InsertPosition
-}
-
-export type MediaPreviewCollectionConfig = {
-  /** Overrides global adapters when set. */
-  adapters?: MediaPreviewAdapter[]
-  /** How the list view cell opens each content type. */
+/** The list view preview column. */
+export type MediaPreviewFieldOptions = {
+  /** How the cell opens each content type. */
   contentMode?: Partial<MediaPreviewContentMode>
-  /** Overrides the global `externalViewer` when set. */
-  externalViewer?: MediaPreviewExternalViewer
   /**
-   * Controls the list view preview column.
-   *
-   * - Omit or pass `{}` to inject with defaults.
-   * - Pass `{ position, overrides }` to customize the injected field.
-   * - Set to `false` to skip injection (for manual placement via `mediaPreviewField()`).
-   */
-  field?: false | MediaPreviewFieldConfig
-  /**
-   * Adds the plugin preview to the edit view upload panel (`upload.admin.components.filePreview`)
-   * for file types Payload does not preview itself.
-   * @default true
-   */
-  filePreview?: boolean
-  /**
-   * List view preview display mode.
+   * Preview display mode.
    *
    * - `'auto'` — popup on desktop, fullscreen on mobile.
    * - `'fullscreen'` — always fullscreen modal.
    * @default 'auto'
    */
   mode?: MediaPreviewMode
+  /**
+   * Payload UI field overrides (`name` and `type` cannot be changed).
+   * `admin.components` is merged with the plugin's, so the plugin `Cell` stays unless you set your own `Cell`.
+   */
+  overrides?: Partial<Omit<UIField, 'name' | 'type'>>
+  /**
+   * Where the plugin puts the column in the fields list, which sets the column order.
+   * Ignored by `mediaPreviewField()`.
+   * @default 'last'
+   */
+  position?: InsertPosition
 }
 
-export type MediaPreviewPluginConfig = {
+export type MediaPreviewCollectionOptions = {
+  /** Overrides global adapters when set. */
+  adapters?: MediaPreviewAdapter[]
+  /** Overrides the global `externalViewer` when set. */
+  externalViewer?: MediaPreviewExternalViewer
+  /**
+   * The list view preview column.
+   *
+   * - `true` or omitted — add the column with defaults.
+   * - `{ position, overrides, mode, contentMode }` — add the column and customize it.
+   * - `false` — no column (place it by hand with `mediaPreviewField()`).
+   * @default true
+   */
+  field?: boolean | MediaPreviewFieldOptions
+  /**
+   * Adds the plugin preview to the edit view upload panel (`upload.admin.components.filePreview`)
+   * for file types Payload does not preview itself.
+   * @default true
+   */
+  filePreview?: boolean
+}
+
+export type MediaPreviewPluginOptions = {
   /** Adapters available to all collections. */
   adapters?: MediaPreviewAdapter[]
-  /** Use `true` for defaults or an object for fine-tuning. */
-  collections: Partial<Record<UploadCollectionSlug, MediaPreviewCollectionConfig | true>>
+  /** Upload collections to preview, by slug. `true` for defaults, an object to customize, `false` to skip. */
+  collections: Partial<Record<UploadCollectionSlug, boolean | MediaPreviewCollectionOptions>>
   /** @default true */
   enabled?: boolean
   /** @default false */
   externalViewer?: MediaPreviewExternalViewer
 }
 
-export type MediaPreviewPlugin = (pluginConfig: MediaPreviewPluginConfig) => Plugin
-
-export type MediaPreviewFieldProps = {
-  adapterNames?: string[]
-  contentMode?: Partial<MediaPreviewContentMode>
-  mode?: MediaPreviewMode
-}
+export type MediaPreviewPlugin = (options: MediaPreviewPluginOptions) => Plugin
