@@ -1,9 +1,16 @@
-overrides:
-  '@typescript-eslint/eslint-plugin': ^8.57.0
-  '@typescript-eslint/parser': ^8.57.0
-  '@typescript-eslint/utils': ^8.57.0
-  '@typescript-eslint/typescript-estree': ^8.57.0
+nodeVersion: 24.15.0
+pmOnFail: download
+
+catalog:
+  '@types/node': ^26.1.2
+  '@typescript/native': npm:typescript@7.0.2
+  react: 19.3.0
+  react-dom: 19.3.0
+  typescript: npm:@typescript/typescript6@6.0.2
 
 allowBuilds:
   esbuild: true
+  oxc-resolver: true
   sharp: true
+minimumReleaseAgeExclude:
+  - '@seshuk/payload-plugin-tooling'

@@ -1,28 +1,11 @@
 {
+  "extends": "@seshuk/payload-plugin-tooling/tsconfig.json",
   "compilerOptions": {
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "rootDir": "./",
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "module": "NodeNext",
-    "moduleResolution": "nodenext",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-    "emitDeclarationOnly": true,
-    "target": "ES2022",
-    "composite": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    "types": ["node"],
+    "noEmit": true,
+    "paths": { "@/*": ["./src/*"] }
   },
-  "include": ["./src/**/*.ts", "./src/**/*.tsx", "./tests/next-env.d.ts"]
+  "include": ["./src/**/*.ts", "./src/**/*.tsx", "./*.config.ts"],
+  "exclude": ["./tests/app/**/*"]
 }

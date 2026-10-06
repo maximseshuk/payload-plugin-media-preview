@@ -19,24 +19,12 @@ body:
     id: description
     attributes:
       label: Feature Description
-      description: What feature would you like to see implemented and why?
+      description: What feature would you like to see implemented, and why?
       placeholder: |
         Describe the feature you'd like to see:
-        - What problem does this solve?
+        - What problem does this solve, and who is it for?
         - How should it work?
         - What would the configuration look like?
-    validations:
-      required: true
-
-  - type: textarea
-    id: use-case
-    attributes:
-      label: Use Case
-      description: Describe your specific use case for this feature
-      placeholder: |
-        Help us understand how you would use this:
-        - What type of project is this for?
-        - What are you trying to accomplish?
         - Any current workarounds you're using?
     validations:
       required: true
@@ -49,11 +37,12 @@ body:
       placeholder: |
         ```typescript
         mediaPreview({
-          adapters: [
-            // Your proposed adapter or feature here
-          ],
           collections: {
             media: true,
+          },
+          // Your proposed feature here
+          newFeature: {
+            // example options
           },
         })
         ```

@@ -1,0 +1,45 @@
+td.cell-mediaPreview:has(.popup, .btn) {
+  vertical-align: middle;
+}
+
+.media-preview-popup.popup__content {
+  max-width: none;
+
+  .popup__scroll-container {
+    max-height: none;
+    padding: var(--spacer-2);
+  }
+}
+
+.media-preview-popup__body {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 480px;
+  max-width: calc(100vw - 2 * var(--spacer-4));
+  height: 290px;
+
+  &:has(> audio) {
+    width: 300px;
+    height: auto;
+  }
+
+  &:has(> .media-preview-card) {
+    width: auto;
+    min-width: 300px;
+    height: auto;
+  }
+
+  .media-preview-viewer__media,
+  .media-preview-viewer__frame,
+  .media-preview-viewer__code,
+  .media-preview-viewer__table-wrap,
+  > .media-preview-viewer__text {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+  }
+}
