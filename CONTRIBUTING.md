@@ -77,7 +77,7 @@ If users will notice the change, update `README.md`. It is the only documentatio
 - Use [Conventional Commits](https://www.conventionalcommits.org/) with a short, one-line subject, for example `fix: load full documents for the preview column` or `feat: add a contentMode override`. The release changelog is built from these.
 - Keep each PR to one change. Open it against `main`, which holds 2.x for Payload 4. The `1.x` branch (Payload 3) only gets critical and high-severity security fixes. We cherry-pick them from `main` when possible.
 - Fill in the PR template: what changed, why, and how you tested it. Link the issue (`Closes #123`).
-- CI must pass. The `Lint, typecheck, test, build (24)` check runs lint, format check, typecheck, unit and integration tests and the build on Node 24. Playwright e2e runs in its own CI job.
+- CI must pass. The `ci / Lint, typecheck, test, build (24)` check runs lint, format check, typecheck, unit and integration tests and the build on Node 24. Playwright e2e runs in its own CI job.
 - Resolve all review threads before merge.
 
 ## License
