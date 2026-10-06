@@ -41,7 +41,12 @@ export const openFullscreen = async (page: Page): Promise<Locator> => {
   return modal
 }
 
-export const openCellPreview = async (page: Page, collection: string, rowText?: string): Promise<Locator> => {
+export const openCellPreview = async (
+  page: Page,
+  collection: string,
+  rowText?: string,
+  target = '.media-preview-popup',
+): Promise<Locator> => {
   await page.goto(`/admin/collections/${collection}`)
 
   const row = rowText ? page.locator('tr', { hasText: rowText }).first() : page.locator('.cell-mediaPreview').first()
@@ -49,9 +54,10 @@ export const openCellPreview = async (page: Page, collection: string, rowText?: 
   await expect(row).toBeVisible({ timeout: 10000 })
   await page.waitForLoadState('networkidle')
   const btn = row.locator(rowText ? '.cell-mediaPreview button' : 'button')
+  await expect(btn).toHaveText('Open')
   await btn.click()
 
-  const popup = page.locator('.media-preview-popup')
+  const popup = page.locator(target)
   await expect(popup).toBeAttached({ timeout: 10000 })
   return popup
 }

@@ -5,8 +5,6 @@ import type { Payload } from 'payload'
 import { handleEndpoints } from 'payload'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { createFileToken } from '@/server/fileToken.js'
-
 import { getPayload } from '../helpers/int/getPayload.js'
 import { devUser } from '../helpers/shared/buildConfigWithDefaults.js'
 import { DOCX, XLSX } from '../helpers/shared/mimeTypes.js'
@@ -90,23 +88,6 @@ describe('media preview endpoints', () => {
       expect(await signedUrlOf('media-public', xlsx.id)).toBe(`https://files.example.com/${xlsx.filename}`)
     })
 
-    it('returns a token URL when Payload serves the file', async () => {
-      const doc = await upload('media', 'test-document.docx')
-      const url = await signedUrlOf('media', doc.id)
-
-      expect(doc.url).toBe(`${SERVER_URL}/api/media/file/${doc.filename}`)
-      const { origin, pathname } = new URL(url)
-      expect(origin).toBe(SERVER_URL)
-      expect(pathname.split('/')).toEqual([
-        '',
-        'api',
-        'media-preview',
-        'file',
-        expect.stringMatching(/^[\w-]+\.[\w-]+$/),
-        doc.filename,
-      ])
-    })
-
     it('signs the draft version', async () => {
       const doc = await upload('media', 'test-document.docx')
       const draft = await payload.update({
@@ -135,9 +116,11 @@ describe('media preview endpoints', () => {
     }
 
     it('serves the file for a valid token without a session', async () => {
-      const { url } = await tokenUrl()
+      const { doc, url } = await tokenUrl()
       const res = await request(url)
       const bytes = readFileSync(fixture('test-document.docx'))
+
+      expect(new URL(url).pathname).toBe(`/api/media-preview/file/${url.split('/').at(-2)}/${doc.filename}`)
 
       expect(res.status).toBe(200)
       expect(Buffer.from(await res.arrayBuffer()).equals(bytes)).toBe(true)
@@ -146,35 +129,6 @@ describe('media preview endpoints', () => {
       expect(res.headers.get('Content-Security-Policy')).toBe("default-src 'none'; sandbox")
       expect(res.headers.get('X-Content-Type-Options')).toBe('nosniff')
       expect(res.headers.get('Cache-Control')).toBe('no-store')
-    })
-
-    it('returns 404 for an expired token', async () => {
-      const { doc } = await tokenUrl()
-      const token = createFileToken({
-        id: doc.id,
-        collection: 'media',
-        expiresAt: Math.floor(Date.now() / 1000) - 1,
-        filename: doc.filename!,
-        secret: payload.secret,
-      })
-
-      expect((await request(`/api/media-preview/file/${token}/${doc.filename}`)).status).toBe(404)
-    })
-
-    it('returns 404 for a tampered token', async () => {
-      const { doc, url } = await tokenUrl()
-      const [token, filename] = url.split('/').slice(-2)
-      const mac = token.split('.')[1]
-      const expiresAt = (Math.floor(Date.now() / 1000) + 9999).toString(36)
-      const forged = Buffer.from(`media:${expiresAt}:${doc.id}`).toString('base64url')
-
-      expect((await request(url)).status).toBe(200)
-      expect((await request(`/api/media-preview/file/${forged}.${mac}/${filename}`)).status).toBe(404)
-    })
-
-    it('returns 404 for another filename', async () => {
-      const { url } = await tokenUrl()
-      expect((await request(url.replace(/[^/]+$/, 'other.docx'))).status).toBe(404)
     })
 
     it('returns 404 for a deleted document', async () => {

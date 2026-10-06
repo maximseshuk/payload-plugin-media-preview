@@ -13,6 +13,7 @@ import {
 import { PLUGIN_KEY } from '@/shared/constants.js'
 import {
   formatText,
+  getContentType,
   getCodeLanguage,
   getExtension,
   getFileKind,
@@ -70,6 +71,21 @@ describe('getFileKind', () => {
   it('trusts a known MIME type over the extension', () => {
     expect(getFileKind('application/zip', 'notes.txt')).toBe('unsupported')
     expect(getFileKind('video/mp2t', 'clip.ts')).toBe('video')
+  })
+})
+
+describe('getContentType', () => {
+  it.each([
+    ['image', 'image'],
+    ['video', 'video'],
+    ['audio', 'audio'],
+    ['pdf', 'document'],
+    ['text', 'document'],
+    ['office', 'document'],
+    ['google', 'document'],
+    ['unsupported', 'document'],
+  ] as const)('maps %s to %s', (kind, expected) => {
+    expect(getContentType(kind)).toBe(expected)
   })
 })
 
@@ -237,8 +253,12 @@ describe('isPayloadFileUrl', () => {
     },
   )
 
-  it('returns true for a relative URL without serverURL', () => {
-    expect(isPayloadFileUrl({ ...base, serverURL: undefined, url: '/api/media/file/a.docx' })).toBe(true)
+  it.each([
+    ['/api/media/file/a.docx', true],
+    ['//evil.example.com/api/media/file/a', false],
+    ['https://cdn.example.com/api/media/file/a', false],
+  ])('treats %s without serverURL as proxied: %s', (url, expected) => {
+    expect(isPayloadFileUrl({ ...base, serverURL: undefined, url })).toBe(expected)
   })
 
   it.each([
@@ -250,16 +270,6 @@ describe('isPayloadFileUrl', () => {
     '/\\evil.example.com/api/media/file/a.docx',
   ])('returns false for direct URL %s', (url) => {
     expect(isPayloadFileUrl({ ...base, url })).toBe(false)
-  })
-
-  it('returns false for a protocol-relative URL without serverURL', () => {
-    expect(isPayloadFileUrl({ ...base, serverURL: undefined, url: '//evil.example.com/api/media/file/a' })).toBe(false)
-  })
-
-  it('returns false for an absolute URL without serverURL', () => {
-    expect(isPayloadFileUrl({ ...base, serverURL: undefined, url: 'https://cdn.example.com/api/media/file/a' })).toBe(
-      false,
-    )
   })
 })
 
@@ -297,12 +307,8 @@ describe('resolveExternalViewer', () => {
     })
   })
 
-  it('falls back to the default expiresIn for invalid values', () => {
-    expect(resolveExternalViewer({ expiresIn: 0, google: true })).toMatchObject({ expiresIn: 600 })
-    expect(resolveExternalViewer({ expiresIn: -5, google: true })).toMatchObject({ expiresIn: 600 })
-    for (const expiresIn of [Number.NaN, Infinity, 0.5]) {
-      expect(resolveExternalViewer({ expiresIn, google: true })).toMatchObject({ expiresIn: 600 })
-    }
+  it.each([0, -5, Number.NaN, Infinity, 0.5])('falls back to the default expiresIn for %s', (expiresIn) => {
+    expect(resolveExternalViewer({ expiresIn, google: true })).toMatchObject({ expiresIn: 600 })
   })
 
   it('rounds expiresIn down to whole seconds', () => {
@@ -346,9 +352,12 @@ describe('getPreviewData', () => {
     },
   )
 
-  it('allows a private server when an adapter signs URLs', () => {
+  it.each([
+    ['a private server', 'http://localhost:3102', docx.url],
+    ['a private direct URL', undefined, 'http://minio:9000/a.docx'],
+  ])('allows %s when an adapter signs URLs', (_, serverURL, url) => {
     const adapters = [{ name: 'signer', resolve: () => null, signUrl: () => 'https://cdn.example.com/a' }]
-    expect(getExternalViewerHint(config(on, 'http://localhost:3102', adapters), 'media', docx)).toBeUndefined()
+    expect(getExternalViewerHint(config(on, serverURL, adapters), 'media', { ...docx, url })).toBeUndefined()
   })
 
   it('checks the direct URL itself for reachability', () => {
@@ -360,22 +369,17 @@ describe('getPreviewData', () => {
     )
   })
 
-  it('allows a private direct URL when an adapter signs URLs', () => {
-    const adapters = [{ name: 'signer', resolve: () => null, signUrl: () => 'https://cdn.example.com/a' }]
-    const direct = { ...docx, url: 'http://minio:9000/a.docx' }
-    expect(getExternalViewerHint(config(on, undefined, adapters), 'media', direct)).toBeUndefined()
-  })
-
-  it('hints errorTooLarge over the viewer size limits', () => {
-    expect(getExternalViewerHint(config(on), 'media', { ...docx, filesize: MICROSOFT_VIEWER_MAX_SIZE + 1 })).toBe(
-      'errorTooLarge',
-    )
-    const psd = { ...docx, filesize: GOOGLE_VIEWER_MAX_SIZE + 1, mimeType: 'image/vnd.adobe.photoshop' }
-    expect(getExternalViewerHint(config(on), 'media', psd)).toBe('errorTooLarge')
-    expect(getExternalViewerHint(config(on), 'media', { ...psd, filesize: GOOGLE_VIEWER_MAX_SIZE })).toBeUndefined()
-    const xlsx = { ...docx, filesize: MICROSOFT_EXCEL_MAX_SIZE + 1, mimeType: XLSX }
-    expect(getExternalViewerHint(config(on), 'media', xlsx)).toBe('errorTooLarge')
-    expect(getExternalViewerHint(config(on), 'media', { ...xlsx, filesize: MICROSOFT_EXCEL_MAX_SIZE })).toBeUndefined()
+  it.each([
+    [DOCX, 6 * 1024 * 1024, undefined],
+    [DOCX, MICROSOFT_VIEWER_MAX_SIZE, undefined],
+    [DOCX, MICROSOFT_VIEWER_MAX_SIZE + 1, 'errorTooLarge'],
+    [XLSX, MICROSOFT_EXCEL_MAX_SIZE, undefined],
+    [XLSX, MICROSOFT_EXCEL_MAX_SIZE + 1, 'errorTooLarge'],
+    ['application/vnd.ms-excel', MICROSOFT_EXCEL_MAX_SIZE + 1, 'errorTooLarge'],
+    ['image/vnd.adobe.photoshop', GOOGLE_VIEWER_MAX_SIZE, undefined],
+    ['image/vnd.adobe.photoshop', GOOGLE_VIEWER_MAX_SIZE + 1, 'errorTooLarge'],
+  ])('hints %s of %i bytes with %s', (mimeType, filesize, hint) => {
+    expect(getExternalViewerHint(config(on), 'media', { ...docx, filesize, mimeType })).toBe(hint)
   })
 
   it('hints errorTooLarge for big text files', () => {
