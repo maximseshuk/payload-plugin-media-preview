@@ -687,17 +687,20 @@ import type {
 
 ---
 
-## License
+## Related plugins
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Related Plugins
-
-- **[@seshuk/payload-storage-bunny](https://github.com/maximseshuk/payload-storage-bunny)** — Bunny.net storage adapter for Payload
+- **[@seshuk/payload-storage-bunny](https://github.com/maximseshuk/payload-storage-bunny)** — store files and stream video from Payload on Bunny.net's global CDN.
+- **[@seshuk/payload-plugin-janitor](https://github.com/maximseshuk/payload-plugin-janitor)** — find orphaned files and unused documents, then delete only what you approve.
+- **[@seshuk/payload-plugin-sitemap](https://github.com/maximseshuk/payload-plugin-sitemap)** — sitemaps for Payload, stored with any storage adapter.
+- **[@seshuk/payload-plugin-openapi](https://github.com/maximseshuk/payload-plugin-openapi)** — OpenAPI 3.0, 3.1 and 3.2 spec for Payload, with Scalar or Swagger UI.
 
 ## Support
 
 Bug reports, feature requests, and questions go to [GitHub Issues](https://github.com/maximseshuk/payload-plugin-media-preview/issues). For Payload itself, see the [Payload docs](https://payloadcms.com/docs) and [Discord](https://discord.gg/payloadcms).
+
+## License
+
+MIT — see [LICENSE](LICENSE).
 
 ## Credits
 
