@@ -64,7 +64,7 @@ tests/
 
 ## Architecture
 
-- **Factory:** `definePlugin` from `payload`, slug `@seshuk/payload-plugin-media-preview`. Call `mediaPreview(options)(config)`. `enabled: false` → config unchanged (schema-stable: plugin add only `ui` field, no DB column). `collections` value `boolean | MediaPreviewCollectionConfig`, `false` skip. Per collection: inject `mediaPreview` UI field (no column in DB, list Cell only) at `field.position`, merge MIME map into `filePreview`, store settings in `config.custom[PLUGIN_KEY]`, register adapter Components in `admin.dependencies` (`media-preview-viewer-${name}`), add `/media-preview/*` endpoints only when some collection has `externalViewer`.
+- **Factory:** `definePlugin` from `payload`, slug `@seshuk/payload-plugin-media-preview`. Call `mediaPreview(options)(config)`. `enabled: false` → config unchanged (schema-stable: plugin add only `ui` field, no DB column). `collections` value `boolean | MediaPreviewCollectionOptions`, `false` skip. Per collection: inject `mediaPreview` UI field (no column in DB, list Cell only) at `field.position`, merge MIME map into `filePreview`, store settings in `config.custom[PLUGIN_KEY]`, register adapter Components in `admin.dependencies` (`media-preview-viewer-${name}`), add `/media-preview/*` endpoints only when some collection has `externalViewer`.
 - **Field options in `field`:** `field?: boolean | { position?, overrides?, mode?, contentMode? }`, same shape as janitor `usagePanel`. `position` = `InsertPosition` (`'first' | 'last' | { after } | { before }`, dot paths through groups and named tabs). No `'sidebar'`: field only add list column, `UIField` render nothing in edit view. Unknown or ambiguous name → throw at startup. `overrides.admin.components` merge with plugin `Cell`; own `Cell` win. 1.x collection-level `mode`/`contentMode` → throw `collections.<slug>.<key> was renamed to collections.<slug>.field.<key>`, also with `enabled: false`.
 - **filePreview map:** match exact, then category wildcard, then `'*'`. Plugin sets `false` for `image/*`, `video/*`, `audio/*`, `application/pdf` → Payload keep own preview. User map with `'*'` kept as is.
 - **Resolve on server, render on client.** RSC resolve adapters and build `PreviewData` with `getPreviewData()`; client render `MediaPreviewViewer` or adapter Viewer. Plain data only across boundary.
@@ -77,7 +77,7 @@ tests/
 
 - No code comments. Only JSDoc on plugin options types (`src/shared/types/index.ts`, `src/server/field.ts`), `@default` for defaults. Lint/type directives bare.
 - Imports end in `.js`. `@/` (= `src/`) for any import that leave folder, `./x.js` only in same folder, no `../`. Tests import source through `@/`.
-- Shared names across plugins: `enabled`, `access({ req, ... })`, `path` for route on Payload, `url` for absolute URL, options type `MediaPreviewPluginConfig`. No deprecated aliases.
+- Shared names across plugins: `enabled`, `access({ req, ... })`, `path` for route on Payload, `url` for absolute URL, options type `MediaPreviewPluginOptions`. No deprecated aliases.
 - Plain CSS next to component, BEM-like, Payload 4 tokens (`--color-*`, `--spacer-*`, `--radius-*`). CSS imported from client component, never RSC (tsdown keep `.css` import as is, `@/` there not rewritten).
 - Payload UI first: `Button`, `Popup`, `Modal`, `CodeEditorLazy`, `@payloadcms/ui/icons/*`.
 - Upload content render as text only (Monaco read-only, `<pre>` fallback, `<table>` for CSV). Never SVG/HTML from uploads in admin origin.

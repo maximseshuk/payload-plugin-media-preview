@@ -14,8 +14,8 @@ import { translations } from '@/shared/translations/index.js'
 import type { PluginDefaultTranslationsObject } from '@/shared/translations/types.js'
 import type {
   MediaPreviewAdapter,
-  MediaPreviewCollectionConfig,
-  MediaPreviewPluginConfig,
+  MediaPreviewCollectionOptions,
+  MediaPreviewPluginOptions,
 } from '@/shared/types/index.js'
 
 export { mediaPreviewField } from '@/server/field.js'
@@ -30,15 +30,15 @@ export type {
   MediaPreviewAdapterResolveArgs,
   MediaPreviewAdapterResolveResult,
   MediaPreviewAdapterSignUrlArgs,
-  MediaPreviewCollectionConfig,
+  MediaPreviewCollectionOptions,
   MediaPreviewContentMode,
   MediaPreviewContentModeType,
   MediaPreviewContentType,
   MediaPreviewExternalViewer,
-  MediaPreviewFieldConfig,
+  MediaPreviewFieldOptions,
   MediaPreviewMode,
   MediaPreviewPlugin,
-  MediaPreviewPluginConfig,
+  MediaPreviewPluginOptions,
   VideoViewerProps,
 } from '@/shared/types/index.js'
 
@@ -75,12 +75,12 @@ const withPreviewSelect =
     return resolved && selectsPreview(resolved) ? { mediaPreview: false } : resolved
   }
 
-export const mediaPreview = definePlugin<MediaPreviewPluginConfig>({
+export const mediaPreview = definePlugin<MediaPreviewPluginOptions>({
   slug: '@seshuk/payload-plugin-media-preview',
   plugin: ({ config: incomingConfig, options }) => {
-    for (const [slug, collConfig] of Object.entries(options.collections)) {
+    for (const [slug, collOptions] of Object.entries(options.collections)) {
       for (const key of ['mode', 'contentMode']) {
-        if (collConfig && typeof collConfig === 'object' && key in collConfig) {
+        if (collOptions && typeof collOptions === 'object' && key in collOptions) {
           throw new Error(`[${PLUGIN_KEY}] collections.${slug}.${key} was renamed to collections.${slug}.field.${key}`)
         }
       }
@@ -91,8 +91,8 @@ export const mediaPreview = definePlugin<MediaPreviewPluginConfig>({
     }
 
     const allAdapters: MediaPreviewAdapter[] = []
-    const collectionAdapters = Object.values(options.collections).flatMap((collConfig) =>
-      collConfig && typeof collConfig === 'object' ? (collConfig.adapters ?? []) : [],
+    const collectionAdapters = Object.values(options.collections).flatMap((collOptions) =>
+      collOptions && typeof collOptions === 'object' ? (collOptions.adapters ?? []) : [],
     )
     for (const adapter of [...(options.adapters ?? []), ...collectionAdapters]) {
       const known = allAdapters.find((a) => a.name === adapter.name)
@@ -116,9 +116,9 @@ export const mediaPreview = definePlugin<MediaPreviewPluginConfig>({
     }
 
     const collectionSettings: Record<string, CollectionSettings> = {}
-    for (const [slug, collConfig] of Object.entries(options.collections)) {
-      if (collConfig) {
-        const resolved: MediaPreviewCollectionConfig = collConfig === true ? {} : collConfig
+    for (const [slug, collOptions] of Object.entries(options.collections)) {
+      if (collOptions) {
+        const resolved: MediaPreviewCollectionOptions = collOptions === true ? {} : collOptions
         collectionSettings[slug] = {
           adapterNames: (resolved.adapters ?? options.adapters ?? []).map((a) => a.name),
           externalViewer: resolveExternalViewer(resolved.externalViewer ?? options.externalViewer),
@@ -147,12 +147,12 @@ export const mediaPreview = definePlugin<MediaPreviewPluginConfig>({
         },
       },
       collections: (incomingConfig.collections ?? []).map((collection) => {
-        const collConfig = options.collections[collection.slug]
-        if (!collConfig || !collection.upload) {
+        const collOptions = options.collections[collection.slug]
+        if (!collOptions || !collection.upload) {
           return collection
         }
 
-        const resolved: MediaPreviewCollectionConfig = collConfig === true ? {} : collConfig
+        const resolved: MediaPreviewCollectionOptions = collOptions === true ? {} : collOptions
         const select = withPreviewSelect(collection.select)
         const collAdapters = resolved.adapters ?? options.adapters ?? []
         const upload = resolved.filePreview === false ? collection.upload : withFilePreview(collection, collAdapters)

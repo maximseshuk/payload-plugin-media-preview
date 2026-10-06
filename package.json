@@ -1,6 +1,6 @@
 {
   "name": "@seshuk/payload-plugin-media-preview",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.2",
   "description": "Payload plugin for previewing images, videos, audio, and documents in the admin panel",
   "keywords": [
     "audio",

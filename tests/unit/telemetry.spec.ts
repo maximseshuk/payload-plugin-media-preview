@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { mediaPreview } from '@/index.js'
 import { resolveExternalViewer } from '@/server/settings.js'
 import { buildFeatures } from '@/server/telemetry.js'
-import type { MediaPreviewAdapter, MediaPreviewPluginConfig } from '@/shared/types/index.js'
+import type { MediaPreviewAdapter, MediaPreviewPluginOptions } from '@/shared/types/index.js'
 
 vi.mock('@seshuk/payload-plugin-tooling/telemetry', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@seshuk/payload-plugin-tooling/telemetry')>()),
@@ -14,7 +14,7 @@ vi.mock('@seshuk/payload-plugin-tooling/telemetry', async (importOriginal) => ({
 
 const adapter: MediaPreviewAdapter = { name: 'plain', resolve: () => null }
 
-const features = (options: MediaPreviewPluginConfig, adapters: MediaPreviewAdapter[] = []) =>
+const features = (options: MediaPreviewPluginOptions, adapters: MediaPreviewAdapter[] = []) =>
   buildFeatures({
     adapters,
     collections: Object.fromEntries(
@@ -94,7 +94,7 @@ describe('buildFeatures', () => {
 
 describe('telemetry onInit', () => {
   const payload = { config: {} } as unknown as Payload
-  const init = (options: Partial<MediaPreviewPluginConfig> = {}, onInit?: Config['onInit']) =>
+  const init = (options: Partial<MediaPreviewPluginOptions> = {}, onInit?: Config['onInit']) =>
     mediaPreview({ collections: { media: true }, ...options })({
       collections: [{ slug: 'media', fields: [], upload: true }],
       onInit,

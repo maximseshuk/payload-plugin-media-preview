@@ -8,7 +8,7 @@ import { mediaPreviewField } from '@/server/field.js'
 import { buildFilePreviewMap, FILE_PREVIEW_COMPONENT } from '@/server/filePreviewMap.js'
 import { getExternalViewerHint } from '@/server/getPreviewData.js'
 import { PLUGIN_KEY } from '@/shared/constants.js'
-import type { MediaPreviewAdapter, MediaPreviewPluginConfig } from '@/shared/types/index.js'
+import type { MediaPreviewAdapter, MediaPreviewPluginOptions } from '@/shared/types/index.js'
 
 import { DOCX } from '../helpers/shared/mimeTypes.js'
 
@@ -28,7 +28,7 @@ const uploadCollection = (slug: string, fields: Fields = []) =>
     upload: true,
   }) as Collections[number]
 
-const run = (options: MediaPreviewPluginConfig, collections: Collections = [uploadCollection('media')]) =>
+const run = (options: MediaPreviewPluginOptions, collections: Collections = [uploadCollection('media')]) =>
   mediaPreview(options)(baseConfig(collections))
 
 const media = (config: Config) => config.collections!.find((c) => c.slug === 'media')!
@@ -276,7 +276,7 @@ describe('adapters', () => {
 })
 
 describe('select', () => {
-  const selectFn = (collection: Collections[number], collections: MediaPreviewPluginConfig['collections']) =>
+  const selectFn = (collection: Collections[number], collections: MediaPreviewPluginOptions['collections']) =>
     media(run({ collections }, [collection])).select!
   const args = (select?: SelectType) => ({ operation: 'read' as const, req: {} as PayloadRequest, select })
 
@@ -357,7 +357,7 @@ describe('field options', () => {
   })
 
   it.each(['mode', 'contentMode'])('throws on the removed collection-level %s with a hint', (key) => {
-    const options = { collections: { media: { [key]: 'fullscreen' } } } as MediaPreviewPluginConfig
+    const options = { collections: { media: { [key]: 'fullscreen' } } } as MediaPreviewPluginOptions
 
     expect(() => mediaPreview(options)(baseConfig([uploadCollection('media')]))).toThrow(
       `[@seshuk/payload-plugin-media-preview] collections.media.${key} was renamed to collections.media.field.${key}`,

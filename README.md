@@ -88,13 +88,13 @@ This adds a preview column to the `media` list view. The edit view now also prev
 
 ### Plugin Options
 
-| Option           | Type                                          | Default | Description                                                                                 |
-| ---------------- | --------------------------------------------- | ------- | ------------------------------------------------------------------------------------------- |
-| `enabled`        | `boolean`                                     | `true`  | Enable or disable the plugin                                                                |
-| `adapters`       | `MediaPreviewAdapter[]`                       | `[]`    | Global adapters for collections that don't set their own                                    |
-| `collections`    | `Record<string, boolean \| CollectionConfig>` | —       | Upload collections to preview (`false` skips one)                                           |
-| `externalViewer` | `boolean \| { office?, google?, expiresIn? }` | `false` | Microsoft and Google viewers for all collections. See [External Viewers](#external-viewers) |
-| `telemetry`      | `boolean \| { url? }`                         | `true`  | Anonymous usage telemetry. See [Telemetry](#telemetry)                                      |
+| Option           | Type                                                       | Default | Description                                                                                 |
+| ---------------- | ---------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------- |
+| `enabled`        | `boolean`                                                  | `true`  | Enable or disable the plugin                                                                |
+| `adapters`       | `MediaPreviewAdapter[]`                                    | `[]`    | Global adapters for collections that don't set their own                                    |
+| `collections`    | `Record<string, boolean \| MediaPreviewCollectionOptions>` | —       | Upload collections to preview (`false` skips one)                                           |
+| `externalViewer` | `boolean \| { office?, google?, expiresIn? }`              | `false` | Microsoft and Google viewers for all collections. See [External Viewers](#external-viewers) |
+| `telemetry`      | `boolean \| { url? }`                                      | `true`  | Anonymous usage telemetry. See [Telemetry](#telemetry)                                      |
 
 ### Collection Options
 
@@ -103,7 +103,7 @@ Each collection entry can be `true` (all defaults), `false` (skipped) or an obje
 | Option           | Type                                          | Default | Description                                                       |
 | ---------------- | --------------------------------------------- | ------- | ----------------------------------------------------------------- |
 | `adapters`       | `MediaPreviewAdapter[]`                       | —       | Per-collection adapters (override global)                         |
-| `field`          | `boolean \| MediaPreviewFieldConfig`          | `true`  | List column options, or `false` to skip it (for manual placement) |
+| `field`          | `boolean \| MediaPreviewFieldOptions`         | `true`  | List column options, or `false` to skip it (for manual placement) |
 | `filePreview`    | `boolean`                                     | `true`  | Show the preview in the edit view. See [Edit View](#edit-view)    |
 | `externalViewer` | `boolean \| { office?, google?, expiresIn? }` | global  | Overrides the global `externalViewer` for this collection         |
 
@@ -541,7 +541,7 @@ export default buildConfig({
 
 ### Without collection registration
 
-If you don't need per-collection adapters, leave the collection out of the plugin config and use global adapters:
+If you don't need per-collection adapters, leave the collection out of the plugin options and use global adapters:
 
 ```ts
 import { mediaPreview, mediaPreviewField } from '@seshuk/payload-plugin-media-preview'
@@ -630,15 +630,15 @@ import type {
   MediaPreviewAdapterResolveArgs,
   MediaPreviewAdapterResolveResult,
   MediaPreviewAdapterSignUrlArgs,
-  MediaPreviewCollectionConfig,
+  MediaPreviewCollectionOptions,
   MediaPreviewContentMode,
   MediaPreviewContentModeType,
   MediaPreviewContentType,
   MediaPreviewExternalViewer,
-  MediaPreviewFieldConfig,
+  MediaPreviewFieldOptions,
   MediaPreviewMode,
   MediaPreviewPlugin,
-  MediaPreviewPluginConfig,
+  MediaPreviewPluginOptions,
   VideoViewerProps,
 } from '@seshuk/payload-plugin-media-preview'
 ```
@@ -677,6 +677,7 @@ import type {
 - External viewers (Microsoft, Google) are off by default. Set `externalViewer` to turn them on.
 - `contentMode: { document: 'newTab' }` opens the file URL, not the external viewer.
 - Removed exports: `MediaPreview` from `/rsc` and `MediaPreviewFieldClient` from `/client`. `/rsc` now exports `MediaPreviewFile`.
+- `MediaPreviewPluginConfig`, `MediaPreviewCollectionConfig` and `MediaPreviewFieldConfig` are renamed to `MediaPreviewPluginOptions`, `MediaPreviewCollectionOptions` and `MediaPreviewFieldOptions`.
 - The plugin sends anonymous usage telemetry. Set `telemetry: false` or `MEDIA_PREVIEW_TELEMETRY_DISABLED=1` to turn it off. See [Telemetry](#telemetry).
 - Run `payload generate:importmap` after upgrading.
 
