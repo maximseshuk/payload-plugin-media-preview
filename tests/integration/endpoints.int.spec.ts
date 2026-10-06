@@ -95,7 +95,9 @@ describe('media preview endpoints', () => {
       const url = await signedUrlOf('media', doc.id)
 
       expect(doc.url).toBe(`${SERVER_URL}/api/media/file/${doc.filename}`)
-      expect(url).toMatch(new RegExp(`^${SERVER_URL}/api/media-preview/file/[\\w-]+\\.[\\w-]+/${doc.filename}$`))
+      expect(url).toMatch(
+        new RegExp(`^${SERVER_URL.replaceAll('.', '\\.')}/api/media-preview/file/[\\w-]+\\.[\\w-]+/${doc.filename}$`),
+      )
     })
 
     it('signs the draft version', async () => {

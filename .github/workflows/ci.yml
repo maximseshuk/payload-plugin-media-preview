@@ -4,6 +4,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+permissions:
+  contents: read
 jobs:
   ci:
     uses: maximseshuk/payload-plugin-tooling/.github/workflows/ci.yml@v0.2.1
