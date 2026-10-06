@@ -1,17 +1,26 @@
 import { fileURLToPath } from 'node:url'
 
+import { vitestBase } from '@seshuk/payload-plugin-tooling/vitest'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  resolve: { alias: { '@': fileURLToPath(new URL('../src', import.meta.url)) } },
-  root: fileURLToPath(new URL('..', import.meta.url)),
+  ...vitestBase,
   test: {
+    coverage: {
+      exclude: ['src/**/*.d.ts', 'src/shared/translations/locales/**', 'src/shared/types/**'],
+      include: ['src/**/*.{ts,tsx}'],
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      reportOnFailure: true,
+    },
     environment: 'node',
-    hookTimeout: 30_000,
+    globals: true,
+    hookTimeout: 30000,
     projects: [
-      { extends: true, test: { include: ['tests/unit/**/*.spec.ts'], name: 'unit' } },
-      { extends: true, test: { include: ['tests/integration/**/*.int.spec.ts'], name: 'integration' } },
+      { extends: true, test: { name: 'unit', include: ['tests/unit/**/*.spec.ts'] } },
+      { extends: true, test: { name: 'int', include: ['tests/integration/**/*.int.spec.ts'] } },
     ],
-    testTimeout: 30_000,
+    root: fileURLToPath(new URL('..', import.meta.url)),
+    testTimeout: 30000,
   },
 })

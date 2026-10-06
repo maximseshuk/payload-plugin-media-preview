@@ -1,21 +1,13 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { en } from '@payloadcms/translations/languages/en'
 import type { MediaPreviewAdapter } from '@seshuk/payload-plugin-media-preview'
 import { mediaPreview, mediaPreviewField } from '@seshuk/payload-plugin-media-preview'
-import { testDatabase } from '@seshuk/payload-plugin-tooling/test-database'
-import { buildConfig } from 'payload'
-import { ru } from 'payload/i18n/ru'
-import sharp from 'sharp'
+
+import { buildConfigWithDefaults } from './helpers/shared/buildConfigWithDefaults.js'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
-
-const devUser = {
-  email: 'dev@example.com',
-  password: 'test',
-}
 
 const testAdapter: MediaPreviewAdapter = {
   name: 'test-adapter',
@@ -101,122 +93,85 @@ const createUploadCollection = (slug: string, extraFields: any[] = []) => ({
   },
 })
 
-const buildConfigAsync = async () => {
-  return buildConfig({
-    admin: {
-      autoLogin: {
-        email: devUser.email,
-        password: devUser.password,
-      },
-      importMap: {
-        baseDir: path.resolve(dirname),
+export default buildConfigWithDefaults({
+  admin: {
+    importMap: {
+      baseDir: path.resolve(dirname),
+    },
+  },
+  collections: [
+    createUploadCollection('media-default'),
+    createUploadCollection('media-fullscreen'),
+    createUploadCollection('media-newtab'),
+    createUploadCollection('media-position', [{ name: 'alt', type: 'text' }]),
+    createUploadCollection('media-adapter', [{ name: 'externalVideoId', type: 'text' }]),
+    createUploadCollection('media-adapter-newtab', [{ name: 'externalUrl', type: 'text' }]),
+    createUploadCollection('media-external'),
+    createUploadCollection('media-stream', [{ name: 'streamId', type: 'text' }]),
+    createUploadCollection('media-async', [{ name: 'assetId', type: 'text' }]),
+    createUploadCollection('media-custom', [
+      { name: 'provider', type: 'text' },
+      { name: 'embedId', type: 'text' },
+    ]),
+    {
+      slug: 'media-standalone',
+      fields: [
+        { name: 'externalVideoId', type: 'text' },
+        mediaPreviewField({
+          adapterNames: ['test-adapter'],
+          mode: 'fullscreen',
+        }),
+      ],
+      upload: {
+        staticDir: path.resolve(dirname, 'uploads/media-standalone'),
       },
     },
-    collections: [
-      {
-        slug: 'users',
-        auth: true,
-        fields: [],
-      },
-      createUploadCollection('media-default'),
-      createUploadCollection('media-fullscreen'),
-      createUploadCollection('media-newtab'),
-      createUploadCollection('media-position', [{ name: 'alt', type: 'text' }]),
-      createUploadCollection('media-adapter', [{ name: 'externalVideoId', type: 'text' }]),
-      createUploadCollection('media-adapter-newtab', [{ name: 'externalUrl', type: 'text' }]),
-      createUploadCollection('media-external'),
-      createUploadCollection('media-stream', [{ name: 'streamId', type: 'text' }]),
-      createUploadCollection('media-async', [{ name: 'assetId', type: 'text' }]),
-      createUploadCollection('media-custom', [
-        { name: 'provider', type: 'text' },
-        { name: 'embedId', type: 'text' },
-      ]),
-      {
-        slug: 'media-standalone',
-        fields: [
-          { name: 'externalVideoId', type: 'text' },
-          mediaPreviewField({
-            adapterNames: ['test-adapter'],
-            mode: 'fullscreen',
-          }),
-        ],
-        upload: {
-          staticDir: path.resolve(dirname, 'uploads/media-standalone'),
+  ],
+  plugins: [
+    mediaPreview({
+      adapters: [testAdapter],
+      collections: {
+        'media-adapter': {
+          adapters: [testAdapter],
         },
-      },
-    ],
-    db: await testDatabase(),
-    i18n: {
-      supportedLanguages: {
-        en,
-        ru,
-      },
-    },
-    onInit: async (payload) => {
-      const existingUser = await payload.find({
-        collection: 'users',
-        overrideAccess: true,
-        where: { email: { equals: devUser.email } },
-      })
-
-      if (existingUser.docs.length === 0) {
-        await payload.create({ collection: 'users', data: devUser, overrideAccess: true })
-      }
-    },
-    plugins: [
-      mediaPreview({
-        adapters: [testAdapter],
-        collections: {
-          'media-adapter': {
-            adapters: [testAdapter],
-          },
-          'media-adapter-newtab': {
-            adapters: [newTabAdapter],
-          },
-          'media-custom': {
-            adapters: [customAdapter],
-          },
-          'media-default': true,
-          'media-external': {
-            externalViewer: true,
-          },
-          'media-fullscreen': {
-            field: { mode: 'fullscreen' },
-          },
-          'media-newtab': {
-            field: {
-              contentMode: {
-                document: 'newTab',
-                video: 'newTab',
-              },
+        'media-adapter-newtab': {
+          adapters: [newTabAdapter],
+        },
+        'media-custom': {
+          adapters: [customAdapter],
+        },
+        'media-default': true,
+        'media-external': {
+          externalViewer: true,
+        },
+        'media-fullscreen': {
+          field: { mode: 'fullscreen' },
+        },
+        'media-newtab': {
+          field: {
+            contentMode: {
+              document: 'newTab',
+              video: 'newTab',
             },
           },
-          'media-position': {
-            field: { position: { after: 'alt' } },
-          },
-          'media-stream': {
-            adapters: [streamAdapter],
-          },
-          'media-async': {
-            adapters: [asyncAdapter],
-          },
-          'media-standalone': {
-            adapters: [testAdapter],
-            field: false,
-          },
         },
-      }),
-    ],
-    secret: process.env.PAYLOAD_SECRET || 'test-secret-key-media-preview',
-    sharp,
-    telemetry: false,
-    typescript: {
-      outputFile: path.resolve(dirname, 'payload-types.ts'),
-      declare: {
-        ignoreTSError: true,
+        'media-position': {
+          field: { position: { after: 'alt' } },
+        },
+        'media-stream': {
+          adapters: [streamAdapter],
+        },
+        'media-async': {
+          adapters: [asyncAdapter],
+        },
+        'media-standalone': {
+          adapters: [testAdapter],
+          field: false,
+        },
       },
-    },
-  })
-}
-
-export default buildConfigAsync()
+    }),
+  ],
+  typescript: {
+    outputFile: path.resolve(dirname, 'payload-types.ts'),
+  },
+})

@@ -9,7 +9,7 @@ import { getExternalViewerHint } from '@/server/getPreviewData.js'
 import { PLUGIN_KEY } from '@/shared/constants.js'
 import type { MediaPreviewAdapter, MediaPreviewPluginOptions } from '@/shared/types/index.js'
 
-const DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+import { DOCX } from '../helpers/shared/mimeTypes.js'
 
 type Collections = NonNullable<Config['collections']>
 type Fields = Collections[number]['fields']

@@ -19,7 +19,7 @@ import {
   readText,
 } from '@/shared/utils.js'
 
-const DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+import { DOCX } from '../helpers/shared/mimeTypes.js'
 
 describe('getFileKind', () => {
   it.each([

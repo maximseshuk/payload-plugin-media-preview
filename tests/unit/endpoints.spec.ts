@@ -11,8 +11,9 @@ import { resolveExternalViewer } from '@/server/settings.js'
 import { PLUGIN_KEY } from '@/shared/constants.js'
 import type { MediaPreviewAdapter } from '@/shared/types/index.js'
 
+import { DOCX } from '../helpers/shared/mimeTypes.js'
+
 const SECRET = 'test-secret'
-const DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 const now = () => Math.floor(Date.now() / 1000)
 
 describe('file token', () => {

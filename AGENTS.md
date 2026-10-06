@@ -15,7 +15,8 @@ pnpm typecheck        # tsc --noEmit
 pnpm lint             # oxlint; lint:fix
 pnpm format           # oxfmt write; format:check to verify
 pnpm test:unit        # tests/unit: no DB, no server
-pnpm test:int         # tests/integration: none yet
+pnpm test:int         # tests/integration: real Payload, in-memory SQLite
+pnpm test:coverage    # unit + int, v8 coverage -> coverage/
 pnpm test:e2e         # Playwright, tests/e2e: starts dev app on in-memory SQLite
 pnpm build            # tsdown -> dist/
 
@@ -23,7 +24,7 @@ pnpm dev                     # dev admin, dev@example.com / test
 pnpm dev:generate-importmap  # after adding or renaming component in src/ or tests/
 ```
 
-Gate: `pnpm typecheck && pnpm lint && pnpm format:check && pnpm test:unit && pnpm build`. UI change: also `pnpm test:e2e`.
+Gate: `pnpm typecheck && pnpm lint && pnpm format:check && pnpm test:unit && pnpm test:int && pnpm build`. UI change: also `pnpm test:e2e`.
 
 ## Structure
 
@@ -48,12 +49,18 @@ src/
 ├── rsc/                   # ./rsc: MediaPreviewCell (list cell), MediaPreviewFile (upload panel)
 └── client/                # ./client, 'use client': Cell/, FilePreview/, Modal/, Viewer/
 tests/
-├── vitest.config.ts       # projects: unit, integration
-├── playwright.config.ts
-├── unit/                  # fields, utils, plugin, endpoints
+├── vitest.config.ts       # tooling vitestBase, projects: unit, int; v8 coverage
+├── playwright.config.ts   # chromium, list reporter (+ json in CI), output in playwright/{results,reports}
+├── unit/                  # utils, plugin, endpoints, telemetry: mocks, no DB
+├── integration/           # *.int.spec.ts: config, endpoints, adapters on real Payload
+├── suites/<name>/payload.config.ts  # int suite configs, loaded by helpers/int/getPayload(name)
+├── helpers/
+│   ├── shared/            # buildConfigWithDefaults (users, devUser, testDatabase, en/ru, sharp), MIME constants
+│   ├── int/               # getPayload(suite)
+│   └── e2e/               # uploadFile, openCellPreview, openFullscreen
 ├── e2e/                   # plugin.e2e.ts, serial
-├── fixtures/              # upload files for e2e
-└── payload.config.ts, app/, components/   # dev app, db = testDatabase()
+├── fixtures/              # upload files for int and e2e
+└── payload.config.ts, app/, components/   # dev app on buildConfigWithDefaults
 ```
 
 ## Architecture
@@ -82,6 +89,7 @@ tests/
 ## Testing
 
 - Unit: plain vitest, mock configs inline. Factory testable directly: `mediaPreview(opts)(config)`.
+- Int: `getPayload(suite)` on `tests/suites/<suite>/payload.config.ts` built with `buildConfigWithDefaults`. Call endpoints through `handleEndpoints({ config, request })` with `Authorization: JWT <token>`. Local API needs `overrideAccess: true` (Payload 4 default is `false`). Suite set `admin.autoLogin: false`, else request without token get dev user.
 - E2E: serial, DELETE API cleanup in `afterEach`. Collections: `media-default`, `media-fullscreen`, `media-newtab`, `media-position`, `media-adapter`, `media-adapter-newtab`, `media-custom`, `media-external`, `media-stream`, `media-standalone`.
 - External viewers need public `serverURL`. On `localhost` → `privateServer` download card, not testable locally.
 - Payload render `ui` Cell in edit view form state without `rowData` → `MediaPreviewCell` return `null`.

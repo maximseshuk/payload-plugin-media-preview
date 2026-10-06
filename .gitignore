@@ -8,6 +8,9 @@ dist/
 tests/playwright/
 .playwright-mcp/
 
+# Vitest coverage
+coverage/
+
 # Test uploads
 tests/uploads/
 

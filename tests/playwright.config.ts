@@ -1,23 +1,30 @@
 import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
-  testDir: './e2e',
-  testMatch: '**/*.e2e.ts',
-  fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  fullyParallel: true,
   outputDir: './playwright/results',
-  reporter: [['html', { outputFolder: './playwright/report' }]],
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'], channel: 'chromium' },
     },
   ],
+  reporter: process.env.CI
+    ? [
+        ['list', { printSteps: true }],
+        ['json', { outputFile: './playwright/reports/plugin.json' }],
+      ]
+    : [['list', { printSteps: true }]],
+  retries: process.env.CI ? 1 : undefined,
+  testDir: './e2e',
+  testMatch: '**/*.e2e.ts',
+  timeout: 60 * 1000,
   use: {
     baseURL: 'http://localhost:47391',
-    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    trace: 'retain-on-failure',
+    video: 'retain-on-failure',
   },
   webServer: {
     command:
@@ -27,4 +34,5 @@ export default defineConfig({
     timeout: 120000,
     url: 'http://localhost:47391/admin',
   },
+  workers: process.env.CI ? 1 : undefined,
 })
