@@ -71,6 +71,6 @@ export const MediaPreviewViewer: React.FC<ViewerProps> = ({ inline, preview }) =
         />
       )
     default:
-      return <DownloadCard {...preview} hint="noPreview" />
+      return <DownloadCard {...preview} hint="errorNoPreview" />
   }
 }

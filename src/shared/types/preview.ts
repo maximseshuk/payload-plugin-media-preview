@@ -1,6 +1,6 @@
 export type FileKind = 'audio' | 'google' | 'image' | 'office' | 'pdf' | 'text' | 'unsupported' | 'video'
 
-export type PreviewHint = 'loadError' | 'noPreview' | 'privateServer' | 'tooLarge'
+export type PreviewHint = 'errorLoad' | 'errorNoPreview' | 'errorPrivateServer' | 'errorTooLarge'
 
 export type PreviewData = {
   collectionSlug: string

@@ -208,7 +208,7 @@ describe('externalViewer', () => {
     const doc = { filesize: 1000, mimeType: DOCX, url: '/api/docs/file/a.docx' }
 
     expect(getSettings(result).docs.adapterNames).toEqual([])
-    expect(getExternalViewerHint(config, 'docs', doc)).toBe('privateServer')
+    expect(getExternalViewerHint(config, 'docs', doc)).toBe('errorPrivateServer')
     expect(getExternalViewerHint(config, 'media', { ...doc, url: '/api/media/file/a.docx' })).toBeUndefined()
 
     const docs = result.collections!.find((c) => c.slug === 'docs')!

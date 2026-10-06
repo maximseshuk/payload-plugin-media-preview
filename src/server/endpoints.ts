@@ -177,7 +177,7 @@ const fileHandler: PayloadHandler = async (req) => {
     return notFound()
   }
 
-  if (!doc || doc.filename !== filename || getExternalViewerHint(config, token.collection, doc) === 'noPreview') {
+  if (!doc || doc.filename !== filename || getExternalViewerHint(config, token.collection, doc) === 'errorNoPreview') {
     return notFound()
   }
 

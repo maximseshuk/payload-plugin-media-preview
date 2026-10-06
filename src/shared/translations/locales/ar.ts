@@ -3,16 +3,16 @@ import type { PluginDefaultTranslationsObject } from '@/shared/translations/type
 export const ar: PluginDefaultTranslationsObject = {
   '@seshuk/payload-plugin-media-preview': {
     close: 'إغلاق',
+    errorLoad: 'تعذّر تحميل المعاينة.',
+    errorNoPreview: 'لا تتوفر معاينة لهذا النوع من الملفات.',
+    errorPrivateServer: 'تحتاج المعاينة إلى عنوان خادم عام.',
+    errorTooLarge: 'الملف كبير جدًا للمعاينة.',
     fullscreen: 'ملء الشاشة',
     label: 'معاينة',
-    loadError: 'تعذّر تحميل المعاينة.',
-    noPreview: 'لا تتوفر معاينة لهذا النوع من الملفات.',
     open: 'فتح',
-    privateServer: 'تحتاج المعاينة إلى عنوان خادم عام.',
     titleAudio: 'معاينة الصوت',
     titleDocument: 'معاينة المستند',
     titleImage: 'معاينة الصورة',
     titleVideo: 'معاينة الفيديو',
-    tooLarge: 'الملف كبير جدًا للمعاينة.',
   },
 }

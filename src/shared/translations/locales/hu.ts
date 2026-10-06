@@ -3,16 +3,16 @@ import type { PluginDefaultTranslationsObject } from '@/shared/translations/type
 export const hu: PluginDefaultTranslationsObject = {
   '@seshuk/payload-plugin-media-preview': {
     close: 'Bezárás',
+    errorLoad: 'Az előnézetet nem sikerült betölteni.',
+    errorNoPreview: 'Ehhez a fájltípushoz nincs előnézet.',
+    errorPrivateServer: 'Az előnézethez nyilvános szervercím kell.',
+    errorTooLarge: 'A fájl túl nagy az előnézethez.',
     fullscreen: 'Teljes képernyő',
     label: 'Előnézet',
-    loadError: 'Az előnézetet nem sikerült betölteni.',
-    noPreview: 'Ehhez a fájltípushoz nincs előnézet.',
     open: 'Megnyitás',
-    privateServer: 'Az előnézethez nyilvános szervercím kell.',
     titleAudio: 'Hanganyag előnézet',
     titleDocument: 'Dokumentum előnézet',
     titleImage: 'Kép előnézet',
     titleVideo: 'Videó előnézet',
-    tooLarge: 'A fájl túl nagy az előnézethez.',
   },
 }

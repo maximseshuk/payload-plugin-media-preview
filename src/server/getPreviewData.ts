@@ -33,17 +33,17 @@ export const getExternalViewerHint = (
   const data = getPluginData(config)
   const settings = data.collections[collectionSlug]
   if ((kind !== 'office' && kind !== 'google') || !settings?.externalViewer || !settings.externalViewer[kind]) {
-    return 'noPreview'
+    return 'errorNoPreview'
   }
   if ((num(doc.filesize) ?? 0) > (kind === 'office' ? MICROSOFT_VIEWER_MAX_SIZE : GOOGLE_VIEWER_MAX_SIZE)) {
-    return 'tooLarge'
+    return 'errorTooLarge'
   }
   const url = str(doc.url)
   const reachable = isProxiedFile(config, collectionSlug, url)
     ? isPublicUrl(config.serverURL) ||
       getCollectionAdapters(data, settings.adapterNames).some((adapter) => adapter.signUrl)
     : isPublicUrl(url)
-  return reachable ? undefined : 'privateServer'
+  return reachable ? undefined : 'errorPrivateServer'
 }
 
 export const getPreviewData = (config: Config, collectionSlug: string, doc: FileDoc): PreviewData => {
@@ -66,9 +66,9 @@ export const getPreviewData = (config: Config, collectionSlug: string, doc: File
     data.hint = getExternalViewerHint(config, collectionSlug, doc)
     data.external = !data.hint
   } else if (kind === 'text' && (data.filesize ?? 0) > TEXT_PREVIEW_MAX_SIZE) {
-    data.hint = 'tooLarge'
+    data.hint = 'errorTooLarge'
   } else if (kind === 'unsupported') {
-    data.hint = 'noPreview'
+    data.hint = 'errorNoPreview'
   }
 
   return data

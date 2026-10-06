@@ -34,7 +34,7 @@ export const ExternalViewer: React.FC<{ kind: 'google' | 'office'; preview: Prev
   }, [collectionSlug, endpoint, id, kind])
 
   if (state.error) {
-    return <DownloadCard {...preview} hint="loadError" />
+    return <DownloadCard {...preview} hint="errorLoad" />
   }
   if (!state.src) {
     return <p className="media-preview-viewer__loading">{t('general:loading')}…</p>

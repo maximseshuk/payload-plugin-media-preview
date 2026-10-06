@@ -3,16 +3,16 @@ import type { PluginDefaultTranslationsObject } from '@/shared/translations/type
 export const tr: PluginDefaultTranslationsObject = {
   '@seshuk/payload-plugin-media-preview': {
     close: 'Kapat',
+    errorLoad: 'Önizleme yüklenemedi.',
+    errorNoPreview: 'Bu dosya türü için önizleme yok.',
+    errorPrivateServer: 'Önizleme için herkese açık bir sunucu adresi gerekir.',
+    errorTooLarge: 'Dosya önizleme için çok büyük.',
     fullscreen: 'Tam ekran',
     label: 'Önizleme',
-    loadError: 'Önizleme yüklenemedi.',
-    noPreview: 'Bu dosya türü için önizleme yok.',
     open: 'Aç',
-    privateServer: 'Önizleme için herkese açık bir sunucu adresi gerekir.',
     titleAudio: 'Ses önizleme',
     titleDocument: 'Belge önizleme',
     titleImage: 'Resim önizleme',
     titleVideo: 'Video önizleme',
-    tooLarge: 'Dosya önizleme için çok büyük.',
   },
 }

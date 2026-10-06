@@ -3,16 +3,16 @@ import type { PluginDefaultTranslationsObject } from '@/shared/translations/type
 export const sv: PluginDefaultTranslationsObject = {
   '@seshuk/payload-plugin-media-preview': {
     close: 'Stäng',
+    errorLoad: 'Förhandsgranskningen kunde inte laddas.',
+    errorNoPreview: 'Ingen förhandsgranskning för den här filtypen.',
+    errorPrivateServer: 'Förhandsgranskning kräver en offentlig serveradress.',
+    errorTooLarge: 'Filen är för stor för förhandsgranskning.',
     fullscreen: 'Helskärm',
     label: 'Förhandsgranskning',
-    loadError: 'Förhandsgranskningen kunde inte laddas.',
-    noPreview: 'Ingen förhandsgranskning för den här filtypen.',
     open: 'Öppna',
-    privateServer: 'Förhandsgranskning kräver en offentlig serveradress.',
     titleAudio: 'Ljudförhandsgranskning',
     titleDocument: 'Dokumentförhandsgranskning',
     titleImage: 'Bildförhandsgranskning',
     titleVideo: 'Videoförhandsgranskning',
-    tooLarge: 'Filen är för stor för förhandsgranskning.',
   },
 }

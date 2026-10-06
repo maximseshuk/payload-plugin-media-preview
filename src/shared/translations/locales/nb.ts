@@ -3,16 +3,16 @@ import type { PluginDefaultTranslationsObject } from '@/shared/translations/type
 export const nb: PluginDefaultTranslationsObject = {
   '@seshuk/payload-plugin-media-preview': {
     close: 'Lukk',
+    errorLoad: 'Forhåndsvisningen kunne ikke lastes inn.',
+    errorNoPreview: 'Ingen forhåndsvisning for denne filtypen.',
+    errorPrivateServer: 'Forhåndsvisning krever en offentlig serveradresse.',
+    errorTooLarge: 'Filen er for stor til forhåndsvisning.',
     fullscreen: 'Fullskjerm',
     label: 'Forhåndsvisning',
-    loadError: 'Forhåndsvisningen kunne ikke lastes inn.',
-    noPreview: 'Ingen forhåndsvisning for denne filtypen.',
     open: 'Åpne',
-    privateServer: 'Forhåndsvisning krever en offentlig serveradresse.',
     titleAudio: 'Lydforhåndsvisning',
     titleDocument: 'Dokumentforhåndsvisning',
     titleImage: 'Bildeforhåndsvisning',
     titleVideo: 'Videoforhåndsvisning',
-    tooLarge: 'Filen er for stor til forhåndsvisning.',
   },
 }

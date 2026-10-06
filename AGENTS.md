@@ -70,7 +70,7 @@ tests/
 - **filePreview map:** match exact, then category wildcard, then `'*'`. Plugin sets `false` for `image/*`, `video/*`, `audio/*`, `application/pdf` → Payload keep own preview. User map with `'*'` kept as is.
 - **Resolve on server, render on client.** RSC resolve adapters and build `PreviewData` with `getPreviewData()`; client render `MediaPreviewViewer` or adapter Viewer. Plain data only across boundary.
 - **List select:** list view load only visible columns. Preview column visible → plugin load whole document (`select` wrapper).
-- **External viewers off by default.** Office/Google file → hint (`noPreview`, `tooLarge`, `privateServer`) or `external: true`. Client ask `GET /api/media-preview/url`: adapter `signUrl()` → direct URL as is → signed `/api/media-preview/file/:token/:filename` when Payload serve file. Never send Payload file route URL to external service.
+- **External viewers off by default.** Office/Google file → hint (`errorNoPreview`, `errorTooLarge`, `errorPrivateServer`) or `external: true`. Client ask `GET /api/media-preview/url`: adapter `signUrl()` → direct URL as is → signed `/api/media-preview/file/:token/:filename` when Payload serve file. Never send Payload file route URL to external service.
 - **Adapters:** first non-null `resolve()` win. `resolve` may be async, args `{ doc, url, mimeType, collectionSlug, payload, user? }`; `user` undefined in list Cell (Payload no pass user to cells). `{ mode: 'inline', props }` → adapter Component, `{ mode: 'newTab', url }` → link. Adapter match beat built-in viewers and `contentMode`.
 - **Export names are import map keys** (`@seshuk/payload-plugin-media-preview/rsc#MediaPreviewCell`). Never rename.
 
@@ -91,7 +91,7 @@ tests/
 - Unit: plain vitest, mock configs inline. Factory testable directly: `mediaPreview(opts)(config)`.
 - Int: `getPayload(suite)` on `tests/suites/<suite>/payload.config.ts` built with `buildConfigWithDefaults`. Call endpoints through `handleEndpoints({ config, request })` with `Authorization: JWT <token>`. Local API needs `overrideAccess: true` (Payload 4 default is `false`). Suite set `admin.autoLogin: false`, else request without token get dev user.
 - E2E: serial, DELETE API cleanup in `afterEach`. Collections: `media-default`, `media-fullscreen`, `media-newtab`, `media-position`, `media-adapter`, `media-adapter-newtab`, `media-custom`, `media-external`, `media-stream`, `media-standalone`.
-- External viewers need public `serverURL`. On `localhost` → `privateServer` download card, not testable locally.
+- External viewers need public `serverURL`. On `localhost` → `errorPrivateServer` download card, not testable locally.
 - Payload render `ui` Cell in edit view form state without `rowData` → `MediaPreviewCell` return `null`.
 - Names: `describe` = function or feature; `it` = present-tense verb, plain English, never `should …`.
 - Bug fix come with test that fail without fix. No `.only`, `.skip`, placeholder tests.

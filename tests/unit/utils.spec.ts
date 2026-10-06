@@ -326,17 +326,20 @@ describe('getPreviewData', () => {
   })
 
   it('shows the download card when the viewer is off', () => {
-    expect(getPreviewData(config(false), 'media', docx)).toMatchObject({ external: false, hint: 'noPreview' })
+    expect(getPreviewData(config(false), 'media', docx)).toMatchObject({ external: false, hint: 'errorNoPreview' })
   })
 
   it('shows the download card when only the other viewer is on', () => {
     const googleOnly = resolveExternalViewer({ google: true })
-    expect(getExternalViewerHint(config(googleOnly), 'media', docx)).toBe('noPreview')
+    expect(getExternalViewerHint(config(googleOnly), 'media', docx)).toBe('errorNoPreview')
   })
 
-  it.each(['http://localhost:3102', 'http://192.168.1.10', ''])('hints privateServer for serverURL %j', (serverURL) => {
-    expect(getExternalViewerHint(config(on, serverURL), 'media', docx)).toBe('privateServer')
-  })
+  it.each(['http://localhost:3102', 'http://192.168.1.10', ''])(
+    'hints errorPrivateServer for serverURL %j',
+    (serverURL) => {
+      expect(getExternalViewerHint(config(on, serverURL), 'media', docx)).toBe('errorPrivateServer')
+    },
+  )
 
   it('allows a private server when an adapter signs URLs', () => {
     const adapters = [{ name: 'signer', resolve: () => null, signUrl: () => 'https://cdn.example.com/a' }]
@@ -348,27 +351,27 @@ describe('getPreviewData', () => {
     expect(getExternalViewerHint(config(on, 'http://localhost:3102'), 'media', direct)).toBeUndefined()
     expect(getPreviewData(config(on), 'media', direct).credentials).toBe('omit')
     expect(getExternalViewerHint(config(on), 'media', { ...docx, url: 'http://minio:9000/a.docx' })).toBe(
-      'privateServer',
+      'errorPrivateServer',
     )
   })
 
-  it('hints tooLarge over the viewer size limits', () => {
+  it('hints errorTooLarge over the viewer size limits', () => {
     expect(getExternalViewerHint(config(on), 'media', { ...docx, filesize: MICROSOFT_VIEWER_MAX_SIZE + 1 })).toBe(
-      'tooLarge',
+      'errorTooLarge',
     )
     const psd = { ...docx, filesize: GOOGLE_VIEWER_MAX_SIZE + 1, mimeType: 'image/vnd.adobe.photoshop' }
-    expect(getExternalViewerHint(config(on), 'media', psd)).toBe('tooLarge')
+    expect(getExternalViewerHint(config(on), 'media', psd)).toBe('errorTooLarge')
     expect(getExternalViewerHint(config(on), 'media', { ...psd, filesize: GOOGLE_VIEWER_MAX_SIZE })).toBeUndefined()
   })
 
-  it('hints tooLarge for big text files', () => {
+  it('hints errorTooLarge for big text files', () => {
     const txt = { filesize: TEXT_PREVIEW_MAX_SIZE + 1, mimeType: 'text/plain', url: '/api/media/file/a.txt' }
-    expect(getPreviewData(config(false), 'media', txt)).toMatchObject({ hint: 'tooLarge', kind: 'text' })
+    expect(getPreviewData(config(false), 'media', txt)).toMatchObject({ hint: 'errorTooLarge', kind: 'text' })
   })
 
-  it('hints noPreview for unsupported types', () => {
+  it('hints errorNoPreview for unsupported types', () => {
     expect(getPreviewData(config(false), 'media', { mimeType: 'application/zip' })).toMatchObject({
-      hint: 'noPreview',
+      hint: 'errorNoPreview',
       kind: 'unsupported',
     })
   })

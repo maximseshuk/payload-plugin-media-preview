@@ -3,16 +3,16 @@ import type { PluginDefaultTranslationsObject } from '@/shared/translations/type
 export const de: PluginDefaultTranslationsObject = {
   '@seshuk/payload-plugin-media-preview': {
     close: 'Schließen',
+    errorLoad: 'Die Vorschau konnte nicht geladen werden.',
+    errorNoPreview: 'Für diesen Dateityp gibt es keine Vorschau.',
+    errorPrivateServer: 'Die Vorschau braucht eine öffentliche Serveradresse.',
+    errorTooLarge: 'Die Datei ist zu groß für die Vorschau.',
     fullscreen: 'Vollbild',
     label: 'Vorschau',
-    loadError: 'Die Vorschau konnte nicht geladen werden.',
-    noPreview: 'Für diesen Dateityp gibt es keine Vorschau.',
     open: 'Öffnen',
-    privateServer: 'Die Vorschau braucht eine öffentliche Serveradresse.',
     titleAudio: 'Audio-Vorschau',
     titleDocument: 'Dokument-Vorschau',
     titleImage: 'Bild-Vorschau',
     titleVideo: 'Video-Vorschau',
-    tooLarge: 'Die Datei ist zu groß für die Vorschau.',
   },
 }

@@ -3,16 +3,16 @@ import type { PluginDefaultTranslationsObject } from '@/shared/translations/type
 export const rs: PluginDefaultTranslationsObject = {
   '@seshuk/payload-plugin-media-preview': {
     close: 'Затвори',
+    errorLoad: 'Преглед није могао да се учита.',
+    errorNoPreview: 'Нема прегледа за ову врсту датотеке.',
+    errorPrivateServer: 'За преглед је потребна јавна адреса сервера.',
+    errorTooLarge: 'Датотека је превелика за преглед.',
     fullscreen: 'Цео екран',
     label: 'Преглед',
-    loadError: 'Преглед није могао да се учита.',
-    noPreview: 'Нема прегледа за ову врсту датотеке.',
     open: 'Отвори',
-    privateServer: 'За преглед је потребна јавна адреса сервера.',
     titleAudio: 'Преглед аудиа',
     titleDocument: 'Преглед документа',
     titleImage: 'Преглед слике',
     titleVideo: 'Преглед видеа',
-    tooLarge: 'Датотека је превелика за преглед.',
   },
 }

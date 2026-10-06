@@ -3,16 +3,16 @@ import type { PluginDefaultTranslationsObject } from '@/shared/translations/type
 export const id: PluginDefaultTranslationsObject = {
   '@seshuk/payload-plugin-media-preview': {
     close: 'Tutup',
+    errorLoad: 'Pratinjau tidak dapat dimuat.',
+    errorNoPreview: 'Tidak ada pratinjau untuk jenis file ini.',
+    errorPrivateServer: 'Pratinjau memerlukan alamat server publik.',
+    errorTooLarge: 'File terlalu besar untuk dipratinjau.',
     fullscreen: 'Layar penuh',
     label: 'Pratinjau',
-    loadError: 'Pratinjau tidak dapat dimuat.',
-    noPreview: 'Tidak ada pratinjau untuk jenis file ini.',
     open: 'Buka',
-    privateServer: 'Pratinjau memerlukan alamat server publik.',
     titleAudio: 'Pratinjau audio',
     titleDocument: 'Pratinjau dokumen',
     titleImage: 'Pratinjau gambar',
     titleVideo: 'Pratinjau video',
-    tooLarge: 'File terlalu besar untuk dipratinjau.',
   },
 }

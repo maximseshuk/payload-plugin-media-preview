@@ -3,16 +3,16 @@ import type { PluginDefaultTranslationsObject } from '@/shared/translations/type
 export const ru: PluginDefaultTranslationsObject = {
   '@seshuk/payload-plugin-media-preview': {
     close: 'Закрыть',
+    errorLoad: 'Не удалось загрузить предпросмотр.',
+    errorNoPreview: 'Для этого типа файлов нет предпросмотра.',
+    errorPrivateServer: 'Для предпросмотра нужен публичный адрес сервера.',
+    errorTooLarge: 'Файл слишком большой для предпросмотра.',
     fullscreen: 'Во весь экран',
     label: 'Предпросмотр',
-    loadError: 'Не удалось загрузить предпросмотр.',
-    noPreview: 'Для этого типа файлов нет предпросмотра.',
     open: 'Открыть',
-    privateServer: 'Для предпросмотра нужен публичный адрес сервера.',
     titleAudio: 'Предпросмотр аудио',
     titleDocument: 'Предпросмотр документа',
     titleImage: 'Предпросмотр изображения',
     titleVideo: 'Предпросмотр видео',
-    tooLarge: 'Файл слишком большой для предпросмотра.',
   },
 }

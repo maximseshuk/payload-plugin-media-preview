@@ -63,7 +63,7 @@ export const TextViewer: React.FC<{ preview: PreviewData }> = ({ preview }) => {
   }, [credentials, url])
 
   if (state.error) {
-    return <DownloadCard {...preview} hint="loadError" />
+    return <DownloadCard {...preview} hint="errorLoad" />
   }
   if (state.text === undefined) {
     return <p className="media-preview-viewer__loading">{t('general:loading')}…</p>
