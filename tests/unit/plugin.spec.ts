@@ -195,6 +195,20 @@ describe('externalViewer', () => {
     expect(getSettings(result).docs.adapterNames).toEqual(['global'])
   })
 
+  it('throws when two different adapters share a name', () => {
+    const shared = adapter('shared')
+    expect(() =>
+      mediaPreview({ adapters: [shared], collections: { media: { adapters: [shared] } } })(
+        baseConfig([uploadCollection('media')]),
+      ),
+    ).not.toThrow()
+    expect(() =>
+      mediaPreview({ adapters: [shared], collections: { media: { adapters: [adapter('shared')] } } })(
+        baseConfig([uploadCollection('media')]),
+      ),
+    ).toThrow('two different adapters are named "shared"')
+  })
+
   it('does not give one collection the adapters of another', () => {
     const signer = { ...adapter('signer'), mimeTypes: ['video/*'], signUrl: () => 'https://cdn.example.com/a' }
     const result = mediaPreview({

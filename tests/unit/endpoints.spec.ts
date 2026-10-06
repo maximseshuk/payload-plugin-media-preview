@@ -11,7 +11,7 @@ import { resolveExternalViewer } from '@/server/settings.js'
 import { PLUGIN_KEY } from '@/shared/constants.js'
 import type { MediaPreviewAdapter } from '@/shared/types/index.js'
 
-import { DOCX } from '../helpers/shared/mimeTypes.js'
+import { DOCX, XLSX } from '../helpers/shared/mimeTypes.js'
 
 const SECRET = 'test-secret'
 const now = () => Math.floor(Date.now() / 1000)
@@ -173,7 +173,23 @@ describe('sign URL endpoint', () => {
       query: { id: '7', collection: 'media' },
       serverURL: 'http://localhost:3102',
     })
-    expect((await signHandler(req)).status).toBe(404)
+    const res = await signHandler(req)
+    expect(res.status).toBe(404)
+    expect(await res.json()).toEqual({ hint: 'errorPrivateServer' })
+  })
+
+  it('returns the hint of a file the viewer refuses', async () => {
+    const xlsx = { ...docx, filename: 'big.xlsx', filesize: 6 * 1024 * 1024, mimeType: XLSX }
+    const { req } = createReq({ docs: [xlsx], query: { id: '7', collection: 'media' } })
+    const res = await signHandler(req)
+    expect(res.status).toBe(404)
+    expect(await res.json()).toEqual({ hint: 'errorTooLarge' })
+  })
+
+  it('returns 404 for a direct URL on a private host', async () => {
+    const direct = { ...docx, url: 'http://localhost:9000/bucket/report.docx' }
+    const { req } = createReq({ docs: [direct], query: { id: '7', collection: 'media' } })
+    expect(await (await signHandler(req)).json()).toEqual({ hint: 'errorPrivateServer' })
   })
 
   it('returns a signed URL for a proxied file', async () => {
@@ -220,11 +236,21 @@ describe('sign URL endpoint', () => {
     const own = createReq({ docs: [{ ...docx, owner: 1 }], query, read })
     expect((await signHandler(own.req)).status).toBe(200)
     expect(own.findOne).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { and: [{ id: { equals: '7' } }, { owner: { equals: 1 } }] } }),
+      expect.objectContaining({
+        where: { and: [{ id: { equals: '7' } }, { filename: { equals: 'report.docx' } }, { owner: { equals: 1 } }] },
+      }),
     )
 
     const other = createReq({ docs: [{ ...docx, owner: 2 }], query, read })
     expect((await signHandler(other.req)).status).toBe(404)
+  })
+
+  it('does not sign a draft-only file when access returns a query', async () => {
+    const read = ({ isReadingStaticFile }: { isReadingStaticFile?: boolean }) =>
+      isReadingStaticFile ? { owner: { equals: 1 } } : true
+    const draft = { ...docx, _draft: { filename: 'draft.docx', url: '/api/media/file/draft.docx' }, owner: 1 }
+    const { req } = createReq({ docs: [draft], query: { id: '7', collection: 'media' }, read })
+    expect((await signHandler(req)).status).toBe(404)
   })
 
   it('prefers the adapter signUrl result', async () => {
@@ -234,6 +260,42 @@ describe('sign URL endpoint', () => {
 
     expect(await (await signHandler(req)).json()).toEqual({ url: 'https://cdn.example.com/signed' })
     expect(signUrl).toHaveBeenCalledWith(expect.objectContaining({ expiresIn: 600, url: docx.url }))
+  })
+
+  it('passes hidden fields to signUrl', async () => {
+    const signUrl = vi.fn(() => 'https://cdn.example.com/signed')
+    const adapter: MediaPreviewAdapter = { name: 'signer', resolve: () => null, signUrl }
+    const { req } = createReq({
+      adapters: [adapter],
+      docs: [{ ...docx, _objectKey: 'media/report.docx' }],
+      query: { id: '7', collection: 'media' },
+    })
+
+    await signHandler(req)
+    expect(signUrl).toHaveBeenCalledWith(
+      expect.objectContaining({ doc: expect.objectContaining({ _objectKey: 'media/report.docx' }) }),
+    )
+  })
+
+  it('skips a signUrl result the viewer cannot reach', async () => {
+    const adapter: MediaPreviewAdapter = { name: 'signer', resolve: () => null, signUrl: () => '/api/media/x.docx' }
+    const { req } = createReq({ adapters: [adapter], docs: [docx], query: { id: '7', collection: 'media' } })
+    const { url } = (await (await signHandler(req)).json()) as { url: string }
+    expect(url).toMatch(/^https:\/\/cms\.example\.com\/api\/media-preview\/file\//)
+  })
+
+  it('returns 404 on a private server when every signUrl returns null', async () => {
+    const adapter: MediaPreviewAdapter = { name: 'signer', resolve: () => null, signUrl: () => null }
+    const { req } = createReq({
+      adapters: [adapter],
+      docs: [docx],
+      query: { id: '7', collection: 'media' },
+      serverURL: 'http://localhost:3102',
+    })
+    const res = await signHandler(req)
+
+    expect(res.status).toBe(404)
+    expect(await res.json()).toEqual({ hint: 'errorPrivateServer' })
   })
 })
 

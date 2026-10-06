@@ -69,6 +69,7 @@
   }
 
   .media-preview-viewer__frame,
+  .media-preview-viewer__external,
   .media-preview-viewer__code,
   .media-preview-viewer__table-wrap,
   video.media-preview-viewer__media {

@@ -66,6 +66,12 @@ const streamAdapter: MediaPreviewAdapter = {
   },
 }
 
+const signerAdapter: MediaPreviewAdapter = {
+  name: 'signer-adapter',
+  resolve: () => null,
+  signUrl: ({ doc }) => (typeof doc.signedUrl === 'string' ? doc.signedUrl : null),
+}
+
 const fetchProviderAsset = async (assetId: string) => {
   await new Promise((resolve) => setTimeout(resolve, 300))
   return { embedUrl: `https://example.com/async/${assetId}`, title: `Asset ${assetId}` }
@@ -107,6 +113,7 @@ export default buildConfigWithDefaults({
     createUploadCollection('media-adapter', [{ name: 'externalVideoId', type: 'text' }]),
     createUploadCollection('media-adapter-newtab', [{ name: 'externalUrl', type: 'text' }]),
     createUploadCollection('media-external'),
+    createUploadCollection('media-signed', [{ name: 'signedUrl', type: 'text' }]),
     createUploadCollection('media-stream', [{ name: 'streamId', type: 'text' }]),
     createUploadCollection('media-async', [{ name: 'assetId', type: 'text' }]),
     createUploadCollection('media-custom', [
@@ -142,6 +149,10 @@ export default buildConfigWithDefaults({
         },
         'media-default': true,
         'media-external': {
+          externalViewer: true,
+        },
+        'media-signed': {
+          adapters: [signerAdapter],
           externalViewer: true,
         },
         'media-fullscreen': {

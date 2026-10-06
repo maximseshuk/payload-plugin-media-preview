@@ -41,7 +41,9 @@ export const MediaPreviewViewer: React.FC<ViewerProps> = ({ inline, preview }) =
       )
     case 'google':
     case 'office':
-      return <ExternalViewer key={`${kind}:${preview.collectionSlug}:${preview.id}`} kind={kind} preview={preview} />
+      return (
+        <ExternalViewer key={`${kind}:${preview.collectionSlug}:${preview.id}:${url}`} kind={kind} preview={preview} />
+      )
     case 'image':
       return (
         <ImageViewer

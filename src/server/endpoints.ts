@@ -7,6 +7,7 @@ import type { Endpoint, PayloadHandler, PayloadRequest, SanitizedCollectionConfi
 import { executeAccess } from 'payload'
 
 import { FILE_PATH, SIGN_URL_PATH } from '@/shared/constants.js'
+import { isPublicUrl } from '@/shared/utils.js'
 
 import { createFileToken, parseFileToken, verifyFileToken } from './fileToken.js'
 import { getExternalViewerHint, isProxiedFile } from './getPreviewData.js'
@@ -28,15 +29,15 @@ export const getExternalFileUrl = async (req: PayloadRequest, collectionSlug: st
 
   for (const adapter of getCollectionAdapters(data, settings.adapterNames)) {
     const signed = await adapter.signUrl?.({ doc, expiresIn, req, url })
-    if (signed) {
+    if (signed && isPublicUrl(signed)) {
       return signed
     }
   }
 
   if (!isProxiedFile(config, collectionSlug, url)) {
-    return url ?? null
+    return url && isPublicUrl(url) ? url : null
   }
-  if (!config.serverURL || typeof doc.filename !== 'string' || doc.id === undefined) {
+  if (!isPublicUrl(config.serverURL) || typeof doc.filename !== 'string' || doc.id === undefined) {
     return null
   }
 
@@ -69,6 +70,7 @@ const signUrlHandler: PayloadHandler = async (req) => {
       draft: true,
       overrideAccess: false,
       req,
+      showHiddenFields: true,
       user: req.user,
     })
     const collection = req.payload.collections[collectionSlug].config
@@ -81,7 +83,7 @@ const signUrlHandler: PayloadHandler = async (req) => {
       !(await req.payload.db.findOne({
         collection: collectionSlug,
         req,
-        where: { and: [{ id: { equals: id } }, access] },
+        where: { and: [{ id: { equals: id } }, { filename: { equals: doc.filename } }, access] },
       }))
     ) {
       return notFound()
@@ -90,10 +92,11 @@ const signUrlHandler: PayloadHandler = async (req) => {
     return notFound()
   }
 
-  const url = getExternalViewerHint(req.payload.config, collectionSlug, doc)
-    ? null
-    : await getExternalFileUrl(req, collectionSlug, doc)
-  return url ? Response.json({ url }, { headers: { 'Cache-Control': 'no-store' } }) : notFound()
+  const hint = getExternalViewerHint(req.payload.config, collectionSlug, doc)
+  const url = hint ? null : await getExternalFileUrl(req, collectionSlug, doc)
+  return url
+    ? Response.json({ url }, { headers: { 'Cache-Control': 'no-store' } })
+    : Response.json({ hint: hint ?? 'errorPrivateServer' }, { headers: { 'Cache-Control': 'no-store' }, status: 404 })
 }
 
 const followRedirect = async (req: PayloadRequest, location: string): Promise<null | Response> => {

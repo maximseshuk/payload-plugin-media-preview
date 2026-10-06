@@ -33,6 +33,7 @@ td.cell-mediaPreview:has(.popup, .btn) {
 
   .media-preview-viewer__media,
   .media-preview-viewer__frame,
+  .media-preview-viewer__external,
   .media-preview-viewer__code,
   .media-preview-viewer__table-wrap,
   > .media-preview-viewer__text {
