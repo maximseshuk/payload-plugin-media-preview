@@ -1,3 +1,4 @@
+import type { Locator, Page, Route } from '@playwright/test'
 import { expect, test } from '@playwright/test'
 
 import { openCellPreview, openFullscreen, uploadFile } from '../helpers/e2e/interactions.js'
@@ -13,6 +14,7 @@ const ALL_COLLECTIONS = [
   'media-adapter-newtab',
   'media-standalone',
   'media-external',
+  'media-signed',
   'media-stream',
   'media-async',
 ]
@@ -86,6 +88,63 @@ test.describe('Media Preview Plugin', () => {
   test('docx: shows the private server hint on localhost', async ({ page }) => {
     await uploadFile(page, 'media-external', { fixture: 'test-document.docx' })
     await expect(page.locator('.media-preview-card')).toContainText('Preview needs a public server address.')
+  })
+
+  const viewerResponses: [string, (route: Route) => Promise<void> | void][] = [
+    ['a blank page', (route) => route.fulfill({ body: '', contentType: 'text/html' })],
+    ['an error page', (route) => route.fulfill({ body: 'Error', contentType: 'text/html', status: 500 })],
+    ['a network error', (route) => route.abort('failed')],
+    ['no response', () => {}],
+  ]
+
+  const uploadSignedDocx = async (page: Page, respond: (route: Route) => Promise<void> | void) => {
+    await page.route('https://view.officeapps.live.com/**', respond)
+    await uploadFile(page, 'media-signed', {
+      extraFields: { signedUrl: 'https://files.example.com/test-document.docx' },
+      fixture: 'test-document.docx',
+    })
+  }
+
+  const expectViewerWithActions = async (scope: Locator) => {
+    const viewer = scope.locator('.media-preview-viewer__external')
+    const frame = viewer.locator('iframe')
+    const download = viewer.locator('a[download]')
+    await expect(frame).toHaveAttribute(
+      'src',
+      `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent('https://files.example.com/test-document.docx')}`,
+    )
+    await expect(download).toBeVisible()
+    await expect(download).toHaveAttribute('href', /\/api\/media-signed\/file\/test-document.*\.docx$/)
+    await expect(viewer.locator('a[target="_blank"]')).toBeVisible()
+
+    const frameBox = (await frame.boundingBox())!
+    const downloadBox = (await download.boundingBox())!
+    expect(frameBox.height).toBeGreaterThan(100)
+    expect(downloadBox.y).toBeGreaterThanOrEqual(frameBox.y + frameBox.height)
+  }
+
+  for (const [name, respond] of viewerResponses) {
+    test(`docx: shows download and open links under the external viewer on ${name}`, async ({ page }) => {
+      await uploadSignedDocx(page, respond)
+      await expectViewerWithActions(page.locator('.media-preview-file'))
+    })
+  }
+
+  test('docx: shows download and open links under the external viewer in fullscreen', async ({ page }) => {
+    await uploadSignedDocx(page, () => {})
+    await expectViewerWithActions(await openFullscreen(page))
+  })
+
+  test('docx: shows download and open links under the external viewer in cell popup', async ({ page }) => {
+    await uploadSignedDocx(page, () => {})
+    await expectViewerWithActions(await openCellPreview(page, 'media-signed'))
+  })
+
+  test('docx: shows the hint the sign endpoint returns', async ({ page }) => {
+    await uploadFile(page, 'media-signed', { fixture: 'test-document.docx' })
+    const card = page.locator('.media-preview-file .media-preview-card')
+    await expect(card).toContainText('Preview needs a public server address.')
+    await expect(card.locator('a[download]')).toBeVisible()
   })
 
   test('stream adapter: renders iframe in the edit view', async ({ page }) => {

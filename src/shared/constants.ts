@@ -2,6 +2,7 @@ export const PLUGIN_KEY = '@seshuk/payload-plugin-media-preview'
 
 export const GOOGLE_VIEWER_MAX_SIZE = 25 * 1024 * 1024
 export const MICROSOFT_VIEWER_MAX_SIZE = 10 * 1024 * 1024
+export const MICROSOFT_EXCEL_MAX_SIZE = 5 * 1024 * 1024
 export const TEXT_PREVIEW_MAX_SIZE = 1024 * 1024
 export const DEFAULT_SIGNED_URL_EXPIRES_IN = 600
 
@@ -15,6 +16,11 @@ export const MICROSOFT_OFFICE_TYPES = [
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   'application/vnd.ms-powerpoint',
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+]
+
+export const MICROSOFT_EXCEL_TYPES = [
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 ]
 
 export const GOOGLE_VIEWER_TYPES = [

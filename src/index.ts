@@ -90,15 +90,18 @@ export const mediaPreview = definePlugin<MediaPreviewPluginConfig>({
       return incomingConfig
     }
 
-    const allAdapters: MediaPreviewAdapter[] = [...(options.adapters ?? [])]
-
-    for (const [, collConfig] of Object.entries(options.collections)) {
-      if (collConfig && typeof collConfig === 'object' && collConfig.adapters) {
-        for (const adapter of collConfig.adapters) {
-          if (!allAdapters.some((a) => a.name === adapter.name)) {
-            allAdapters.push(adapter)
-          }
-        }
+    const allAdapters: MediaPreviewAdapter[] = []
+    const collectionAdapters = Object.values(options.collections).flatMap((collConfig) =>
+      collConfig && typeof collConfig === 'object' ? (collConfig.adapters ?? []) : [],
+    )
+    for (const adapter of [...(options.adapters ?? []), ...collectionAdapters]) {
+      const known = allAdapters.find((a) => a.name === adapter.name)
+      if (!known) {
+        allAdapters.push(adapter)
+      } else if (known !== adapter) {
+        throw new Error(
+          `[${PLUGIN_KEY}] two different adapters are named "${adapter.name}". Give each adapter a unique name`,
+        )
       }
     }
 

@@ -1,6 +1,12 @@
 import type { SanitizedConfig } from 'payload'
 
-import { GOOGLE_VIEWER_MAX_SIZE, MICROSOFT_VIEWER_MAX_SIZE, TEXT_PREVIEW_MAX_SIZE } from '@/shared/constants.js'
+import {
+  GOOGLE_VIEWER_MAX_SIZE,
+  MICROSOFT_EXCEL_MAX_SIZE,
+  MICROSOFT_EXCEL_TYPES,
+  MICROSOFT_VIEWER_MAX_SIZE,
+  TEXT_PREVIEW_MAX_SIZE,
+} from '@/shared/constants.js'
 import type { PreviewData, PreviewHint } from '@/shared/types/preview.js'
 import { getFileKind, isPayloadFileUrl, isPublicUrl } from '@/shared/utils.js'
 
@@ -21,6 +27,13 @@ type Config = Pick<SanitizedConfig, 'custom' | 'routes' | 'serverURL'>
 const str = (value: unknown) => (typeof value === 'string' ? value : undefined)
 const num = (value: unknown) => (typeof value === 'number' ? value : undefined)
 
+const getExternalViewerMaxSize = (kind: 'google' | 'office', mimeType?: string) => {
+  if (kind === 'google') {
+    return GOOGLE_VIEWER_MAX_SIZE
+  }
+  return mimeType && MICROSOFT_EXCEL_TYPES.includes(mimeType) ? MICROSOFT_EXCEL_MAX_SIZE : MICROSOFT_VIEWER_MAX_SIZE
+}
+
 export const isProxiedFile = (config: Config, collectionSlug: string, url?: string): boolean =>
   !!url && isPayloadFileUrl({ apiRoute: config.routes.api, collectionSlug, serverURL: config.serverURL, url })
 
@@ -35,14 +48,13 @@ export const getExternalViewerHint = (
   if ((kind !== 'office' && kind !== 'google') || !settings?.externalViewer || !settings.externalViewer[kind]) {
     return 'errorNoPreview'
   }
-  if ((num(doc.filesize) ?? 0) > (kind === 'office' ? MICROSOFT_VIEWER_MAX_SIZE : GOOGLE_VIEWER_MAX_SIZE)) {
+  if ((num(doc.filesize) ?? 0) > getExternalViewerMaxSize(kind, str(doc.mimeType))) {
     return 'errorTooLarge'
   }
   const url = str(doc.url)
-  const reachable = isProxiedFile(config, collectionSlug, url)
-    ? isPublicUrl(config.serverURL) ||
-      getCollectionAdapters(data, settings.adapterNames).some((adapter) => adapter.signUrl)
-    : isPublicUrl(url)
+  const reachable =
+    isPublicUrl(isProxiedFile(config, collectionSlug, url) ? config.serverURL : url) ||
+    getCollectionAdapters(data, settings.adapterNames).some((adapter) => adapter.signUrl)
   return reachable ? undefined : 'errorPrivateServer'
 }
 

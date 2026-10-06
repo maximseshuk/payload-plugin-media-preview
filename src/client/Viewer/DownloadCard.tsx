@@ -28,34 +28,40 @@ export const DownloadCard: React.FC<Props> = ({ filename, filesize, hint, mimeTy
       {filename && <p className="media-preview-card__name">{filename}</p>}
       {meta && <p className="media-preview-card__meta">{meta}</p>}
       {hint && <p className="media-preview-card__hint">{t(`@seshuk/payload-plugin-media-preview:${hint}`)}</p>}
-      {url && (
-        <div className="media-preview-card__actions">
-          <Button
-            buttonStyle="secondary"
-            el="anchor"
-            extraButtonProps={{ download: filename ?? true }}
-            icon={<DownloadIcon />}
-            iconPosition="left"
-            margin={false}
-            size="medium"
-            url={url}
-          >
-            {t('upload:download')}
-          </Button>
-          <Button
-            buttonStyle="secondary"
-            el="anchor"
-            icon={<NewTabIcon />}
-            iconPosition="left"
-            margin={false}
-            newTab
-            size="medium"
-            url={url}
-          >
-            {t('@seshuk/payload-plugin-media-preview:open')}
-          </Button>
-        </div>
-      )}
+      {url && <FileActions filename={filename} url={url} />}
+    </div>
+  )
+}
+
+export const FileActions: React.FC<{ filename?: string; url: string }> = ({ filename, url }) => {
+  const { t } = useTranslation<PluginMediaPreviewTranslations, PluginMediaPreviewTranslationsKeys>()
+
+  return (
+    <div className="media-preview-actions">
+      <Button
+        buttonStyle="secondary"
+        el="anchor"
+        extraButtonProps={{ download: filename ?? true }}
+        icon={<DownloadIcon />}
+        iconPosition="left"
+        margin={false}
+        size="medium"
+        url={url}
+      >
+        {t('upload:download')}
+      </Button>
+      <Button
+        buttonStyle="secondary"
+        el="anchor"
+        icon={<NewTabIcon />}
+        iconPosition="left"
+        margin={false}
+        newTab
+        size="medium"
+        url={url}
+      >
+        {t('@seshuk/payload-plugin-media-preview:open')}
+      </Button>
     </div>
   )
 }

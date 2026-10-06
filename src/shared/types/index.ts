@@ -106,8 +106,9 @@ export type MediaPreviewAdapter = {
   ) => MediaPreviewAdapterResolveResult | null | Promise<MediaPreviewAdapterResolveResult | null>
   /**
    * Return a short-lived public URL of the file for the external viewers (Microsoft, Google),
-   * e.g. a CDN URL with a token. Return `null` to use the plugin's own signed URL.
-   * The first adapter that returns a URL wins.
+   * e.g. a CDN URL with a token. The first adapter that returns a public URL wins.
+   * Return `null` to try the next adapter. If none returns a URL, the plugin uses the public file URL
+   * or its own signed URL.
    */
   signUrl?: (args: MediaPreviewAdapterSignUrlArgs) => null | Promise<null | string> | string
 }
@@ -125,8 +126,8 @@ export type MediaPreviewAdapter = {
 export type MediaPreviewExternalViewer =
   | {
       /**
-       * Lifetime of the signed URL the plugin gives the viewer, in seconds.
-       * Used only when Payload serves the file itself (with access control).
+       * Lifetime of the signed URL the viewer gets, in seconds.
+       * Used for the plugin's own signed URLs and passed to adapter `signUrl`.
        * @default 600
        */
       expiresIn?: number

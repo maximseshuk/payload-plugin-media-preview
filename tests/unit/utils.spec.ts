@@ -4,7 +4,12 @@ import { describe, expect, it } from 'vitest'
 import { buildFilePreviewMap, FILE_PREVIEW_COMPONENT, mergeFilePreview } from '@/server/filePreviewMap.js'
 import { getExternalViewerHint, getPreviewData } from '@/server/getPreviewData.js'
 import { resolveExternalViewer } from '@/server/settings.js'
-import { GOOGLE_VIEWER_MAX_SIZE, MICROSOFT_VIEWER_MAX_SIZE, TEXT_PREVIEW_MAX_SIZE } from '@/shared/constants.js'
+import {
+  GOOGLE_VIEWER_MAX_SIZE,
+  MICROSOFT_EXCEL_MAX_SIZE,
+  MICROSOFT_VIEWER_MAX_SIZE,
+  TEXT_PREVIEW_MAX_SIZE,
+} from '@/shared/constants.js'
 import { PLUGIN_KEY } from '@/shared/constants.js'
 import {
   formatText,
@@ -19,7 +24,7 @@ import {
   readText,
 } from '@/shared/utils.js'
 
-import { DOCX } from '../helpers/shared/mimeTypes.js'
+import { DOCX, XLSX } from '../helpers/shared/mimeTypes.js'
 
 describe('getFileKind', () => {
   it.each([
@@ -355,6 +360,12 @@ describe('getPreviewData', () => {
     )
   })
 
+  it('allows a private direct URL when an adapter signs URLs', () => {
+    const adapters = [{ name: 'signer', resolve: () => null, signUrl: () => 'https://cdn.example.com/a' }]
+    const direct = { ...docx, url: 'http://minio:9000/a.docx' }
+    expect(getExternalViewerHint(config(on, undefined, adapters), 'media', direct)).toBeUndefined()
+  })
+
   it('hints errorTooLarge over the viewer size limits', () => {
     expect(getExternalViewerHint(config(on), 'media', { ...docx, filesize: MICROSOFT_VIEWER_MAX_SIZE + 1 })).toBe(
       'errorTooLarge',
@@ -362,6 +373,9 @@ describe('getPreviewData', () => {
     const psd = { ...docx, filesize: GOOGLE_VIEWER_MAX_SIZE + 1, mimeType: 'image/vnd.adobe.photoshop' }
     expect(getExternalViewerHint(config(on), 'media', psd)).toBe('errorTooLarge')
     expect(getExternalViewerHint(config(on), 'media', { ...psd, filesize: GOOGLE_VIEWER_MAX_SIZE })).toBeUndefined()
+    const xlsx = { ...docx, filesize: MICROSOFT_EXCEL_MAX_SIZE + 1, mimeType: XLSX }
+    expect(getExternalViewerHint(config(on), 'media', xlsx)).toBe('errorTooLarge')
+    expect(getExternalViewerHint(config(on), 'media', { ...xlsx, filesize: MICROSOFT_EXCEL_MAX_SIZE })).toBeUndefined()
   })
 
   it('hints errorTooLarge for big text files', () => {

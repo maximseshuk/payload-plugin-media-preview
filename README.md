@@ -1,12 +1,12 @@
 <div align="center">
 
 <picture>
-  <img src="media/logo.svg" alt="Media Preview Plugin for Payload CMS" height="80" />
+  <img src="media/logo.svg" alt="Media Preview Plugin for Payload" height="80" />
 </picture>
 
-<h1>Media Preview Plugin for Payload CMS</h1>
+<h1>Media Preview Plugin for Payload</h1>
 
-<p>Preview images, video, audio and documents in the Payload CMS admin panel.</p>
+<p>Preview images, video, audio and documents in the Payload admin panel.</p>
 
 <a href="https://www.npmjs.com/package/@seshuk/payload-plugin-media-preview"><img src="https://img.shields.io/npm/v/@seshuk/payload-plugin-media-preview?style=flat-square&logo=npm" alt="npm version" /></a>
 <a href="https://www.npmjs.com/package/@seshuk/payload-plugin-media-preview"><img src="https://img.shields.io/npm/dm/@seshuk/payload-plugin-media-preview?style=flat-square" alt="npm downloads" /></a>
@@ -291,11 +291,11 @@ mediaPreview({
 })
 ```
 
-| Option      | Type      | Default | Description                                                          |
-| ----------- | --------- | ------- | -------------------------------------------------------------------- |
-| `office`    | `boolean` | `false` | Microsoft viewer for Office formats                                  |
-| `google`    | `boolean` | `false` | Google viewer for the other document formats                         |
-| `expiresIn` | `number`  | `600`   | Signed URL lifetime in seconds. Applies only to files Payload serves |
+| Option      | Type      | Default | Description                                                   |
+| ----------- | --------- | ------- | ------------------------------------------------------------- |
+| `office`    | `boolean` | `false` | Microsoft viewer for Office formats                           |
+| `google`    | `boolean` | `false` | Google viewer for the other document formats                  |
+| `expiresIn` | `number`  | `600`   | Signed URL lifetime in seconds. Adapter `signUrl` gets it too |
 
 `true` turns on both viewers. A collection value replaces the global one.
 
@@ -303,12 +303,12 @@ The viewer needs a URL it can reach:
 
 - **Direct URL** (public bucket, CDN, `generateFileURL`): the viewer gets the file URL as is.
 - **Payload file route** (`{serverURL}/api/{collection}/file/{filename}`, which checks access): the plugin signs a short-lived URL to its own endpoint. The viewer never gets your session.
-- **Adapter `signUrl`**: if an adapter returns a URL, the plugin uses it instead. See [Signed URLs](#signed-urls).
+- **Adapter `signUrl`**: if an adapter returns a public URL, the plugin uses it instead. See [Signed URLs](#signed-urls).
 
-The plugin hides the viewers and shows the download card when:
+The plugin shows the download card instead of a viewer when:
 
-- `serverURL` is missing, `localhost` or a private IP address. You can't test external viewers on `localhost`.
-- The file is larger than 10 MB (Microsoft) or 25 MB (Google).
+- The viewer can't reach the file: the file URL, or `serverURL` for the Payload file route, is missing, `localhost` or a private IP address, and no adapter `signUrl` returns a public URL. You can't test external viewers on `localhost`.
+- The file is too large for the viewer: Microsoft takes up to 10 MB, or 5 MB for Excel files. Google takes up to 25 MB.
 
 When a collection turns on an external viewer, the plugin adds two endpoints:
 
@@ -321,7 +321,7 @@ The file name is in the URL because the viewers detect the file type from its ex
 
 The token is an HMAC-SHA256 signature. Its key comes from the Payload `secret`. The file endpoint reads the file through the collection's storage adapter, or from `staticDir`. It responds with `Cache-Control: no-store`, `Content-Disposition: inline` and `X-Content-Type-Options: nosniff`. An expired or invalid token returns `404`.
 
-The sign endpoint checks file access like Payload's file route: it calls your `read` access with `isReadingStaticFile: true`, and a returned query must match the document. With drafts, both endpoints use the latest draft, which is what the edit view shows.
+The sign endpoint checks file access like Payload's file route: it calls your `read` access with `isReadingStaticFile: true`, and a returned query must match the document and its file name. With drafts, both endpoints use the latest draft, which is what the edit view shows. The query runs against the saved document, so a file uploaded only to a draft opens only when your `read` access returns `true`.
 
 If a storage handler redirects to a signed storage URL (for example S3 `signedDownloads`), the file endpoint downloads that URL itself. It follows only `https:` URLs, or `http:` when the request also came over `http:` (local development). It follows only one redirect and stops after 30 seconds.
 
@@ -392,7 +392,7 @@ const iframeAdapter: MediaPreviewAdapter = {
 
 ### Signed URLs
 
-For files in private storage, an adapter can return its own short-lived URL for the external viewers. `signUrl` gets `{ doc, url, expiresIn, req }`. The first adapter that returns a URL wins, and the plugin uses it instead of its own signed URL. Return `null` to skip.
+For files in private storage, an adapter can return its own short-lived URL for the external viewers. `signUrl` gets `{ doc, url, expiresIn, req }`. The first adapter that returns a public URL wins, and the plugin uses it instead of the file URL. Return `null` to try the next adapter.
 
 ```ts
 const privateBucket: MediaPreviewAdapter = {
@@ -418,7 +418,9 @@ mediaPreview({
 })
 ```
 
-A collection uses its own `adapters` if it sets them, and the global `adapters` if not. It never uses another collection's adapters.
+A collection uses its own `adapters` if it sets them, and the global `adapters` if not. It never uses another collection's adapters, except in a [standalone field](#without-collection-registration) without `adapterNames`.
+
+The plugin finds adapters by `name`, so each name must belong to one adapter. You can reuse the same adapter object in several collections. Two different adapters with the same name throw an error at startup.
 
 ### How Adapters Work
 
@@ -429,17 +431,9 @@ A collection uses its own `adapters` if it sets them, and the global `adapters` 
 5. For `newTab` results, clicking the preview opens the URL in a new browser tab
 6. If no adapter matches, the default built-in viewer is used
 
-In the edit view, `user` is the logged-in user. In the list cell it is always `undefined`, because Payload doesn't pass the user to cells. Use `payload` for Local API calls, for example to presign a `newTab` URL:
+In the edit view, `user` is the logged-in user. In the list cell it is always `undefined`, because Payload doesn't pass the user to cells. Use `payload` for Local API calls.
 
-```ts
-const presigned: MediaPreviewAdapter = {
-  name: 'presigned',
-  resolve: async ({ doc }) =>
-    typeof doc.filename === 'string'
-      ? { mode: 'newTab', url: await createSignedUrl(`media/${doc.filename}`, 600) }
-      : null,
-}
-```
+> **Note:** `resolve()` runs on every render, also for each list row, and its result goes into the page. Anyone who can see the document gets a `newTab` URL, without the file access check. Don't return a presigned URL of a private file there. For the external viewers, use [`signUrl`](#signed-urls): it runs only on open, after the access check.
 
 ### Built-in Viewer Components
 
@@ -668,6 +662,7 @@ import type {
   media: { field: { mode: 'fullscreen', contentMode: { video: 'newTab' } } }
   ```
 
+- Two different adapters with the same `name` throw at startup. In 1.x, the plugin kept the first one and used it in every collection. Give each adapter a unique name.
 - `contentMode` now only changes the list cell. For example, `contentMode: { document: 'newTab' }` no longer opens documents in a new tab from the edit view.
 - `field.overrides.admin.components` is now merged with the plugin's components. In 1.x, setting any component (for example a `Label`) removed the preview `Cell`. Now the `Cell` stays unless you set your own.
 - Adapter `resolve()` can be async. It also gets `collectionSlug`, `payload` and `user`, next to `doc`, `url` and `mimeType`. Sync adapters still work. If you call `adapter.resolve()` yourself, for example in tests, `await` it and pass the new required arguments.
@@ -677,7 +672,7 @@ import type {
   resolve: ({ doc }) => ({ mode: 'newTab', url: publicUrl(doc) })
 
   // 2.x, can now be async and use payload
-  resolve: async ({ doc, payload }) => ({ mode: 'newTab', url: await presign(payload, doc) })
+  resolve: async ({ doc, payload }) => ({ mode: 'newTab', url: await getPublicUrl(payload, doc) })
   ```
 
 - `field.position` throws if no field or more than one field matches the name. Named tabs use their name in the path (`seo.title`), not the tab index (`myTabs.0.title`).
@@ -698,15 +693,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Related Plugins
 
-- **[@seshuk/payload-storage-bunny](https://github.com/maximseshuk/payload-storage-bunny)** — Bunny.net storage adapter for Payload CMS
+- **[@seshuk/payload-storage-bunny](https://github.com/maximseshuk/payload-storage-bunny)** — Bunny.net storage adapter for Payload
 
 ## Support
 
-- **Bug Reports**: [GitHub Issues](https://github.com/maximseshuk/payload-plugin-media-preview/issues)
-- **Questions**: Join the payload-plugin-media-preview in [GitHub Issues](https://github.com/maximseshuk/payload-plugin-media-preview/issues) or [Payload CMS Discord](https://discord.gg/payloadcms)
+Bug reports, feature requests, and questions go to [GitHub Issues](https://github.com/maximseshuk/payload-plugin-media-preview/issues). For Payload itself, see the [Payload docs](https://payloadcms.com/docs) and [Discord](https://discord.gg/payloadcms).
 
 ## Credits
 
-Built with ❤️ for the Payload CMS community.
+Built by [Maxim Seshuk](https://github.com/maximseshuk) for the Payload community.
 
 If you find this plugin useful, [buy me a coffee](https://ko-fi.com/seshuk).
