@@ -7,6 +7,7 @@ import { mediaPreviewField } from '@/server/field.js'
 import { buildFilePreviewMap, mergeFilePreview } from '@/server/filePreviewMap.js'
 import type { CollectionSettings, PluginData } from '@/server/settings.js'
 import { resolveExternalViewer } from '@/server/settings.js'
+import { buildFeatures, reportMediaPreviewTelemetry } from '@/server/telemetry.js'
 import { PLUGIN_KEY } from '@/shared/constants.js'
 import { translations } from '@/shared/translations/index.js'
 import type { PluginDefaultTranslationsObject } from '@/shared/translations/types.js'
@@ -121,6 +122,7 @@ export const mediaPreview =
       }
     }
     const hasExternalViewer = Object.values(collectionSettings).some((settings) => settings.externalViewer)
+    const features = buildFeatures({ adapters: allAdapters, collections: collectionSettings, options })
 
     const pluginTranslations = {} as Record<AcceptedLanguages, PluginDefaultTranslationsObject>
     for (const [locale, i18nObject] of Object.entries(translations)) {
@@ -178,6 +180,10 @@ export const mediaPreview =
           ...incomingConfig.i18n?.translations,
           ...pluginTranslations,
         },
+      },
+      onInit: async (payload) => {
+        await incomingConfig.onInit?.(payload)
+        void reportMediaPreviewTelemetry({ features, options, payload })
       },
     }
 

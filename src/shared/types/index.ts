@@ -50,8 +50,8 @@ export type MediaPreviewAdapterResolveArgs = {
   payload: Payload
   url?: string
   /**
-   * The logged-in user in the edit view upload panel.
-   * Always `undefined` in the list view cell, because Payload does not pass the user to cells.
+   * The logged-in user in the edit view.
+   * Always `undefined` in the list cell, because Payload doesn't pass the user to cells.
    */
   user?: User
 }
@@ -79,7 +79,7 @@ export type MediaPreviewAdapterSignUrlArgs = {
   url?: string
 }
 
-/** Adapters are tried in order — first non-null `resolve()` result wins. */
+/** Adapters run in order. The first non-null `resolve()` result wins. */
 export type MediaPreviewAdapter = {
   /**
    * Import path for the viewer component (e.g. `'my-pkg/client#Player'`).
@@ -87,9 +87,8 @@ export type MediaPreviewAdapter = {
    */
   Component?: string
   /**
-   * MIME types this adapter can preview in the edit view upload panel, e.g. `['video/*', 'audio/*']`.
-   * The plugin registers its panel preview for these types. When `resolve()` returns `null`
-   * for a file, the panel falls back to the native player.
+   * MIME types this adapter shows in the edit view, e.g. `['video/*', 'audio/*']`.
+   * If `resolve()` returns `null` for a file, the default player shows it.
    */
   mimeTypes?: string[]
   name: string
@@ -106,28 +105,28 @@ export type MediaPreviewAdapter = {
     args: MediaPreviewAdapterResolveArgs,
   ) => MediaPreviewAdapterResolveResult | null | Promise<MediaPreviewAdapterResolveResult | null>
   /**
-   * Return a public, short-lived URL of the file for an external viewer (Microsoft, Google),
-   * e.g. a CDN URL with token auth. Return `null` to let the plugin decide.
-   * The first adapter that returns a URL wins over the plugin's own signed URL.
+   * Return a short-lived public URL of the file for the external viewers (Microsoft, Google),
+   * e.g. a CDN URL with a token. Return `null` to use the plugin's own signed URL.
+   * The first adapter that returns a URL wins.
    */
   signUrl?: (args: MediaPreviewAdapterSignUrlArgs) => null | Promise<null | string> | string
 }
 
 /**
- * Sends documents to an external viewer: Microsoft for Office files, Google for rare formats
- * (psd, xps, dxf, pages, postscript).
+ * Opens documents in an external viewer: Microsoft for Office files, Google for psd, xps, dxf,
+ * pages and postscript files.
  *
- * The file leaves your server: Microsoft and Google download it and may cache it for about a day.
+ * The file leaves your server. Microsoft and Google download it and may keep a copy for about a day.
  *
- * - `false` (default) — never send files out, show a download card instead.
+ * - `false` (default) — never send files out, show the download card instead.
  * - `true` — turn on both viewers.
  * - `{ office?, google?, expiresIn? }` — turn on only the viewers set to `true`.
  */
 export type MediaPreviewExternalViewer =
   | {
       /**
-       * Lifetime of the signed file URL the plugin gives to the viewer, in seconds.
-       * Used only when Payload serves the file itself (access control on).
+       * Lifetime of the signed URL the plugin gives the viewer, in seconds.
+       * Used only when Payload serves the file itself (with access control).
        * @default 600
        */
       expiresIn?: number
@@ -141,14 +140,14 @@ export type MediaPreviewExternalViewer =
 export type MediaPreviewContentType = 'audio' | 'document' | 'image' | 'video'
 export type MediaPreviewContentModeType = 'inline' | 'newTab'
 
-/** `'auto'` adapts to context and device, `'fullscreen'` always uses a modal. */
+/** `'auto'` picks the view by device. `'fullscreen'` always uses a fullscreen modal. */
 export type MediaPreviewMode = 'auto' | 'fullscreen'
 
 /**
- * Controls how each content type is opened.
+ * How each content type opens.
  *
- * - `'inline'` — show content in a modal preview.
- * - `'newTab'` — open content in a new browser tab.
+ * - `'inline'` — show the file in the preview modal.
+ * - `'newTab'` — open the file in a new browser tab.
  *
  * @default 'inline' for all content types
  */
@@ -167,12 +166,12 @@ export type MediaPreviewFieldOptions = {
    */
   mode?: MediaPreviewMode
   /**
-   * Payload UI field overrides (`name` and `type` cannot be changed).
-   * `admin.components` is merged with the plugin's, so the plugin `Cell` stays unless you set your own `Cell`.
+   * Payload UI field overrides. You can't change `name` or `type`.
+   * `admin.components` is merged, so the plugin `Cell` stays unless you set your own.
    */
   overrides?: Partial<Omit<UIField, 'name' | 'type'>>
   /**
-   * Where the plugin puts the column in the fields list, which sets the column order.
+   * Where the plugin puts the field. This sets the column order.
    * Ignored by `mediaPreviewField()`.
    * @default 'last'
    */
@@ -194,8 +193,8 @@ export type MediaPreviewCollectionOptions = {
    */
   field?: boolean | MediaPreviewFieldOptions
   /**
-   * Adds the plugin preview to the edit view upload panel (`upload.admin.components.filePreview`)
-   * for file types Payload does not preview itself.
+   * Shows the plugin preview at the top of the edit view for files Payload can't show.
+   * Uses `upload.admin.components.filePreview`.
    * @default true
    */
   filePreview?: boolean
@@ -210,6 +209,26 @@ export type MediaPreviewPluginOptions = {
   enabled?: boolean
   /** @default false */
   externalViewer?: MediaPreviewExternalViewer
+  /**
+   * Anonymous usage telemetry: plugin, Payload and Node versions and the features in use. On by default.
+   * It never sends secrets, IP addresses, keys, file names, URLs or collection names.
+   * The first run logs a notice.
+   *
+   * Off when `payload.config.telemetry` is `false`, when `DO_NOT_TRACK` or `MEDIA_PREVIEW_TELEMETRY_DISABLED`
+   * is set, in CI or with `NODE_ENV=test`. Set `false` to turn it off. Pass `{ url }` to use your own collector.
+   *
+   * @see https://github.com/maximseshuk/payload-plugin-media-preview#telemetry
+   * @default true
+   */
+  telemetry?:
+    | boolean
+    | {
+        /**
+         * Collector URL that receives the telemetry report.
+         * @default the plugin's public collector
+         */
+        url?: string
+      }
 }
 
 export type MediaPreviewPlugin = (options: MediaPreviewPluginOptions) => Plugin

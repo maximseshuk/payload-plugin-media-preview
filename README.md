@@ -6,7 +6,7 @@
 
 <h1>Media Preview Plugin for Payload CMS</h1>
 
-<p>Preview images, videos, audio, and documents directly in the Payload CMS admin panel.</p>
+<p>Preview images, video, audio and documents in the Payload CMS admin panel.</p>
 
 <a href="https://www.npmjs.com/package/@seshuk/payload-plugin-media-preview"><img src="https://img.shields.io/npm/v/@seshuk/payload-plugin-media-preview?style=flat-square&logo=npm" alt="npm version" /></a>
 <a href="https://www.npmjs.com/package/@seshuk/payload-plugin-media-preview"><img src="https://img.shields.io/npm/dm/@seshuk/payload-plugin-media-preview?style=flat-square" alt="npm downloads" /></a>
@@ -18,11 +18,11 @@
 
 ## Features
 
-- Previews in the edit view upload panel for file types Payload doesn't preview itself: text, code, JSON, CSV, Office and other documents
-- Preview column in the list view, with a popup on desktop and a fullscreen modal on mobile
-- Opt-in Microsoft and Google viewers for Office and other documents, with short-lived signed URLs for files Payload serves itself
-- Extensible adapter system for custom viewers
-- Zero database fields
+- Edit view previews for files Payload can't show: text, code, CSV, Office and more
+- A preview column in the list view
+- Optional Microsoft and Google viewers for Office files
+- Adapters for your own viewers
+- No database fields
 
 ## Table of Contents
 
@@ -41,6 +41,7 @@
 - [Adapters](#adapters)
 - [Standalone Field](#standalone-field)
 - [Internationalization](#internationalization)
+- [Telemetry](#telemetry)
 - [Exports](#exports)
 - [TypeScript](#typescript)
 - [Migrating from 1.x](#migrating-from-1x)
@@ -81,7 +82,7 @@ export default buildConfig({
 })
 ```
 
-This adds a preview column to your `media` collection's list view and previews text, JSON, CSV and other files in the edit view upload panel. Images, video, audio and PDF keep Payload's own preview there.
+This adds a preview column to the `media` list view. The edit view now also previews text, CSV and other files that Payload can't show. Images, video, audio and PDF keep Payload's own preview.
 
 ## Configuration
 
@@ -91,8 +92,9 @@ This adds a preview column to your `media` collection's list view and previews t
 | ---------------- | ---------------------------------------------- | ------- | ------------------------------------------------------------------------------------------- |
 | `enabled`        | `boolean`                                      | `true`  | Enable or disable the plugin                                                                |
 | `adapters`       | `MediaPreviewAdapter[]`                        | `[]`    | Global adapters for collections that don't set their own                                    |
-| `collections`    | `Record<string, boolean \| CollectionOptions>` | —       | Which upload collections to add preview to (`false` skips one)                              |
+| `collections`    | `Record<string, boolean \| CollectionOptions>` | —       | Upload collections to preview (`false` skips one)                                           |
 | `externalViewer` | `boolean \| { office?, google?, expiresIn? }`  | `false` | Microsoft and Google viewers for all collections. See [External Viewers](#external-viewers) |
+| `telemetry`      | `boolean \| { url? }`                          | `true`  | Anonymous usage telemetry. See [Telemetry](#telemetry)                                      |
 
 ### Collection Options
 
@@ -102,17 +104,17 @@ Each collection entry can be `true` (all defaults), `false` (skipped) or an obje
 | ---------------- | --------------------------------------------- | ------- | ----------------------------------------------------------------- |
 | `adapters`       | `MediaPreviewAdapter[]`                       | —       | Per-collection adapters (override global)                         |
 | `field`          | `boolean \| MediaPreviewFieldOptions`         | `true`  | List column options, or `false` to skip it (for manual placement) |
-| `filePreview`    | `boolean`                                     | `true`  | Register the edit view preview. See [Edit View](#edit-view)       |
+| `filePreview`    | `boolean`                                     | `true`  | Show the preview in the edit view. See [Edit View](#edit-view)    |
 | `externalViewer` | `boolean \| { office?, google?, expiresIn? }` | global  | Overrides the global `externalViewer` for this collection         |
 
 **`field` options:**
 
-| Option        | Type                                                    | Default    | Description                                                                                                                                               |
-| ------------- | ------------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `position`    | `'first' \| 'last' \| 'sidebar' \| { after \| before }` | `'last'`   | Where to insert the preview field, which sets the column order                                                                                            |
-| `mode`        | `'auto' \| 'fullscreen'`                                | `'auto'`   | List cell display mode                                                                                                                                    |
-| `contentMode` | `Partial<MediaPreviewContentMode>`                      | all inline | How the list cell opens each content type (`'inline'` or `'newTab'`)                                                                                      |
-| `overrides`   | `Partial<Omit<UIField, 'name' \| 'type'>>`              | —          | Payload UI field overrides (`name` and `type` cannot be changed). `admin.components` is merged, so the plugin `Cell` stays unless you set your own `Cell` |
+| Option        | Type                                                    | Default    | Description                                                                                                                                     |
+| ------------- | ------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `position`    | `'first' \| 'last' \| 'sidebar' \| { after \| before }` | `'last'`   | Where to insert the preview field, which sets the column order                                                                                  |
+| `mode`        | `'auto' \| 'fullscreen'`                                | `'auto'`   | List cell display mode                                                                                                                          |
+| `contentMode` | `Partial<MediaPreviewContentMode>`                      | all inline | How the list cell opens each content type (`'inline'` or `'newTab'`)                                                                            |
+| `overrides`   | `Partial<Omit<UIField, 'name' \| 'type'>>`              | —          | Payload UI field overrides. You can't change `name` or `type`. `admin.components` is merged, so the plugin `Cell` stays unless you set your own |
 
 ```ts
 mediaPreview({
@@ -131,11 +133,11 @@ mediaPreview({
 
 ### Display Modes
 
-The `field.mode` option controls how the list view cell shows previews. The edit view always uses Payload's upload panel, with a fullscreen button for plugin previews.
+`field.mode` sets how the list cell shows a preview. It doesn't change the edit view.
 
 #### `'auto'` (default)
 
-Smart mode that adapts to context and device:
+Picks the view by device:
 
 | Context          | Desktop                      | Mobile           |
 | ---------------- | ---------------------------- | ---------------- |
@@ -155,11 +157,11 @@ collections: {
 
 ### Content Modes
 
-Control how the list cell opens each content type with the `field.contentMode` option. Each content type can be set to `'inline'` (default) or `'newTab'`:
+`field.contentMode` sets how the list cell opens each content type: `'inline'` (default) or `'newTab'`.
 
 | Mode       | Behavior                               |
 | ---------- | -------------------------------------- |
-| `'inline'` | Show content in modal preview          |
+| `'inline'` | Show the file in the preview modal     |
 | `'newTab'` | Open the file URL in a new browser tab |
 
 `document` covers PDF, text, Office and other documents.
@@ -181,7 +183,7 @@ collections: {
 
 ### Field Position
 
-The preview is a `ui` field. Its position in the fields array sets the default order of the list view column. Change it with the `field.position` option:
+The preview is a `ui` field. Its place in the fields array sets the column order in the list view. Change it with `field.position`:
 
 ```ts
 // At the end (default)
@@ -224,7 +226,7 @@ field: {
 }
 ```
 
-Rows, collapsibles and unnamed tabs add no path segment, so `{ after: 'alt' }` finds `alt` inside them. A bare name also finds a field inside a group or named tab when only one field has that name. If the name matches more than one field, or none, the plugin throws at startup and asks for the full path.
+Rows, collapsibles and unnamed tabs don't add to the path, so `{ after: 'alt' }` finds `alt` inside them. A plain name also finds a field inside a group or named tab if no other field has that name. If the name matches no field or more than one, the plugin throws at startup and asks for the full path.
 
 ### Supported File Types
 
@@ -239,35 +241,44 @@ Rows, collapsibles and unnamed tabs add no path segment, so `{ after: 'alt' }` f
 | `.psd`, `.ai`/`.eps`/`.ps`, `.dxf`, `.pages`, `.xps`       | Google viewer or card    | Google viewer or card    |
 | Anything else (`.zip`, unknown types)                      | Download card            | Download card            |
 
-Text is fetched in the browser and shown as text, never as HTML. Markdown and HTML files show their source. Text and code open in Payload's read-only code editor (Monaco, the same one as JSON fields) with syntax highlighting for JSON (pretty-printed), YAML, XML, CSS, HTML, Markdown, JavaScript, TypeScript, Python, shell and INI/TOML. Plain text and logs show without highlighting. If the editor can't load, the text shows as plain text. Files over 1 MB and CSV past 1000 rows are not rendered in full: files over 1 MB show the download card, and CSV shows the first 1000 rows. When the size is unknown, the first 1 MB is shown.
+The plugin loads text in the browser and always shows it as text, never as HTML. Markdown and HTML files show their source.
 
-Browsers often upload code files as `application/octet-stream` or without a type. For those files the plugin goes by the extension: `.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`, `.py`, `.sh`, `.json`, `.yaml`, `.yml`, `.toml`, `.ini`, `.conf`, `.env` (and `.env.example`), `.log`, `.md`, `.txt`, `.csv`, `.css` and `.xml` show as text. Other untyped files get the download card.
+Text and code open in Payload's read-only code editor (Monaco, the same one JSON fields use). It highlights JSON (pretty-printed), YAML, XML, CSS, HTML, Markdown, JavaScript, TypeScript, Python, shell and INI/TOML. Plain text and logs have no highlighting. If the editor can't load, the file shows as plain text.
 
-Payload rejects some uploads unless the collection sets `upload.allowRestrictedFileTypes: true` (or lists the types in `upload.mimeTypes`): among them `.html`/`.htm`, `.js`, `.py`, `.rb`, `.php` and `.pl`. See `RESTRICTED_FILE_EXT_AND_TYPES` in Payload. The plugin previews these files once Payload accepts them.
+Files over 1 MB show the download card. CSV shows the first 1000 rows. If the file size is unknown, the plugin shows the first 1 MB.
 
-The download card shows the file name, size and type, with Download and Open buttons. It also shows why there is no preview: the viewer is off, the file is too large, or the server isn't public.
+Browsers often upload code files as `application/octet-stream` or with no type. For these files the plugin uses the extension: `.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`, `.py`, `.sh`, `.json`, `.yaml`, `.yml`, `.toml`, `.ini`, `.conf`, `.env` (and `.env.example`), `.log`, `.md`, `.txt`, `.csv`, `.css` and `.xml` show as text. Other files with no type get the download card.
 
-OpenDocument files (`.odt`, `.ods`, `.odp`) are not sent to the Microsoft viewer because its embed endpoint rejects them.
+Payload blocks some file types, such as `.html`, `.htm`, `.js`, `.py`, `.rb`, `.php` and `.pl`. To allow them, set `upload.allowRestrictedFileTypes: true` or list the types in `upload.mimeTypes`. See `RESTRICTED_FILE_EXT_AND_TYPES` in Payload. Once Payload accepts these files, the plugin previews them.
+
+The download card shows the file name, size and type, with Download and Open buttons. It also says why there is no preview: the viewer is off, the file is too large, or the server isn't public.
+
+The Microsoft viewer doesn't accept OpenDocument files (`.odt`, `.ods`, `.odp`), so the plugin doesn't send them there.
 
 ## Edit View
 
-The plugin adds its component to `upload.admin.components.filePreview` as a MIME type map. It registers the types Payload doesn't preview (text, CSV, Office and Google viewer formats), the `mimeTypes` of the collection's adapters, and the `'*'` fallback, so any other type shows the download card instead of Payload's placeholder. Images, video, audio and PDF are set to `false`, so they keep Payload's built-in preview.
+In the edit view, Payload shows the file at the top of the page. Payload's `upload.admin.components.filePreview` option sets which component shows each file type. The plugin fills this option for you:
 
-Your own `filePreview` wins:
+- Text, CSV, Office and other types Payload can't show get the plugin preview.
+- Types in your adapters' `mimeTypes` get the plugin preview too.
+- All other types get the download card instead of Payload's empty placeholder (the `'*'` key).
+- Images, video, audio and PDF keep Payload's own preview, unless an adapter lists them in `mimeTypes`.
 
-- A single component (a string or `{ path }`) is kept as is, and the plugin adds nothing.
-- A map with the `'*'` fallback is kept as is, because your fallback already covers every type.
-- In a map, the keys you set are kept. The plugin skips its own keys that match yours exactly or by category (`text/*` covers `text/plain`).
+If you set `filePreview` yourself, your value wins:
 
-Set `filePreview: false` on a collection to skip the edit view preview.
+- A single component (a string or `{ path }`): the plugin adds nothing.
+- A map with a `'*'` key: the plugin adds nothing, because your `'*'` already covers every type.
+- Any other map: your keys stay. The plugin skips its keys that match yours, exactly or by category (`text/*` covers `text/plain`).
 
-Plugin previews have a fullscreen button that opens the same fullscreen modal as the list cell.
+Set `filePreview: false` on a collection to turn off the edit view preview.
+
+Plugin previews have a fullscreen button. It opens the same modal as the list cell.
 
 ## External Viewers
 
-Office files can be shown in the [Microsoft Office viewer](https://view.officeapps.live.com), and `.psd`, `.ai`, `.eps`, `.ps`, `.dxf`, `.pages` and `.xps` files in the Google Docs viewer. These are external services that download the file from a URL, so they are **off by default**.
+Office files can open in the [Microsoft Office viewer](https://view.officeapps.live.com). `.psd`, `.ai`, `.eps`, `.ps`, `.dxf`, `.pages` and `.xps` files can open in the Google Docs viewer. Both are outside services that download the file from a URL, so they are **off by default**.
 
-> **Privacy:** When an external viewer is on, Microsoft or Google downloads the file and can cache it, sometimes for about a day. Turn it on only for files you are allowed to share with these services.
+> **Privacy:** When a viewer is on, Microsoft or Google downloads the file and may keep a copy, sometimes for about a day. Turn it on only for files you may share with them.
 
 ```ts
 mediaPreview({
@@ -286,52 +297,54 @@ mediaPreview({
 | `google`    | `boolean` | `false` | Google viewer for the other document formats                         |
 | `expiresIn` | `number`  | `600`   | Signed URL lifetime in seconds. Applies only to files Payload serves |
 
-`true` turns on both viewers. The collection value replaces the global one.
+`true` turns on both viewers. A collection value replaces the global one.
 
 The viewer needs a URL it can reach:
 
 - **Direct URL** (public bucket, CDN, `generateFileURL`): the viewer gets the file URL as is.
-- **Payload file route** (`{serverURL}/api/{collection}/file/{filename}`, which checks access): the plugin signs a short-lived URL to its own endpoint, so the viewer never gets your session.
-- **Adapter `signUrl`**: when an adapter returns a URL, it is used instead of both. See [Adapters](#adapters).
+- **Payload file route** (`{serverURL}/api/{collection}/file/{filename}`, which checks access): the plugin signs a short-lived URL to its own endpoint. The viewer never gets your session.
+- **Adapter `signUrl`**: if an adapter returns a URL, the plugin uses it instead. See [Signed URLs](#signed-urls).
 
-The viewers are hidden, and the download card is shown, when:
+The plugin hides the viewers and shows the download card when:
 
-- `serverURL` is missing, `localhost` or a private IP address. External viewers can't be tested on `localhost`.
+- `serverURL` is missing, `localhost` or a private IP address. You can't test external viewers on `localhost`.
 - The file is larger than 10 MB (Microsoft) or 25 MB (Google).
 
-When any collection turns on an external viewer, the plugin adds two endpoints:
+When a collection turns on an external viewer, the plugin adds two endpoints:
 
-| Endpoint                                       | Auth          | Description                                                                           |
-| ---------------------------------------------- | ------------- | ------------------------------------------------------------------------------------- |
-| `GET /api/media-preview/url?collection=&id=`   | Admin session | Checks read access to the document and its file and returns `{ url }` for the viewer  |
-| `GET /api/media-preview/file/:token/:filename` | Signed token  | Streams one file. The token is bound to the collection, document, filename and expiry |
+| Endpoint                                       | Auth          | Description                                                                            |
+| ---------------------------------------------- | ------------- | -------------------------------------------------------------------------------------- |
+| `GET /api/media-preview/url?collection=&id=`   | Admin session | Checks read access to the document and its file, then returns `{ url }` for the viewer |
+| `GET /api/media-preview/file/:token/:filename` | Signed token  | Streams one file. The token holds the collection, document ID, file name and expiry    |
 
-The token is an HMAC-SHA256 signature with a key derived from the Payload `secret`. The file endpoint reads the file through the collection's storage adapter handlers, or from `staticDir`, and responds with `Cache-Control: no-store`, `Content-Disposition: inline` and `X-Content-Type-Options: nosniff`. An expired or invalid token returns `404`.
+The file name is in the URL because the viewers detect the file type from its extension. It also ends the link when someone uploads a new file to the document: the name no longer matches, so the old URL returns `404`.
 
-The sign endpoint checks file access the same way Payload's file route does: your `read` access function is called with `isReadingStaticFile: true`, and a returned query must match the document. With drafts, both endpoints use the latest draft, the version the edit view shows.
+The token is an HMAC-SHA256 signature. Its key comes from the Payload `secret`. The file endpoint reads the file through the collection's storage adapter, or from `staticDir`. It responds with `Cache-Control: no-store`, `Content-Disposition: inline` and `X-Content-Type-Options: nosniff`. An expired or invalid token returns `404`.
 
-When a storage handler redirects to a signed storage URL (for example S3 `signedDownloads`), the file endpoint downloads the target itself. It follows only `https:` URLs, or `http:` URLs when the request itself came over `http:` (local development). It does not follow further redirects and stops after 30 seconds.
+The sign endpoint checks file access like Payload's file route: it calls your `read` access with `isReadingStaticFile: true`, and a returned query must match the document. With drafts, both endpoints use the latest draft, which is what the edit view shows.
+
+If a storage handler redirects to a signed storage URL (for example S3 `signedDownloads`), the file endpoint downloads that URL itself. It follows only `https:` URLs, or `http:` when the request also came over `http:` (local development). It follows only one redirect and stops after 30 seconds.
 
 ## Adapters
 
-Adapters let you customize how files are previewed. When an adapter matches a document, it takes priority over built-in viewers and `contentMode` settings.
+Adapters let you change how files are previewed. If an adapter matches a document, it wins over the built-in viewers and `contentMode`.
 
 Each adapter has a `resolve()` function that returns one of two modes:
 
-- `{ mode: 'inline', props }` — renders a custom component inside the modal preview
-- `{ mode: 'newTab', url }` — opens a link in a new browser tab
+- `{ mode: 'inline', props }`: shows your component in the preview modal
+- `{ mode: 'newTab', url }`: opens a link in a new browser tab
 
-The `Component` field is only needed for `inline` mode. Adapters that only use `newTab` mode don't need a component.
+`Component` is only needed for `inline` mode.
 
-Adapters always apply in the list cell. The edit view shows the plugin preview only for the plugin's own types and the types in the adapters' `mimeTypes`. For other types, Payload shows its own preview and adapters are not called. When `resolve()` returns `null`, the plugin shows its default viewer.
+Adapters always run in the list cell. In the edit view, the plugin preview shows only for its own types and the types in your adapters' `mimeTypes`. Other types get Payload's own preview, and adapters don't run. If `resolve()` returns `null`, the plugin shows its default viewer.
 
-| Field       | Type                                     | Description                                                                       |
-| ----------- | ---------------------------------------- | --------------------------------------------------------------------------------- |
-| `name`      | `string`                                 | Unique adapter name                                                               |
-| `Component` | `string`                                 | Component path for `inline` results                                               |
-| `resolve`   | `(args) => result \| null \| Promise<…>` | Returns how to preview a document, or `null` to skip. Can be async                |
-| `mimeTypes` | `string[]`                               | Types the adapter previews in the edit view, for example `['video/*', 'audio/*']` |
-| `signUrl`   | `(args) => string \| null \| Promise<…>` | Public URL for the external viewers. See [Signed URLs](#signed-urls)              |
+| Field       | Type                                     | Description                                                                    |
+| ----------- | ---------------------------------------- | ------------------------------------------------------------------------------ |
+| `name`      | `string`                                 | Unique adapter name                                                            |
+| `Component` | `string`                                 | Component path for `inline` results                                            |
+| `resolve`   | `(args) => result \| null \| Promise<…>` | Returns how to preview a document, or `null` to skip. Can be async             |
+| `mimeTypes` | `string[]`                               | Types the adapter shows in the edit view, for example `['video/*', 'audio/*']` |
+| `signUrl`   | `(args) => string \| null \| Promise<…>` | Public URL for the external viewers. See [Signed URLs](#signed-urls)           |
 
 ### Examples
 
@@ -379,7 +392,7 @@ const iframeAdapter: MediaPreviewAdapter = {
 
 ### Signed URLs
 
-When the files live in private storage, an adapter can return its own short-lived URL for the external viewers. `signUrl` receives `{ doc, url, expiresIn, req }`. The first adapter that returns a URL wins, and its URL is used instead of the plugin's signed URL. Return `null` to skip.
+For files in private storage, an adapter can return its own short-lived URL for the external viewers. `signUrl` gets `{ doc, url, expiresIn, req }`. The first adapter that returns a URL wins, and the plugin uses it instead of its own signed URL. Return `null` to skip.
 
 ```ts
 const privateBucket: MediaPreviewAdapter = {
@@ -390,7 +403,7 @@ const privateBucket: MediaPreviewAdapter = {
 }
 ```
 
-`createSignedUrl` stands for your storage SDK. Storage adapters such as [`@seshuk/payload-storage-bunny`](https://github.com/maximseshuk/payload-storage-bunny) can use the same hooks: `mimeTypes: ['video/*', 'audio/*']` to show their player in the edit view, and `signUrl` for token-authenticated storage URLs.
+`createSignedUrl` stands for your storage SDK. Storage adapters such as [`@seshuk/payload-storage-bunny`](https://github.com/maximseshuk/payload-storage-bunny) can use the same options: `mimeTypes: ['video/*', 'audio/*']` to show their player in the edit view, and `signUrl` for storage URLs with a token.
 
 ### Registering Adapters
 
@@ -405,7 +418,7 @@ mediaPreview({
 })
 ```
 
-A collection uses its own `adapters` when it sets them, and the global `adapters` otherwise. It never uses the adapters of another collection.
+A collection uses its own `adapters` if it sets them, and the global `adapters` if not. It never uses another collection's adapters.
 
 ### How Adapters Work
 
@@ -416,7 +429,7 @@ A collection uses its own `adapters` when it sets them, and the global `adapters
 5. For `newTab` results, clicking the preview opens the URL in a new browser tab
 6. If no adapter matches, the default built-in viewer is used
 
-`user` is the logged-in user in the edit view upload panel. In the list view cell it is always `undefined`, because Payload does not pass the user to cells. Use `payload` for Local API calls, for example to presign a `newTab` URL:
+In the edit view, `user` is the logged-in user. In the list cell it is always `undefined`, because Payload doesn't pass the user to cells. Use `payload` for Local API calls, for example to presign a `newTab` URL:
 
 ```ts
 const presigned: MediaPreviewAdapter = {
@@ -490,11 +503,11 @@ The plugin exports four built-in viewer components that you can use in adapters 
 
 ## Standalone Field
 
-The plugin automatically injects the preview field into configured collections. The field only adds the list view column. If you need more control over its placement, you can add the field manually using `mediaPreviewField()`.
+The plugin adds the preview field to the listed collections for you. The field only adds the list view column. To place it yourself, use `mediaPreviewField()`.
 
 ### With `field: false`
 
-Use `field: false` in the collection config to register adapters without injecting the field. This lets you place the field manually while keeping all adapter and translation registration. The edit view preview is still registered:
+Set `field: false` on a collection to skip the automatic field but keep its adapters and translations. Then add the field yourself. The edit view preview still works:
 
 ```ts
 import type { MediaPreviewAdapter } from '@seshuk/payload-plugin-media-preview'
@@ -539,7 +552,7 @@ export default buildConfig({
 
 ### Without collection registration
 
-If you don't need per-collection adapters, you can omit the collection from the plugin config entirely and use global adapters:
+If you don't need per-collection adapters, leave the collection out of the plugin config and use global adapters:
 
 ```ts
 import { mediaPreview, mediaPreviewField } from '@seshuk/payload-plugin-media-preview'
@@ -560,15 +573,47 @@ export default buildConfig({
 })
 ```
 
-The plugin must still be included to register viewer components and translations. Collections that are not listed get no edit view preview. Pass `adapterNames` to `mediaPreviewField()` to choose adapters. Those adapters must be registered via the plugin's `adapters` (global) or collection `adapters` config. Without `adapterNames`, the cell tries all registered adapters.
+You still need the plugin, because it registers the viewer components and translations. Collections that are not listed get no edit view preview. To choose adapters, pass `adapterNames` to `mediaPreviewField()`. Register those adapters in the plugin's global or collection `adapters`. Without `adapterNames`, the cell tries all registered adapters.
 
-The list view only loads the fields of its visible columns. For collections listed in the plugin config, the plugin loads the whole document when the preview column is visible, so the cell has the file data and every field your adapters read. Unlisted collections don't get this, so their preview cell can show `—`. List them with `field: false` to keep it working.
+The list view loads only the fields of its visible columns. For listed collections, the plugin loads the whole document when the preview column is visible. The cell then gets the file data and every field your adapters read. Unlisted collections don't get this, and their cell can show `—`. List them with `field: false` to fix it.
 
 ## Internationalization
 
-The plugin includes translations for 44 locales. Translations are automatically merged into your Payload i18n configuration under the `@seshuk/payload-plugin-media-preview` namespace.
+The plugin has translations for 44 locales. It merges them into your Payload i18n config under the `@seshuk/payload-plugin-media-preview` namespace.
 
 Supported locales: `ar`, `az`, `bg`, `bn` (BD/IN), `ca`, `cs`, `da`, `de`, `en`, `es`, `et`, `fa`, `fr`, `he`, `hr`, `hu`, `hy`, `id`, `is`, `it`, `ja`, `ko`, `lt`, `lv`, `my`, `nb`, `nl`, `pl`, `pt`, `ro`, `rs` (Cyrillic/Latin), `ru`, `sk`, `sl`, `sv`, `ta`, `th`, `tr`, `uk`, `vi`, `zh`, `zhTw`.
+
+## Telemetry
+
+The plugin sends a small anonymous usage report, at most once a day. It shows the maintainer which versions and features people use. Telemetry is on by default. On the first run, the plugin logs how to turn it off.
+
+The report has the major versions of the plugin, Payload and Node, the OS, a project ID and the features in use. The project ID is `sha256(payload.secret + source)`. The source is the git remote URL, the app's `package.json` name, `serverURL` or the working directory. Only the hash leaves your server. The plugin never sends secrets, IP addresses, keys, file names, URLs or collection names.
+
+`features` has booleans only:
+
+| Flag                     | Meaning                                              |
+| ------------------------ | ---------------------------------------------------- |
+| `adapters`               | At least one adapter is registered                   |
+| `adapterInline`          | An adapter has a `Component`                         |
+| `adapterMimeTypes`       | An adapter sets `mimeTypes`                          |
+| `adapterSignUrl`         | An adapter has `signUrl`                             |
+| `collectionOverrides`    | A collection uses options instead of `true`          |
+| `externalViewerOffice`   | The Microsoft viewer is on for a collection          |
+| `externalViewerGoogle`   | The Google viewer is on for a collection             |
+| `field`                  | The plugin adds the list view column to a collection |
+| `fieldFullscreen`        | A column uses `mode: 'fullscreen'`                   |
+| `fieldContentModeNewTab` | A column opens a content type in a new tab           |
+| `fieldPosition`          | A column sets `position`                             |
+| `fieldOverrides`         | A column sets `overrides`                            |
+| `filePreview`            | The edit view preview is on for a collection         |
+
+Telemetry is off when any of these is true:
+
+- `telemetry: false` in the plugin options or in the Payload config;
+- `DO_NOT_TRACK` or `MEDIA_PREVIEW_TELEMETRY_DISABLED` is set to a truthy value;
+- `CI` is set or `NODE_ENV` is `test`.
+
+To send reports to your own collector, pass `telemetry: { url: 'https://telemetry.example.com/v1/collect' }`. Reports never block startup or throw errors, and they time out after 2 seconds.
 
 ## Exports
 
@@ -623,9 +668,9 @@ import type {
   media: { field: { mode: 'fullscreen', contentMode: { video: 'newTab' } } }
   ```
 
-- `contentMode` now only sets how the list cell opens files. It no longer changes the edit view, which always shows the file in Payload's upload panel. For example, `contentMode: { document: 'newTab' }` no longer opens documents in a new tab from the edit view.
-- `field.overrides.admin.components` is now merged with the plugin's components. In 1.x, setting any component (for example a `Label`) removed the preview `Cell`. Now the plugin `Cell` stays unless you set your own `Cell`.
-- Adapter `resolve()` can be async and receives `collectionSlug`, `payload` and `user` next to `doc`, `url` and `mimeType`. Sync adapters keep working. If you call `adapter.resolve()` yourself, for example in tests, `await` the result and pass the new required arguments.
+- `contentMode` now only changes the list cell. For example, `contentMode: { document: 'newTab' }` no longer opens documents in a new tab from the edit view.
+- `field.overrides.admin.components` is now merged with the plugin's components. In 1.x, setting any component (for example a `Label`) removed the preview `Cell`. Now the `Cell` stays unless you set your own.
+- Adapter `resolve()` can be async. It also gets `collectionSlug`, `payload` and `user`, next to `doc`, `url` and `mimeType`. Sync adapters still work. If you call `adapter.resolve()` yourself, for example in tests, `await` it and pass the new required arguments.
 
   ```ts
   // 1.x
@@ -636,13 +681,14 @@ import type {
   ```
 
 - Types are renamed: `MediaPreviewPluginConfig` → `MediaPreviewPluginOptions`, `MediaPreviewCollectionConfig` → `MediaPreviewCollectionOptions`. `MediaPreviewFieldConfig` is gone; the `field` object is `MediaPreviewFieldOptions`.
-- `field.position` throws when the field is not found or the name matches more than one field. Named tabs use their name in the path (`seo.title`), not the tab index (`myTabs.0.title`).
-- The edit view preview button and its `Field` component are removed. The edit view now uses Payload's `upload.admin.components.filePreview`. See [Edit View](#edit-view).
+- `field.position` throws if no field or more than one field matches the name. Named tabs use their name in the path (`seo.title`), not the tab index (`myTabs.0.title`).
+- The Preview button in the edit view and its `Field` component are removed. The preview now shows at the top of the edit view, through Payload's `upload.admin.components.filePreview`. See [Edit View](#edit-view).
 - `mediaPreviewField()` only adds the list view column.
-- PDF and text files no longer use the Google viewer. PDF uses the browser viewer, text is rendered by the plugin.
+- PDF and text files no longer use the Google viewer. PDF opens in the browser's viewer, and the plugin renders text itself.
 - External viewers (Microsoft, Google) are off by default. Set `externalViewer` to turn them on.
 - `contentMode: { document: 'newTab' }` opens the file URL, not the external viewer.
 - Removed exports: `MediaPreview` from `/rsc` and `MediaPreviewFieldClient` from `/client`. `/rsc` now exports `MediaPreviewFile`.
+- The plugin sends anonymous usage telemetry. Set `telemetry: false` or `MEDIA_PREVIEW_TELEMETRY_DISABLED=1` to turn it off. See [Telemetry](#telemetry).
 - Run `payload generate:importmap` after upgrading.
 
 ---
