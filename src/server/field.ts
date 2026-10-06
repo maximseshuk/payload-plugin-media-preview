@@ -1,6 +1,6 @@
 import type { UIField } from 'payload'
 
-import type { MediaPreviewFieldConfig } from '@/shared/types/index.js'
+import type { MediaPreviewFieldOptions } from '@/shared/types/index.js'
 
 /**
  * The list view preview column, to place by hand. It doesn't change the edit view.
@@ -11,7 +11,7 @@ export const mediaPreviewField = ({
   contentMode,
   mode = 'auto',
   overrides,
-}: Omit<MediaPreviewFieldConfig, 'position'> & {
+}: Omit<MediaPreviewFieldOptions, 'position'> & {
   /** Which adapters to try when resolving a preview (by name). */
   adapterNames?: string[]
 } = {}): UIField => ({
