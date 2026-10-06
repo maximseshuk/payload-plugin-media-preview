@@ -19,6 +19,11 @@ const ALL_COLLECTIONS = [
   'media-async',
 ]
 
+const fileUrl = (collection: string, fixture: string) => {
+  const [name, ext] = fixture.split('.')
+  return new RegExp(`/api/${collection}/file/${name}.*\\.${ext}$`)
+}
+
 test.describe('Media Preview Plugin', () => {
   test.describe.configure({ mode: 'serial' })
 
@@ -28,16 +33,34 @@ test.describe('Media Preview Plugin', () => {
     )
   })
 
-  test('image: keeps the Payload preview in the edit view', async ({ page }) => {
-    await uploadFile(page, 'media-default')
-    await expect(page.locator('.file-preview img')).toBeVisible()
-    await expect(page.locator('.media-preview-file')).toHaveCount(0)
-  })
+  const payloadPreviews = [
+    ['image', 'test-image.png', 'img'],
+    ['pdf', 'test-document.pdf', 'iframe.pdf-preview'],
+    ['video', 'test-video.mp4', 'video.video-preview'],
+    ['audio', 'test-audio.mp3', 'audio'],
+  ]
+
+  for (const [kind, fixture, selector] of payloadPreviews) {
+    test(`${kind}: keeps the Payload preview in the edit view`, async ({ page }) => {
+      await uploadFile(page, 'media-default', { fixture })
+      await expect(page.locator(`.file-preview ${selector}`)).toBeVisible()
+      await expect(page.locator('.media-preview-file')).toHaveCount(0)
+    })
+  }
 
   test('text: renders as plain text in the edit view', async ({ page }) => {
     await uploadFile(page, 'media-default', { fixture: 'test-text.txt' })
     await expect(page.locator('.media-preview-file .view-lines')).toContainText('<b>markup</b>')
     await expect(page.locator('.media-preview-file b')).toHaveCount(0)
+  })
+
+  test('text: shows the load error when the file request fails', async ({ page }) => {
+    await page.route('**/api/media-default/file/test-text*', (route) => route.fulfill({ body: 'Error', status: 500 }))
+    await uploadFile(page, 'media-default', { fixture: 'test-text.txt' })
+    await expect(page.locator('.media-preview-file .media-preview-card')).toContainText(
+      'The preview could not be loaded.',
+    )
+    await expect(page.locator('.media-preview-file .view-lines')).toHaveCount(0)
   })
 
   test('ts: detects code by extension and highlights it', async ({ page }) => {
@@ -52,8 +75,13 @@ test.describe('Media Preview Plugin', () => {
     await uploadFile(page, 'media-default', { fixture: 'test-archive.zip' })
     const card = page.locator('.media-preview-file .media-preview-card')
     await expect(card).toContainText('No preview for this file type.')
-    await expect(card.locator('a[download]')).toBeVisible()
+    await expect(card.locator('.media-preview-card__meta')).toHaveText('204 bytes · application/zip')
+    const download = card.locator('a[download]')
+    await expect(download).toBeVisible()
+    await expect(download).toHaveAttribute('href', fileUrl('media-default', 'test-archive.zip'))
+    await expect(download).toHaveAttribute('download', 'test-archive.zip')
     await expect(page.locator('.file-preview .thumbnail')).toHaveCount(0)
+    await expect(page.locator('.media-preview-file__fullscreen')).toHaveCount(0)
   })
 
   test('text: opens fullscreen modal', async ({ page }) => {
@@ -77,17 +105,11 @@ test.describe('Media Preview Plugin', () => {
     await expect(table).toContainText('says "hi"')
   })
 
-  test('docx: shows the download card when external viewers are off', async ({ page }) => {
-    await uploadFile(page, 'media-default', { fixture: 'test-document.docx' })
-    const card = page.locator('.media-preview-file .media-preview-card')
-    await expect(card).toContainText('No preview for this file type.')
-    await expect(card.locator('a[download]')).toBeVisible()
-    await expect(page.locator('.media-preview-file__fullscreen')).toHaveCount(0)
-  })
-
   test('docx: shows the private server hint on localhost', async ({ page }) => {
     await uploadFile(page, 'media-external', { fixture: 'test-document.docx' })
-    await expect(page.locator('.media-preview-card')).toContainText('Preview needs a public server address.')
+    await expect(page.locator('.media-preview-file .media-preview-card')).toContainText(
+      'Preview needs a public server address.',
+    )
   })
 
   const viewerResponses: [string, (route: Route) => Promise<void> | void][] = [
@@ -147,15 +169,27 @@ test.describe('Media Preview Plugin', () => {
     await expect(card.locator('a[download]')).toBeVisible()
   })
 
-  test('stream adapter: renders iframe in the edit view', async ({ page }) => {
-    await uploadFile(page, 'media-stream', { extraFields: { streamId: 'abc123' }, fixture: 'test-video.mp4' })
-    const iframe = page.locator('.media-preview-file iframe')
-    await expect(iframe).toHaveAttribute('src', 'https://example.com/stream/abc123')
-  })
+  const signFailures: [string, (route: Route) => Promise<void>][] = [
+    ['an error without a hint', (route) => route.fulfill({ body: 'Error', status: 500 })],
+    ['a network error', (route) => route.abort('failed')],
+  ]
 
-  test('stream adapter: falls back to the native player', async ({ page }) => {
+  for (const [name, respond] of signFailures) {
+    test(`docx: shows the load error when the sign endpoint returns ${name}`, async ({ page }) => {
+      await page.route('**/api/media-preview/url**', respond)
+      await uploadSignedDocx(page, () => {})
+      await expect(page.locator('.media-preview-file .media-preview-card')).toContainText(
+        'The preview could not be loaded.',
+      )
+      await expect(page.locator('.media-preview-file iframe')).toHaveCount(0)
+    })
+  }
+
+  test('stream adapter: falls back to the native player that autoplays only in fullscreen', async ({ page }) => {
     await uploadFile(page, 'media-stream', { fixture: 'test-video.mp4' })
-    await expect(page.locator('.media-preview-file video')).toBeAttached()
+    await expect(page.locator('.media-preview-file video')).toHaveJSProperty('autoplay', false)
+    const modal = await openFullscreen(page)
+    await expect(modal.locator('video')).toHaveJSProperty('autoplay', true)
   })
 
   test('async adapter: renders iframe in the edit view', async ({ page }) => {
@@ -171,56 +205,31 @@ test.describe('Media Preview Plugin', () => {
     await expect(popup.locator('iframe')).toHaveAttribute('src', 'https://example.com/async/a2')
   })
 
-  test('image: shows preview in list view cell', async ({ page }) => {
-    await uploadFile(page, 'media-default')
-    await page.goto('/admin/collections/media-default')
-    await expect(page.locator('.cell-mediaPreview').first()).toBeVisible({ timeout: 10000 })
-  })
+  const cellPopups: [string, string, string, RegExp | string][] = [
+    ['image', 'test-image.png', 'img', fileUrl('media-default', 'test-image.png')],
+    ['video', 'test-video.mp4', 'video source', fileUrl('media-default', 'test-video.mp4')],
+    ['audio', 'test-audio.mp3', 'audio source', fileUrl('media-default', 'test-audio.mp3')],
+    ['pdf', 'test-document.pdf', 'iframe', fileUrl('media-default', 'test-document.pdf')],
+    ['text', 'test-text.txt', '.view-lines', 'Second line'],
+  ]
 
-  test('image: opens cell popup with image', async ({ page }) => {
-    await uploadFile(page, 'media-default')
-    const popup = await openCellPreview(page, 'media-default')
-    await expect(popup.locator('img')).toBeAttached()
-  })
+  for (const [kind, fixture, selector, expected] of cellPopups) {
+    test(`${kind}: shows the file in cell popup`, async ({ page }) => {
+      await uploadFile(page, 'media-default', { fixture })
+      const preview = (await openCellPreview(page, 'media-default', fixture)).locator(selector)
+      await (typeof expected === 'string'
+        ? expect(preview).toContainText(expected)
+        : expect(preview).toHaveAttribute('src', expected))
+    })
+  }
 
-  test('image: closes cell popup on second click', async ({ page }) => {
-    await uploadFile(page, 'media-default')
-    await page.goto('/admin/collections/media-default')
-
-    const cell = page.locator('.cell-mediaPreview').first()
-    await expect(cell).toBeVisible({ timeout: 10000 })
-    await page.waitForLoadState('networkidle')
-
-    await cell.locator('button').click()
-    const popup = page.locator('.media-preview-popup')
-    await expect(popup).toBeAttached({ timeout: 10000 })
-
-    await cell.locator('button').click()
-    await expect(popup).not.toBeAttached({ timeout: 10000 })
-  })
-
-  test('video: shows player in cell popup', async ({ page }) => {
+  test('video: unmounts the cell popup player on second click', async ({ page }) => {
     await uploadFile(page, 'media-default', { fixture: 'test-video.mp4' })
-    const popup = await openCellPreview(page, 'media-default', '.mp4')
-    await expect(popup.locator('video')).toBeAttached()
-  })
-
-  test('audio: shows player in cell popup', async ({ page }) => {
-    await uploadFile(page, 'media-default', { fixture: 'test-audio.mp3' })
-    const popup = await openCellPreview(page, 'media-default', '.mp3')
-    await expect(popup.locator('audio')).toBeAttached()
-  })
-
-  test('pdf: shows iframe in cell popup', async ({ page }) => {
-    await uploadFile(page, 'media-default', { fixture: 'test-document.pdf' })
-    const popup = await openCellPreview(page, 'media-default', '.pdf')
-    await expect(popup.locator('iframe')).toBeAttached()
-  })
-
-  test('text: shows text in cell popup', async ({ page }) => {
-    await uploadFile(page, 'media-default', { fixture: 'test-text.txt' })
-    const popup = await openCellPreview(page, 'media-default', '.txt')
-    await expect(popup.locator('.view-lines')).toContainText('Second line')
+    const popup = await openCellPreview(page, 'media-default', 'test-video.mp4')
+    await expect(popup.locator('video')).toHaveJSProperty('autoplay', true)
+    await page.locator('.cell-mediaPreview button').click()
+    await expect(popup).not.toBeAttached()
+    await expect(page.locator('video')).toHaveCount(0)
   })
 
   test('zip: opens the download card from the cell', async ({ page }) => {
@@ -231,17 +240,55 @@ test.describe('Media Preview Plugin', () => {
     await expect(popup).not.toBeAttached()
   })
 
-  test('fullscreen mode when configured', async ({ page }) => {
+  test('fullscreen: opens the cell preview in a modal that reopens after each close', async ({ page }) => {
     await uploadFile(page, 'media-fullscreen')
-    await page.goto('/admin/collections/media-fullscreen')
-    await page.locator('.cell-mediaPreview button').first().click()
-    await expect(page.locator('.media-preview-modal')).toBeVisible()
+    const modal = await openCellPreview(page, 'media-fullscreen', 'test-image.png', '.media-preview-modal')
+    await expect(modal.locator('.media-preview-modal__title')).toHaveText('test-image.png')
+    await expect(modal.locator('img')).toHaveAttribute('src', fileUrl('media-fullscreen', 'test-image.png'))
+    await expect(page.locator('.media-preview-popup')).toHaveCount(0)
+
+    const closes = [
+      () => modal.locator('button.media-preview-modal__close').click(),
+      () => page.keyboard.press('Escape'),
+      () => modal.locator('.media-preview-modal__backdrop').click({ position: { x: 5, y: 5 } }),
+    ]
+    for (const close of closes) {
+      await close()
+      await expect(modal).not.toBeAttached()
+      await page.locator('.cell-mediaPreview button').click()
+      await expect(modal).toBeVisible()
+    }
   })
 
-  test('newTab mode renders link for video', async ({ page }) => {
-    await uploadFile(page, 'media-newtab', { fixture: 'test-video.mp4' })
-    await page.goto('/admin/collections/media-newtab')
-    await expect(page.locator('.cell-mediaPreview a[target="_blank"]').first()).toBeVisible({ timeout: 10000 })
+  test('fullscreen: opens only the modal of the clicked row', async ({ page }) => {
+    await uploadFile(page, 'media-fullscreen')
+    await uploadFile(page, 'media-fullscreen', { fixture: 'test-image.jpg' })
+    const modal = await openCellPreview(page, 'media-fullscreen', 'test-image.jpg', '.media-preview-modal')
+    await expect(modal).toHaveCount(1)
+    await expect(modal.locator('.media-preview-modal__title')).toHaveText('test-image.jpg')
+    await expect(modal.locator('img')).toHaveAttribute('src', fileUrl('media-fullscreen', 'test-image.jpg'))
+  })
+
+  for (const [kind, fixture] of [
+    ['video', 'test-video.mp4'],
+    ['pdf', 'test-document.pdf'],
+  ]) {
+    test(`newTab: renders a link for ${kind}`, async ({ page }) => {
+      await uploadFile(page, 'media-newtab', { fixture })
+      await page.goto('/admin/collections/media-newtab')
+      const cell = page.locator('.cell-mediaPreview').first()
+      const link = cell.locator('a[target="_blank"]')
+      await expect(link).toBeVisible({ timeout: 10000 })
+      await expect(link).toHaveAttribute('href', fileUrl('media-newtab', fixture))
+      await expect(cell.locator('button')).toHaveCount(0)
+    })
+  }
+
+  test('newTab: keeps the popup for an image', async ({ page }) => {
+    await uploadFile(page, 'media-newtab')
+    const popup = await openCellPreview(page, 'media-newtab')
+    await expect(popup.locator('img')).toHaveAttribute('src', fileUrl('media-newtab', 'test-image.png'))
+    await expect(page.locator('.cell-mediaPreview a')).toHaveCount(0)
   })
 
   test('position: shows the column after alt', async ({ page }) => {
@@ -254,12 +301,6 @@ test.describe('Media Preview Plugin', () => {
     await uploadFile(page, 'media-adapter', { extraFields: { externalVideoId: 'abc123' } })
     const popup = await openCellPreview(page, 'media-adapter')
     await expect(popup.locator('iframe')).toHaveAttribute('src', 'https://example.com/embed/abc123')
-  })
-
-  test('adapter: falls back to default viewer when resolve returns null', async ({ page }) => {
-    await uploadFile(page, 'media-adapter')
-    const popup = await openCellPreview(page, 'media-adapter')
-    await expect(popup.locator('img')).toBeAttached()
   })
 
   test('custom adapter: renders in cell popup', async ({ page }) => {
@@ -277,28 +318,38 @@ test.describe('Media Preview Plugin', () => {
     await uploadFile(page, 'media-custom')
     const popup = await openCellPreview(page, 'media-custom')
     await expect(popup.locator('[data-testid="custom-viewer"]')).toHaveCount(0)
-    await expect(popup.locator('img')).toBeAttached()
+    await expect(popup.locator('img')).toHaveAttribute('src', fileUrl('media-custom', 'test-image.png'))
   })
 
-  test('adapter newTab: renders link in cell', async ({ page }) => {
-    await uploadFile(page, 'media-adapter-newtab', { extraFields: { externalUrl: 'https://example.com/preview' } })
+  test('adapter newTab: renders a link in the edit view and the cell', async ({ page }) => {
+    await uploadFile(page, 'media-adapter-newtab', {
+      extraFields: { externalUrl: 'https://example.com/preview' },
+      fixture: 'test-text.txt',
+    })
+    const fileLink = page.locator('.media-preview-file a[target="_blank"]')
+    await expect(fileLink).toHaveAttribute('href', 'https://example.com/preview')
+    await expect(page.locator('.media-preview-file .view-lines')).toHaveCount(0)
+
     await page.goto('/admin/collections/media-adapter-newtab')
     const link = page.locator('.cell-mediaPreview a[target="_blank"]').first()
     await expect(link).toBeVisible({ timeout: 10000 })
     await expect(link).toHaveAttribute('href', 'https://example.com/preview')
   })
 
-  test('standalone: shows preview in list view cell', async ({ page }) => {
-    await uploadFile(page, 'media-standalone')
-    await page.goto('/admin/collections/media-standalone')
-    await expect(page.locator('.cell-mediaPreview').first()).toBeVisible({ timeout: 10000 })
-  })
-
   test('standalone: adapter works with manually inserted field', async ({ page }) => {
     await uploadFile(page, 'media-standalone', { extraFields: { externalVideoId: 'xyz789' } })
-    await page.goto('/admin/collections/media-standalone')
-    await page.locator('.cell-mediaPreview button').first().click()
-    const modal = page.locator('.media-preview-modal')
+    const modal = await openCellPreview(page, 'media-standalone', undefined, '.media-preview-modal')
     await expect(modal.locator('iframe')).toHaveAttribute('src', 'https://example.com/embed/xyz789')
+  })
+
+  test.describe('on a touch device', () => {
+    test.use({ hasTouch: true })
+
+    test('auto mode opens the cell preview in a modal', async ({ page }) => {
+      await uploadFile(page, 'media-default')
+      const modal = await openCellPreview(page, 'media-default', 'test-image.png', '.media-preview-modal')
+      await expect(modal.locator('img')).toHaveAttribute('src', fileUrl('media-default', 'test-image.png'))
+      await expect(page.locator('.media-preview-popup')).toHaveCount(0)
+    })
   })
 })

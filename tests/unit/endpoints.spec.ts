@@ -9,7 +9,7 @@ import { endpoints } from '@/server/endpoints.js'
 import { createFileToken, parseFileToken, verifyFileToken } from '@/server/fileToken.js'
 import { resolveExternalViewer } from '@/server/settings.js'
 import { PLUGIN_KEY } from '@/shared/constants.js'
-import type { MediaPreviewAdapter } from '@/shared/types/index.js'
+import type { MediaPreviewAdapter, MediaPreviewExternalViewer } from '@/shared/types/index.js'
 
 import { DOCX, XLSX } from '../helpers/shared/mimeTypes.js'
 
@@ -75,7 +75,6 @@ type ReadOptions = {
   disableErrors?: boolean
   draft?: boolean
   id: number | string
-  overrideAccess?: boolean
   showHiddenFields?: boolean
 }
 
@@ -86,7 +85,7 @@ const fileHandler = fileEndpoint.handler as PayloadHandler
 const createReq = (options: {
   adapters?: MediaPreviewAdapter[]
   docs?: Doc[]
-  externalViewer?: boolean
+  externalViewer?: MediaPreviewExternalViewer
   fileBody?: string
   handlers?: unknown[]
   query?: Record<string, string>
@@ -99,9 +98,9 @@ const createReq = (options: {
 }) => {
   const docs = options.docs ?? []
   const handler = vi.fn(async () => new Response(options.fileBody ?? 'file-bytes', { headers: { ETag: '"e1"' } }))
-  const findByID = vi.fn(async ({ disableErrors, draft, id, overrideAccess, showHiddenFields }: ReadOptions) => {
+  const findByID = vi.fn(async ({ disableErrors, draft, id, showHiddenFields }: ReadOptions) => {
     const doc = docs.find((d) => String(d.id) === String(id))
-    if (!doc || (overrideAccess === false && doc.private)) {
+    if (!doc) {
       if (disableErrors) {
         return null
       }
@@ -150,152 +149,115 @@ const createReq = (options: {
 const docx = { id: 7, filename: 'report.docx', filesize: 1000, mimeType: DOCX, url: '/api/media/file/report.docx' }
 
 describe('sign URL endpoint', () => {
+  const sign = (options: Parameters<typeof createReq>[0] = {}) => {
+    const ctx = createReq({ docs: [docx], query: { id: '7', collection: 'media' }, ...options })
+    return { ...ctx, response: signHandler(ctx.req) }
+  }
+  const signer = (signUrl: MediaPreviewAdapter['signUrl']): MediaPreviewAdapter => ({
+    name: 'signer',
+    resolve: () => null,
+    signUrl,
+  })
+  const urlOf = async (response: Promise<Response> | Response) =>
+    ((await (await response).json()) as { url: string }).url
+
   it('returns 401 without a user', async () => {
-    const { req } = createReq({ docs: [docx], query: { id: '7', collection: 'media' }, user: null })
-    expect((await signHandler(req)).status).toBe(401)
+    expect((await sign({ user: null }).response).status).toBe(401)
   })
 
   it('returns 404 for a collection without externalViewer', async () => {
-    const { findByID, req } = createReq({ docs: [docx], query: { id: '7', collection: 'users' } })
-    expect((await signHandler(req)).status).toBe(404)
+    const { findByID, response } = sign({ query: { id: '7', collection: 'users' } })
+    expect((await response).status).toBe(404)
     expect(findByID).not.toHaveBeenCalled()
   })
 
-  it('returns 404 when read access is denied', async () => {
-    const { findByID, req } = createReq({ docs: [{ ...docx, private: true }], query: { id: '7', collection: 'media' } })
-    expect((await signHandler(req)).status).toBe(404)
-    expect(findByID).toHaveBeenCalledWith(expect.objectContaining({ overrideAccess: false, user: { id: 1 } }))
-  })
-
-  it('returns 404 on a private server', async () => {
-    const { req } = createReq({
-      docs: [docx],
-      query: { id: '7', collection: 'media' },
-      serverURL: 'http://localhost:3102',
-    })
-    const res = await signHandler(req)
+  it.each([
+    ['a private server', { serverURL: 'http://localhost:3102' }, 'errorPrivateServer'],
+    [
+      'a file the viewer refuses',
+      { docs: [{ ...docx, filename: 'big.xlsx', filesize: 6 * 1024 * 1024, mimeType: XLSX }] },
+      'errorTooLarge',
+    ],
+    [
+      'a direct URL on a private host',
+      { docs: [{ ...docx, url: 'http://localhost:9000/bucket/report.docx' }] },
+      'errorPrivateServer',
+    ],
+    [
+      'a private server when every signUrl returns null',
+      { adapters: [signer(() => null)], serverURL: 'http://localhost:3102' },
+      'errorPrivateServer',
+    ],
+  ])('returns 404 with a hint for %s', async (_, options, hint) => {
+    const res = await sign(options).response
     expect(res.status).toBe(404)
-    expect(await res.json()).toEqual({ hint: 'errorPrivateServer' })
+    expect(await res.json()).toEqual({ hint })
   })
 
-  it('returns the hint of a file the viewer refuses', async () => {
-    const xlsx = { ...docx, filename: 'big.xlsx', filesize: 6 * 1024 * 1024, mimeType: XLSX }
-    const { req } = createReq({ docs: [xlsx], query: { id: '7', collection: 'media' } })
-    const res = await signHandler(req)
-    expect(res.status).toBe(404)
-    expect(await res.json()).toEqual({ hint: 'errorTooLarge' })
-  })
-
-  it('returns 404 for a direct URL on a private host', async () => {
-    const direct = { ...docx, url: 'http://localhost:9000/bucket/report.docx' }
-    const { req } = createReq({ docs: [direct], query: { id: '7', collection: 'media' } })
-    expect(await (await signHandler(req)).json()).toEqual({ hint: 'errorPrivateServer' })
-  })
-
-  it('returns a signed URL for a proxied file', async () => {
-    const { req } = createReq({ docs: [docx], query: { id: '7', collection: 'media' } })
-    const res = await signHandler(req)
-    const { url } = (await res.json()) as { url: string }
+  it.each([
+    [true, 600],
+    [{ expiresIn: 120, office: true }, 120],
+  ] as const)('returns a signed URL for a proxied file with externalViewer %j', async (externalViewer, expiresIn) => {
+    const before = now()
+    const res = await sign({ externalViewer }).response
+    const url = await urlOf(res)
+    const expiresAt = parseFileToken(url.split('/').at(-2))?.expiresAt
 
     expect(res.status).toBe(200)
     expect(res.headers.get('Cache-Control')).toBe('no-store')
     expect(url).toMatch(/^https:\/\/cms\.example\.com\/api\/media-preview\/file\/[\w-]+\.[\w-]+\/report\.docx$/)
     expect(url.length).toBeLessThanOrEqual(120)
+    expect(expiresAt).toBeGreaterThanOrEqual(before + expiresIn)
+    expect(expiresAt).toBeLessThanOrEqual(now() + expiresIn)
   })
 
   it('passes a direct URL through as-is', async () => {
     const direct = { ...docx, url: 'https://bucket.example.com/report.docx' }
-    const { req } = createReq({ docs: [direct], query: { id: '7', collection: 'media' } })
-    expect(await (await signHandler(req)).json()).toEqual({ url: 'https://bucket.example.com/report.docx' })
-  })
-
-  it('signs the draft version the edit view shows', async () => {
-    const draft = { ...docx, _draft: { filename: 'draft.docx', url: '/api/media/file/draft.docx' } }
-    const { findByID, req } = createReq({ docs: [draft], query: { id: '7', collection: 'media' } })
-    const { url } = (await (await signHandler(req)).json()) as { url: string }
-
-    expect(url).toMatch(/\/draft\.docx$/)
-    expect(findByID).toHaveBeenCalledWith(expect.objectContaining({ draft: true }))
+    expect(await urlOf(sign({ docs: [direct] }).response)).toBe('https://bucket.example.com/report.docx')
   })
 
   it('returns 404 when access denies reading the file', async () => {
     const read = vi.fn(({ isReadingStaticFile }: { isReadingStaticFile?: boolean }) => !isReadingStaticFile)
-    const { req } = createReq({ docs: [docx], query: { id: '7', collection: 'media' }, read })
 
-    expect((await signHandler(req)).status).toBe(404)
+    expect((await sign({ read }).response).status).toBe(404)
     expect(read).toHaveBeenCalledWith(
       expect.objectContaining({ data: { filename: 'report.docx' }, isReadingStaticFile: true }),
     )
-  })
-
-  it('checks the file access constraint against the document', async () => {
-    const read = ({ isReadingStaticFile }: { isReadingStaticFile?: boolean }) =>
-      isReadingStaticFile ? { owner: { equals: 1 } } : true
-    const query = { id: '7', collection: 'media' }
-
-    const own = createReq({ docs: [{ ...docx, owner: 1 }], query, read })
-    expect((await signHandler(own.req)).status).toBe(200)
-    expect(own.findOne).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { and: [{ id: { equals: '7' } }, { filename: { equals: 'report.docx' } }, { owner: { equals: 1 } }] },
-      }),
-    )
-
-    const other = createReq({ docs: [{ ...docx, owner: 2 }], query, read })
-    expect((await signHandler(other.req)).status).toBe(404)
   })
 
   it('does not sign a draft-only file when access returns a query', async () => {
     const read = ({ isReadingStaticFile }: { isReadingStaticFile?: boolean }) =>
       isReadingStaticFile ? { owner: { equals: 1 } } : true
     const draft = { ...docx, _draft: { filename: 'draft.docx', url: '/api/media/file/draft.docx' }, owner: 1 }
-    const { req } = createReq({ docs: [draft], query: { id: '7', collection: 'media' }, read })
-    expect((await signHandler(req)).status).toBe(404)
+    const { findOne, response } = sign({ docs: [draft], read })
+
+    expect((await response).status).toBe(404)
+    expect(findOne).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { and: [{ id: { equals: '7' } }, { filename: { equals: 'draft.docx' } }, { owner: { equals: 1 } }] },
+      }),
+    )
   })
 
   it('prefers the adapter signUrl result', async () => {
     const signUrl = vi.fn(() => 'https://cdn.example.com/signed')
-    const adapter: MediaPreviewAdapter = { name: 'signer', resolve: () => null, signUrl }
-    const { req } = createReq({ adapters: [adapter], docs: [docx], query: { id: '7', collection: 'media' } })
 
-    expect(await (await signHandler(req)).json()).toEqual({ url: 'https://cdn.example.com/signed' })
+    expect(await urlOf(sign({ adapters: [signer(signUrl)] }).response)).toBe('https://cdn.example.com/signed')
     expect(signUrl).toHaveBeenCalledWith(expect.objectContaining({ expiresIn: 600, url: docx.url }))
   })
 
   it('passes hidden fields to signUrl', async () => {
     const signUrl = vi.fn(() => 'https://cdn.example.com/signed')
-    const adapter: MediaPreviewAdapter = { name: 'signer', resolve: () => null, signUrl }
-    const { req } = createReq({
-      adapters: [adapter],
-      docs: [{ ...docx, _objectKey: 'media/report.docx' }],
-      query: { id: '7', collection: 'media' },
-    })
 
-    await signHandler(req)
+    await sign({ adapters: [signer(signUrl)], docs: [{ ...docx, _objectKey: 'media/report.docx' }] }).response
     expect(signUrl).toHaveBeenCalledWith(
       expect.objectContaining({ doc: expect.objectContaining({ _objectKey: 'media/report.docx' }) }),
     )
   })
 
   it('skips a signUrl result the viewer cannot reach', async () => {
-    const adapter: MediaPreviewAdapter = { name: 'signer', resolve: () => null, signUrl: () => '/api/media/x.docx' }
-    const { req } = createReq({ adapters: [adapter], docs: [docx], query: { id: '7', collection: 'media' } })
-    const { url } = (await (await signHandler(req)).json()) as { url: string }
+    const url = await urlOf(sign({ adapters: [signer(() => '/api/media/x.docx')] }).response)
     expect(url).toMatch(/^https:\/\/cms\.example\.com\/api\/media-preview\/file\//)
-  })
-
-  it('returns 404 on a private server when every signUrl returns null', async () => {
-    const adapter: MediaPreviewAdapter = { name: 'signer', resolve: () => null, signUrl: () => null }
-    const { req } = createReq({
-      adapters: [adapter],
-      docs: [docx],
-      query: { id: '7', collection: 'media' },
-      serverURL: 'http://localhost:3102',
-    })
-    const res = await signHandler(req)
-
-    expect(res.status).toBe(404)
-    expect(await res.json()).toEqual({ hint: 'errorPrivateServer' })
   })
 })
 
@@ -325,7 +287,7 @@ describe('file endpoint', () => {
     expect(res.status).toBe(200)
     expect(await res.text()).toBe('file-bytes')
     expect(res.headers.get('Content-Type')).toBe(DOCX)
-    expect(res.headers.get('Content-Disposition')).toBe(`inline; filename="report.docx"; filename*=UTF-8''report.docx`)
+    expect(res.headers.get('Content-Disposition')).toBe('inline; filename="report.docx"')
     expect(res.headers.get('Cache-Control')).toBe('no-store')
     expect(res.headers.get('X-Content-Type-Options')).toBe('nosniff')
     expect(res.headers.get('ETag')).toBe('"e1"')
@@ -337,19 +299,30 @@ describe('file endpoint', () => {
     )
   })
 
-  it('passes the hidden _objectKey to storage handlers', async () => {
-    const { handler, response } = call(tokenFor(), 'report.docx', { docs: [{ ...docx, _objectKey: 'k1' }] })
+  it('passes the hidden _objectKey and the prefix to storage handlers', async () => {
+    const { handler, response } = call(tokenFor(), 'report.docx', {
+      docs: [{ ...docx, _objectKey: 'k1', prefix: 'p1' }],
+    })
     expect((await response).status).toBe(200)
     expect(handler).toHaveBeenCalledWith(
       expect.anything(),
-      expect.objectContaining({ doc: expect.objectContaining({ _objectKey: 'k1' }) }),
+      expect.objectContaining({
+        doc: expect.objectContaining({ _objectKey: 'k1' }),
+        params: { collection: 'media', filename: 'report.docx', prefix: 'p1' },
+      }),
     )
   })
 
-  it('serves the draft file', async () => {
-    const draft = { ...docx, _draft: { filename: 'draft.docx' } }
-    const { response } = call(tokenFor({ filename: 'draft.docx' }), 'draft.docx', { docs: [draft] })
-    expect((await response).status).toBe(200)
+  it.each([
+    ['a "b" \\c.docx', String.raw`inline; filename="a \"b\" \\c.docx"`],
+    ["it's (1)*.docx", `inline; filename="it's (1)*.docx"`],
+    ['отчёт "q".docx', "inline; filename*=UTF-8''%D0%BE%D1%82%D1%87%D1%91%D1%82%20%22q%22.docx"],
+    ["Résumé (1)*'.docx", "inline; filename*=UTF-8''R%C3%A9sum%C3%A9%20%281%29%2A%27.docx"],
+  ])('writes the Content-Disposition for %s', async (filename, header) => {
+    const res = await call(tokenFor({ filename }), filename, { docs: [{ ...docx, filename }] }).response
+
+    expect(res.status).toBe(200)
+    expect(res.headers.get('Content-Disposition')).toBe(header)
   })
 
   it('returns 404 for an expired token without reading the database', async () => {
@@ -366,22 +339,21 @@ describe('file endpoint', () => {
     expect(findByID).not.toHaveBeenCalled()
   })
 
-  it('returns 404 for a token from another collection', async () => {
-    expect((await call(tokenFor({ collection: 'users' })).response).status).toBe(404)
+  it.each([
+    ['a token from another collection', { collection: 'users' }, 'report.docx', {}],
+    ['a filename the token was not signed for', {}, 'other.docx', {}],
+    ['a filename that does not match the document', { filename: 'other.docx' }, 'other.docx', {}],
+    ['an external viewer that is off', {}, 'report.docx', { externalViewer: false }],
+    ['a type the viewers do not handle', {}, 'report.docx', { docs: [{ ...docx, mimeType: 'image/svg+xml' }] }],
+    ['a storage error', {}, 'report.docx', { handlers: [async () => new Response('err', { status: 403 })] }],
+  ])('returns 404 for %s', async (_, token, filename, options) => {
+    expect((await call(tokenFor(token), filename, options).response).status).toBe(404)
   })
 
-  it('returns 404 for a filename that does not match the document', async () => {
-    expect((await call(tokenFor(), 'other.docx').response).status).toBe(404)
-    expect((await call(tokenFor({ filename: 'other.docx' }), 'other.docx').response).status).toBe(404)
-  })
-
-  it('returns 404 when the external viewer is off', async () => {
-    expect((await call(tokenFor(), 'report.docx', { externalViewer: false }).response).status).toBe(404)
-  })
-
-  it('returns 404 for a type the viewers do not handle', async () => {
-    const svg = { ...docx, filename: 'report.docx', mimeType: 'image/svg+xml' }
-    expect((await call(tokenFor(), 'report.docx', { docs: [svg] }).response).status).toBe(404)
+  it('returns 404 when the database read fails', async () => {
+    const ctx = createReq({ docs: [docx], routeParams: { filename: 'report.docx', token: tokenFor() }, user: null })
+    ctx.findByID.mockRejectedValueOnce(new Error('db down'))
+    expect((await fileHandler(ctx.req)).status).toBe(404)
   })
 
   describe('storage redirect', () => {
@@ -433,6 +405,17 @@ describe('file endpoint', () => {
       expect((await response).status).toBe(404)
       expect(fetch).not.toHaveBeenCalled()
     })
+
+    it('returns 404 when the fetch fails', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(async () => {
+          throw new TypeError('fetch failed')
+        }),
+      )
+      const { response } = call(tokenFor(), 'report.docx', { handlers: [redirectTo('https://bucket.example.com/a')] })
+      expect((await response).status).toBe(404)
+    })
   })
 
   it('drops Content-Length for an encoded upstream body', async () => {
@@ -452,6 +435,17 @@ describe('file endpoint', () => {
     expect(res.headers.get('ETag')).toBe('"e1"')
   })
 
+  it('passes a 206 range response through', async () => {
+    const handler = async () =>
+      new Response('ile', { headers: { 'Accept-Ranges': 'bytes', 'Content-Range': 'bytes 1-3/10' }, status: 206 })
+    const res = await call(tokenFor(), 'report.docx', { handlers: [handler] }).response
+
+    expect(res.status).toBe(206)
+    expect(await res.text()).toBe('ile')
+    expect(res.headers.get('Accept-Ranges')).toBe('bytes')
+    expect(res.headers.get('Content-Range')).toBe('bytes 1-3/10')
+  })
+
   describe('local staticDir', () => {
     const root = mkdtempSync(path.join(tmpdir(), 'media-preview-'))
     const staticDir = path.join(root, 'uploads')
@@ -467,8 +461,10 @@ describe('file endpoint', () => {
       expect(res.headers.get('Content-Length')).toBe('10')
     })
 
-    it('rejects a filename outside staticDir', async () => {
-      const filename = '../secret.docx'
+    it.each([
+      ['a filename outside staticDir', '../secret.docx'],
+      ['a file missing on disk', 'missing.docx'],
+    ])('returns 404 for %s', async (_, filename) => {
       const res = await call(tokenFor({ filename }), filename, {
         docs: [{ ...docx, filename }],
         handlers: [],

@@ -17,6 +17,11 @@ type Doc = Record<string, unknown>
 
 const notFound = () => new Response(null, { headers: { 'Cache-Control': 'no-store' }, status: 404 })
 
+const contentDisposition = (filename: string) =>
+  /^[\x20-\x7e]*$/.test(filename)
+    ? `inline; filename="${filename.replace(/["\\]/g, '\\$&')}"`
+    : `inline; filename*=UTF-8''${encodeURIComponent(filename).replace(/['()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)}`
+
 export const getExternalFileUrl = async (req: PayloadRequest, collectionSlug: string, doc: Doc) => {
   const { config, secret } = req.payload
   const data = getPluginData(config)
@@ -192,7 +197,7 @@ const fileHandler: PayloadHandler = async (req) => {
 
   const headers = new Headers({
     'Cache-Control': 'no-store',
-    'Content-Disposition': `inline; filename="${filename.replace(/[^\x20-\x7e]|["\\]/g, '_')}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+    'Content-Disposition': contentDisposition(filename),
     'Content-Security-Policy': "default-src 'none'; sandbox",
     'Content-Type': String(doc.mimeType),
     'X-Content-Type-Options': 'nosniff',

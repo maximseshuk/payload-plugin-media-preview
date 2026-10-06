@@ -1,7 +1,7 @@
-import type { InsertPosition } from '@seshuk/payload-plugin-tooling/fields'
+import type { InsertPosition as FieldPosition } from '@seshuk/payload-plugin-tooling/fields'
 import type { Payload, PayloadRequest, Plugin, UIField, UploadCollectionSlug, User } from 'payload'
 
-export type { InsertPosition } from '@seshuk/payload-plugin-tooling/fields'
+export type InsertPosition = Exclude<FieldPosition, 'sidebar'>
 
 export type VideoViewerProps = {
   autoPlay?: boolean

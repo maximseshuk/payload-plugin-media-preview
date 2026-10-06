@@ -33,13 +33,6 @@ describe('adapters', () => {
     return { doc, match }
   }
 
-  it('stores the adapters each collection uses', () => {
-    const { collections } = getPluginData(payload.config)
-
-    expect(collections.media.adapterNames).toEqual(['player'])
-    expect(collections['media-public'].adapterNames).toEqual(['signer', 'player'])
-  })
-
   it('awaits an async resolve that reads through payload', async () => {
     const { doc, match } = await resolveFor('media-public', 'test-video.mp4')
 

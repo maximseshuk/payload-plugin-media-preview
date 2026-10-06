@@ -33,7 +33,6 @@ src/
 ├── index.ts               # mediaPreview(options), every public export
 ├── shared/                # isomorphic leaf, imports nothing from server/client/rsc
 │   ├── constants.ts       # PLUGIN_KEY, endpoint paths, size limits, MIME lists
-│   ├── fields.ts          # InsertPosition, insertField, findFieldPaths: copy of tooling ./fields until tooling 0.2.0
 │   ├── types/index.ts     # public options (JSDoc API)
 │   ├── types/preview.ts   # PreviewData, RSC -> client
 │   ├── translations/      # index.ts, types.ts, locales/<code>.ts
@@ -66,7 +65,7 @@ tests/
 ## Architecture
 
 - **Factory:** `definePlugin` from `payload`, slug `@seshuk/payload-plugin-media-preview`. Call `mediaPreview(options)(config)`. `enabled: false` → config unchanged (schema-stable: plugin add only `ui` field, no DB column). `collections` value `boolean | MediaPreviewCollectionConfig`, `false` skip. Per collection: inject `mediaPreview` UI field (no column in DB, list Cell only) at `field.position`, merge MIME map into `filePreview`, store settings in `config.custom[PLUGIN_KEY]`, register adapter Components in `admin.dependencies` (`media-preview-viewer-${name}`), add `/media-preview/*` endpoints only when some collection has `externalViewer`.
-- **Field options in `field`:** `field?: boolean | { position?, overrides?, mode?, contentMode? }`, same shape as janitor `usagePanel`. `position` = `InsertPosition` (`'first' | 'last' | 'sidebar' | { after } | { before }`, dot paths through groups and named tabs). Unknown or ambiguous name → throw at startup. `overrides.admin.components` merge with plugin `Cell`; own `Cell` win. 1.x collection-level `mode`/`contentMode` → throw `collections.<slug>.<key> was renamed to collections.<slug>.field.<key>`, also with `enabled: false`.
+- **Field options in `field`:** `field?: boolean | { position?, overrides?, mode?, contentMode? }`, same shape as janitor `usagePanel`. `position` = `InsertPosition` (`'first' | 'last' | { after } | { before }`, dot paths through groups and named tabs). No `'sidebar'`: field only add list column, `UIField` render nothing in edit view. Unknown or ambiguous name → throw at startup. `overrides.admin.components` merge with plugin `Cell`; own `Cell` win. 1.x collection-level `mode`/`contentMode` → throw `collections.<slug>.<key> was renamed to collections.<slug>.field.<key>`, also with `enabled: false`.
 - **filePreview map:** match exact, then category wildcard, then `'*'`. Plugin sets `false` for `image/*`, `video/*`, `audio/*`, `application/pdf` → Payload keep own preview. User map with `'*'` kept as is.
 - **Resolve on server, render on client.** RSC resolve adapters and build `PreviewData` with `getPreviewData()`; client render `MediaPreviewViewer` or adapter Viewer. Plain data only across boundary.
 - **List select:** list view load only visible columns. Preview column visible → plugin load whole document (`select` wrapper).

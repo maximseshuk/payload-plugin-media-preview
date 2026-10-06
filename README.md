@@ -109,12 +109,12 @@ Each collection entry can be `true` (all defaults), `false` (skipped) or an obje
 
 **`field` options:**
 
-| Option        | Type                                                    | Default    | Description                                                                                                                                     |
-| ------------- | ------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `position`    | `'first' \| 'last' \| 'sidebar' \| { after \| before }` | `'last'`   | Where to insert the preview field, which sets the column order                                                                                  |
-| `mode`        | `'auto' \| 'fullscreen'`                                | `'auto'`   | List cell display mode                                                                                                                          |
-| `contentMode` | `Partial<MediaPreviewContentMode>`                      | all inline | How the list cell opens each content type (`'inline'` or `'newTab'`)                                                                            |
-| `overrides`   | `Partial<Omit<UIField, 'name' \| 'type'>>`              | —          | Payload UI field overrides. You can't change `name` or `type`. `admin.components` is merged, so the plugin `Cell` stays unless you set your own |
+| Option        | Type                                       | Default    | Description                                                                                                                                     |
+| ------------- | ------------------------------------------ | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `position`    | `'first' \| 'last' \| { after \| before }` | `'last'`   | Where to insert the preview field, which sets the column order                                                                                  |
+| `mode`        | `'auto' \| 'fullscreen'`                   | `'auto'`   | List cell display mode                                                                                                                          |
+| `contentMode` | `Partial<MediaPreviewContentMode>`         | all inline | How the list cell opens each content type (`'inline'` or `'newTab'`)                                                                            |
+| `overrides`   | `Partial<Omit<UIField, 'name' \| 'type'>>` | —          | Payload UI field overrides. You can't change `name` or `type`. `admin.components` is merged, so the plugin `Cell` stays unless you set your own |
 
 ```ts
 mediaPreview({
@@ -194,11 +194,6 @@ field: {
 // At the beginning
 field: {
   position: 'first'
-}
-
-// In the edit view sidebar (the list column goes last)
-field: {
-  position: 'sidebar'
 }
 
 // After a specific field

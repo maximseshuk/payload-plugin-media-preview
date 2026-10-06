@@ -1,3 +1,4 @@
+import { reportTelemetry } from '@seshuk/payload-plugin-tooling/telemetry'
 import type { Config, Payload } from 'payload'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -5,6 +6,11 @@ import { mediaPreview } from '@/index.js'
 import { resolveExternalViewer } from '@/server/settings.js'
 import { buildFeatures } from '@/server/telemetry.js'
 import type { MediaPreviewAdapter, MediaPreviewPluginConfig } from '@/shared/types/index.js'
+
+vi.mock('@seshuk/payload-plugin-tooling/telemetry', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@seshuk/payload-plugin-tooling/telemetry')>()),
+  reportTelemetry: vi.fn(async () => {}),
+}))
 
 const adapter: MediaPreviewAdapter = { name: 'plain', resolve: () => null }
 
@@ -87,16 +93,39 @@ describe('buildFeatures', () => {
 })
 
 describe('telemetry onInit', () => {
-  it('keeps the existing onInit', async () => {
-    const onInit = vi.fn()
-    const config = mediaPreview({ collections: { media: true } })({
+  const payload = { config: {} } as unknown as Payload
+  const init = (options: Partial<MediaPreviewPluginConfig> = {}, onInit?: Config['onInit']) =>
+    mediaPreview({ collections: { media: true }, ...options })({
       collections: [{ slug: 'media', fields: [], upload: true }],
       onInit,
-    } as Config)
-    const payload = { config: { telemetry: false } } as unknown as Payload
+    } as Config).onInit?.(payload)
 
-    await config.onInit?.(payload)
+  it('reports after the existing onInit resolves', async () => {
+    const order: string[] = []
+    const onInit = vi.fn(async () => {
+      await Promise.resolve()
+      order.push('onInit')
+    })
+    vi.mocked(reportTelemetry).mockImplementationOnce(async () => {
+      order.push('telemetry')
+    })
+
+    await init({}, onInit)
 
     expect(onInit).toHaveBeenCalledWith(payload)
+    expect(order).toEqual(['onInit', 'telemetry'])
+    expect(reportTelemetry).toHaveBeenLastCalledWith(expect.objectContaining({ payload }))
+  })
+
+  it.each([
+    [{}, undefined],
+    [{ telemetry: false }, false],
+  ] as const)('passes the opt-out env and option %j to the tooling', async (options, option) => {
+    await init(options)
+
+    expect(vi.mocked(reportTelemetry).mock.lastCall![0]).toMatchObject({
+      disableEnv: 'MEDIA_PREVIEW_TELEMETRY_DISABLED',
+      option,
+    })
   })
 })
