@@ -8,7 +8,8 @@ import type { PluginMediaPreviewTranslations, PluginMediaPreviewTranslationsKeys
 import type { PreviewData, PreviewHint } from '@/shared/types/preview.js'
 import { getExternalViewerUrl } from '@/shared/utils.js'
 
-import { DownloadCard, FileActions } from './DownloadCard.js'
+import { DownloadCard } from './DownloadCard.js'
+import { FileActions } from './FileActions.js'
 
 export const ExternalViewer: React.FC<{ kind: 'google' | 'office'; preview: PreviewData }> = ({ kind, preview }) => {
   const { id, collectionSlug, filename } = preview
