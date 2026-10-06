@@ -1,7 +1,7 @@
 import { reportTelemetry } from '@seshuk/payload-plugin-tooling/telemetry'
 import type { Payload } from 'payload'
 
-import type { MediaPreviewAdapter, MediaPreviewPluginOptions } from '@/shared/types/index.js'
+import type { MediaPreviewAdapter, MediaPreviewPluginConfig } from '@/shared/types/index.js'
 
 import type { CollectionSettings } from './settings.js'
 
@@ -28,7 +28,7 @@ export const buildFeatures = ({
 }: {
   adapters: MediaPreviewAdapter[]
   collections: Record<string, CollectionSettings>
-  options: MediaPreviewPluginOptions
+  options: MediaPreviewPluginConfig
 }): TelemetryFeatures => {
   const resolved = Object.values(options.collections).flatMap((value) => (value ? [value === true ? {} : value] : []))
   const fields = resolved.flatMap(({ field }) => (field === false ? [] : [typeof field === 'object' ? field : {}]))
@@ -57,7 +57,7 @@ export const reportMediaPreviewTelemetry = ({
   payload,
 }: {
   features: TelemetryFeatures
-  options: MediaPreviewPluginOptions
+  options: MediaPreviewPluginConfig
   payload: Payload
 }): Promise<void> =>
   reportTelemetry({

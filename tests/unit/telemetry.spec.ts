@@ -4,11 +4,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { mediaPreview } from '@/index.js'
 import { resolveExternalViewer } from '@/server/settings.js'
 import { buildFeatures } from '@/server/telemetry.js'
-import type { MediaPreviewAdapter, MediaPreviewPluginOptions } from '@/shared/types/index.js'
+import type { MediaPreviewAdapter, MediaPreviewPluginConfig } from '@/shared/types/index.js'
 
 const adapter: MediaPreviewAdapter = { name: 'plain', resolve: () => null }
 
-const features = (options: MediaPreviewPluginOptions, adapters: MediaPreviewAdapter[] = []) =>
+const features = (options: MediaPreviewPluginConfig, adapters: MediaPreviewAdapter[] = []) =>
   buildFeatures({
     adapters,
     collections: Object.fromEntries(

@@ -3,9 +3,10 @@ pmOnFail: download
 
 catalog:
   '@types/node': ^26.1.2
+  '@typescript/native': npm:typescript@7.0.2
   react: 19.3.0
   react-dom: 19.3.0
-  typescript: 7.0.2
+  typescript: npm:@typescript/typescript6@6.0.2
 
 allowBuilds:
   esbuild: true

@@ -13,7 +13,6 @@ export const IframeViewer: React.FC<IframeViewerProps> = ({
   title,
 }) => {
   return (
-    // eslint-disable-next-line @eslint-react/dom/no-missing-iframe-sandbox
     <iframe
       allow={allow}
       allowFullScreen={allowFullScreen}

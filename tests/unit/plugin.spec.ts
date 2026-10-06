@@ -7,7 +7,7 @@ import { mediaPreviewField } from '@/server/field.js'
 import { FILE_PREVIEW_COMPONENT } from '@/server/filePreviewMap.js'
 import { getExternalViewerHint } from '@/server/getPreviewData.js'
 import { PLUGIN_KEY } from '@/shared/constants.js'
-import type { MediaPreviewAdapter, MediaPreviewPluginOptions } from '@/shared/types/index.js'
+import type { MediaPreviewAdapter, MediaPreviewPluginConfig } from '@/shared/types/index.js'
 
 import { DOCX } from '../helpers/shared/mimeTypes.js'
 
@@ -77,6 +77,10 @@ describe('mediaPreview plugin', () => {
     const config = baseConfig([uploadCollection('media')])
     const result = mediaPreview({ collections: { media: true }, enabled: false })(config)
     expect(result).toBe(config)
+  })
+
+  it('registers under the package slug', () => {
+    expect(mediaPreview({ collections: {} }).slug).toBe('@seshuk/payload-plugin-media-preview')
   })
 
   it('merges i18n translations', () => {
@@ -307,7 +311,7 @@ describe('adapters', () => {
 })
 
 describe('select', () => {
-  const selectFn = (collection: Collections[number], collections: MediaPreviewPluginOptions['collections']) => {
+  const selectFn = (collection: Collections[number], collections: MediaPreviewPluginConfig['collections']) => {
     const result = mediaPreview({ collections })(baseConfig([collection]))
     return result.collections!.find((c) => c.slug === collection.slug)!.select!
   }
@@ -402,7 +406,7 @@ describe('field options', () => {
   })
 
   it.each(['mode', 'contentMode'])('throws on the removed collection-level %s with a hint', (key) => {
-    const options = { collections: { media: { [key]: 'fullscreen' } } } as MediaPreviewPluginOptions
+    const options = { collections: { media: { [key]: 'fullscreen' } } } as MediaPreviewPluginConfig
 
     expect(() => mediaPreview(options)(baseConfig([uploadCollection('media')]))).toThrow(
       `[@seshuk/payload-plugin-media-preview] collections.media.${key} was renamed to collections.media.field.${key}`,

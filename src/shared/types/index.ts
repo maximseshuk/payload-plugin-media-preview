@@ -154,7 +154,7 @@ export type MediaPreviewMode = 'auto' | 'fullscreen'
 export type MediaPreviewContentMode = Record<MediaPreviewContentType, MediaPreviewContentModeType>
 
 /** The list view preview column. */
-export type MediaPreviewFieldOptions = {
+export type MediaPreviewFieldConfig = {
   /** How the cell opens each content type. */
   contentMode?: Partial<MediaPreviewContentMode>
   /**
@@ -178,7 +178,7 @@ export type MediaPreviewFieldOptions = {
   position?: InsertPosition
 }
 
-export type MediaPreviewCollectionOptions = {
+export type MediaPreviewCollectionConfig = {
   /** Overrides global adapters when set. */
   adapters?: MediaPreviewAdapter[]
   /** Overrides the global `externalViewer` when set. */
@@ -191,7 +191,7 @@ export type MediaPreviewCollectionOptions = {
    * - `false` — no column (place it by hand with `mediaPreviewField()`).
    * @default true
    */
-  field?: boolean | MediaPreviewFieldOptions
+  field?: boolean | MediaPreviewFieldConfig
   /**
    * Shows the plugin preview at the top of the edit view for files Payload can't show.
    * Uses `upload.admin.components.filePreview`.
@@ -200,11 +200,11 @@ export type MediaPreviewCollectionOptions = {
   filePreview?: boolean
 }
 
-export type MediaPreviewPluginOptions = {
+export type MediaPreviewPluginConfig = {
   /** Adapters available to all collections. */
   adapters?: MediaPreviewAdapter[]
   /** Upload collections to preview, by slug. `true` for defaults, an object to customize, `false` to skip. */
-  collections: Partial<Record<UploadCollectionSlug, boolean | MediaPreviewCollectionOptions>>
+  collections: Partial<Record<UploadCollectionSlug, boolean | MediaPreviewCollectionConfig>>
   /** @default true */
   enabled?: boolean
   /** @default false */
@@ -231,4 +231,4 @@ export type MediaPreviewPluginOptions = {
       }
 }
 
-export type MediaPreviewPlugin = (options: MediaPreviewPluginOptions) => Plugin
+export type MediaPreviewPlugin = (options: MediaPreviewPluginConfig) => Plugin

@@ -88,13 +88,13 @@ This adds a preview column to the `media` list view. The edit view now also prev
 
 ### Plugin Options
 
-| Option           | Type                                           | Default | Description                                                                                 |
-| ---------------- | ---------------------------------------------- | ------- | ------------------------------------------------------------------------------------------- |
-| `enabled`        | `boolean`                                      | `true`  | Enable or disable the plugin                                                                |
-| `adapters`       | `MediaPreviewAdapter[]`                        | `[]`    | Global adapters for collections that don't set their own                                    |
-| `collections`    | `Record<string, boolean \| CollectionOptions>` | —       | Upload collections to preview (`false` skips one)                                           |
-| `externalViewer` | `boolean \| { office?, google?, expiresIn? }`  | `false` | Microsoft and Google viewers for all collections. See [External Viewers](#external-viewers) |
-| `telemetry`      | `boolean \| { url? }`                          | `true`  | Anonymous usage telemetry. See [Telemetry](#telemetry)                                      |
+| Option           | Type                                          | Default | Description                                                                                 |
+| ---------------- | --------------------------------------------- | ------- | ------------------------------------------------------------------------------------------- |
+| `enabled`        | `boolean`                                     | `true`  | Enable or disable the plugin                                                                |
+| `adapters`       | `MediaPreviewAdapter[]`                       | `[]`    | Global adapters for collections that don't set their own                                    |
+| `collections`    | `Record<string, boolean \| CollectionConfig>` | —       | Upload collections to preview (`false` skips one)                                           |
+| `externalViewer` | `boolean \| { office?, google?, expiresIn? }` | `false` | Microsoft and Google viewers for all collections. See [External Viewers](#external-viewers) |
+| `telemetry`      | `boolean \| { url? }`                         | `true`  | Anonymous usage telemetry. See [Telemetry](#telemetry)                                      |
 
 ### Collection Options
 
@@ -103,7 +103,7 @@ Each collection entry can be `true` (all defaults), `false` (skipped) or an obje
 | Option           | Type                                          | Default | Description                                                       |
 | ---------------- | --------------------------------------------- | ------- | ----------------------------------------------------------------- |
 | `adapters`       | `MediaPreviewAdapter[]`                       | —       | Per-collection adapters (override global)                         |
-| `field`          | `boolean \| MediaPreviewFieldOptions`         | `true`  | List column options, or `false` to skip it (for manual placement) |
+| `field`          | `boolean \| MediaPreviewFieldConfig`          | `true`  | List column options, or `false` to skip it (for manual placement) |
 | `filePreview`    | `boolean`                                     | `true`  | Show the preview in the edit view. See [Edit View](#edit-view)    |
 | `externalViewer` | `boolean \| { office?, google?, expiresIn? }` | global  | Overrides the global `externalViewer` for this collection         |
 
@@ -641,15 +641,15 @@ import type {
   MediaPreviewAdapterResolveArgs,
   MediaPreviewAdapterResolveResult,
   MediaPreviewAdapterSignUrlArgs,
-  MediaPreviewCollectionOptions,
+  MediaPreviewCollectionConfig,
   MediaPreviewContentMode,
   MediaPreviewContentModeType,
   MediaPreviewContentType,
   MediaPreviewExternalViewer,
-  MediaPreviewFieldOptions,
+  MediaPreviewFieldConfig,
   MediaPreviewMode,
   MediaPreviewPlugin,
-  MediaPreviewPluginOptions,
+  MediaPreviewPluginConfig,
   VideoViewerProps,
 } from '@seshuk/payload-plugin-media-preview'
 ```
@@ -680,7 +680,6 @@ import type {
   resolve: async ({ doc, payload }) => ({ mode: 'newTab', url: await presign(payload, doc) })
   ```
 
-- Types are renamed: `MediaPreviewPluginConfig` → `MediaPreviewPluginOptions`, `MediaPreviewCollectionConfig` → `MediaPreviewCollectionOptions`. `MediaPreviewFieldConfig` is gone; the `field` object is `MediaPreviewFieldOptions`.
 - `field.position` throws if no field or more than one field matches the name. Named tabs use their name in the path (`seo.title`), not the tab index (`myTabs.0.title`).
 - The Preview button in the edit view and its `Field` component are removed. The preview now shows at the top of the edit view, through Payload's `upload.admin.components.filePreview`. See [Edit View](#edit-view).
 - `mediaPreviewField()` only adds the list view column.

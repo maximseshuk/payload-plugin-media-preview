@@ -16,7 +16,6 @@ export const VideoViewer: React.FC<VideoViewerProps> = ({
   title,
 }) => {
   return (
-    // eslint-disable-next-line jsx-a11y/control-has-associated-label
     <video
       autoPlay={autoPlay}
       className={className}

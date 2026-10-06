@@ -16,7 +16,6 @@ export const AudioViewer: React.FC<AudioViewerProps> = ({
   title,
 }) => {
   return (
-    // eslint-disable-next-line jsx-a11y/control-has-associated-label
     <audio
       autoPlay={autoPlay}
       className={className}
