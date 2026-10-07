@@ -33,7 +33,6 @@ export const MediaPreviewViewer: React.FC<ViewerProps> = ({ inline, preview }) =
       return (
         <AudioViewer
           autoPlay={!inline}
-          className="media-preview-viewer__audio"
           mimeType={mimeType}
           src={url}
           title={t('@seshuk/payload-plugin-media-preview:titleAudio')}
@@ -45,13 +44,7 @@ export const MediaPreviewViewer: React.FC<ViewerProps> = ({ inline, preview }) =
         <ExternalViewer key={`${kind}:${preview.collectionSlug}:${preview.id}:${url}`} kind={kind} preview={preview} />
       )
     case 'image':
-      return (
-        <ImageViewer
-          alt={t('@seshuk/payload-plugin-media-preview:titleImage')}
-          className="media-preview-viewer__media"
-          src={url}
-        />
-      )
+      return <ImageViewer alt={t('@seshuk/payload-plugin-media-preview:titleImage')} src={url} />
     case 'pdf':
       return <IframeViewer src={url} title={filename ?? t('@seshuk/payload-plugin-media-preview:titleDocument')} />
     case 'text':
@@ -60,7 +53,6 @@ export const MediaPreviewViewer: React.FC<ViewerProps> = ({ inline, preview }) =
       return (
         <VideoViewer
           autoPlay={!inline}
-          className="media-preview-viewer__media"
           mimeType={mimeType}
           src={url}
           title={t('@seshuk/payload-plugin-media-preview:titleVideo')}
