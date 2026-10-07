@@ -31,6 +31,12 @@ td.cell-mediaPreview:has(.popup, .btn) {
     height: auto;
   }
 
+  > :not([class^='media-preview-'], audio, img) {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+  }
+
   .media-preview-viewer__media,
   .media-preview-viewer__frame,
   .media-preview-viewer__external,

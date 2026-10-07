@@ -77,6 +77,12 @@
     height: 100%;
   }
 
+  > :not([class^='media-preview-'], audio, img) {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+  }
+
   .media-preview-viewer__table-wrap {
     align-self: flex-start;
     height: auto;

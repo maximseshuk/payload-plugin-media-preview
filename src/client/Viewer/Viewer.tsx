@@ -53,13 +53,7 @@ export const MediaPreviewViewer: React.FC<ViewerProps> = ({ inline, preview }) =
         />
       )
     case 'pdf':
-      return (
-        <IframeViewer
-          className="media-preview-viewer__frame"
-          src={url}
-          title={filename ?? t('@seshuk/payload-plugin-media-preview:titleDocument')}
-        />
-      )
+      return <IframeViewer src={url} title={filename ?? t('@seshuk/payload-plugin-media-preview:titleDocument')} />
     case 'text':
       return <TextViewer key={preview.url} preview={preview} />
     case 'video':
