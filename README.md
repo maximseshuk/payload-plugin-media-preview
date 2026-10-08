@@ -49,7 +49,9 @@
 
 ## Requirements
 
-- Payload `4.0.0-canary.37`
+- Payload `4.0.0-canary.38`, with `@payloadcms/ui` and `@payloadcms/translations` in the same exact version
+- Next.js `>=16.4.0`
+- React 19
 - Node.js `>=24.15.0`
 
 ## Installation
@@ -647,7 +649,7 @@ import type {
 
 ## Migrating from 1.x
 
-2.x needs Payload 4 and Node.js 24.15+. Payload 3 users stay on 1.x.
+2.x needs Payload 4 (`4.0.0-canary.38`), Next.js 16.4+ and Node.js 24.15+. Payload 3 users stay on 1.x.
 
 - `mode` and `contentMode` move from the collection into `field`. The old keys throw at startup, for example `collections.media.mode was renamed to collections.media.field.mode`.
 

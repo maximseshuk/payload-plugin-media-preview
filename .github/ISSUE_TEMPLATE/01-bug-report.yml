@@ -57,7 +57,7 @@ body:
       placeholder: |
         @seshuk/payload-plugin-media-preview: 2.0.0
         payload: 4.0.0
-        next: 16.3.6
+        next: 16.4.0
         node: 24.15.0
         database adapter: @payloadcms/db-sqlite 4.0.0
         storage adapter: @payloadcms/storage-s3 4.0.0 (if used)
