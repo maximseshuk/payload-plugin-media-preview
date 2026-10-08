@@ -98,11 +98,11 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@next/env": "^16.2.9",
-    "@payloadcms/db-sqlite": "4.0.0-canary.37",
-    "@payloadcms/next": "4.0.0-canary.37",
-    "@payloadcms/translations": "4.0.0-canary.37",
-    "@payloadcms/ui": "4.0.0-canary.37",
+    "@next/env": "^16.4.0",
+    "@payloadcms/db-sqlite": "4.0.0-canary.38",
+    "@payloadcms/next": "4.0.0-canary.38",
+    "@payloadcms/translations": "4.0.0-canary.38",
+    "@payloadcms/ui": "4.0.0-canary.38",
     "@playwright/test": "^1.60.0",
     "@seshuk/payload-plugin-tooling": "0.2.2",
     "@types/node": "catalog:",
@@ -111,21 +111,22 @@
     "@typescript/native": "catalog:",
     "@vitest/coverage-v8": "^5.0.3",
     "cross-env": "^10.1.0",
-    "next": "16.3.8",
+    "next": "16.4.0",
     "oxfmt": "^0.71.0",
     "oxlint": "^1.86.0",
-    "payload": "4.0.0-canary.37",
+    "payload": "4.0.0-canary.38",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "sharp": "0.35.5",
     "tsdown": "^0.23.0",
     "typescript": "catalog:",
     "vitest": "^5.0.3"
   },
   "peerDependencies": {
-    "@payloadcms/translations": "4.0.0-canary.37",
-    "@payloadcms/ui": "4.0.0-canary.37",
-    "payload": "4.0.0-canary.37"
+    "@payloadcms/translations": "4.0.0-canary.38",
+    "@payloadcms/ui": "4.0.0-canary.38",
+    "payload": "4.0.0-canary.38",
+    "react": "^19.0.1 || ^19.1.2 || ^19.2.1",
+    "react-dom": "^19.0.1 || ^19.1.2 || ^19.2.1"
   },
   "devEngines": {
     "packageManager": {

@@ -3,7 +3,6 @@ import { testDatabase } from '@seshuk/payload-plugin-tooling/test-database'
 import type { CollectionConfig, Config, SanitizedConfig } from 'payload'
 import { buildConfig } from 'payload'
 import { ru } from 'payload/i18n/ru'
-import sharp from 'sharp'
 
 export const devUser = {
   email: 'dev@example.com',
@@ -36,7 +35,6 @@ export const buildConfigWithDefaults = async (config: Partial<Config> = {}): Pro
       }
     },
     secret: process.env.PAYLOAD_SECRET || 'test-secret-key',
-    sharp,
     telemetry: false,
     ...rest,
     admin: {

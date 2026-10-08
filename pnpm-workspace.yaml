@@ -14,3 +14,10 @@ allowBuilds:
   sharp: true
 minimumReleaseAgeExclude:
   - '@seshuk/payload-plugin-tooling'
+  - '@payloadcms/db-sqlite@4.0.0-canary.38'
+  - '@payloadcms/drizzle@4.0.0-canary.38'
+  - '@payloadcms/graphql@4.0.0-canary.38'
+  - '@payloadcms/next@4.0.0-canary.38'
+  - '@payloadcms/translations@4.0.0-canary.38'
+  - '@payloadcms/ui@4.0.0-canary.38'
+  - payload@4.0.0-canary.38
