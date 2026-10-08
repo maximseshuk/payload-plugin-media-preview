@@ -203,8 +203,8 @@ importers:
         specifier: ^1.60.0
         version: 1.63.0
       '@seshuk/payload-plugin-tooling':
-        specifier: 0.2.2
-        version: 0.2.2(@payloadcms/db-sqlite@4.0.0-canary.37(payload@4.0.0-canary.37(@typescript/typescript6@6.0.2)(graphql@16.13.1)))(oxfmt@0.71.0)(oxlint@1.86.0)(payload@4.0.0-canary.37(@typescript/typescript6@6.0.2)(graphql@16.13.1))(tsdown@0.23.0(@typescript/typescript6@6.0.2)(tsx@4.22.4))(vitest@5.0.3)
+        specifier: 0.2.3
+        version: 0.2.3(@payloadcms/db-sqlite@4.0.0-canary.37(payload@4.0.0-canary.37(@typescript/typescript6@6.0.2)(graphql@16.13.1)))(oxfmt@0.71.0)(oxlint@1.86.0)(payload@4.0.0-canary.37(@typescript/typescript6@6.0.2)(graphql@16.13.1))(tsdown@0.23.0(@typescript/typescript6@6.0.2)(tsx@4.22.4))(vitest@5.0.3)
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.4
@@ -1874,8 +1874,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@seshuk/payload-plugin-tooling@0.2.2':
-    resolution: {integrity: sha512-qQ3MVtmGibFhworkiZin4hui7DYuF1YC0RsjyVHqZv12UL/UbfBnf0LjJSDrnj5ECiygmrAEcIMdbs7j5aN+HQ==}
+  '@seshuk/payload-plugin-tooling@0.2.3':
+    resolution: {integrity: sha512-qlAfCM1iSVSmKQFBfwP3l3yHbJNhaCOofrvqwk5rtvcdE5JAWZCoSx9HsHoNdka9+0eEjBNLeaHYYkChkOdl+Q==}
     engines: {node: '>=24.15.0'}
     peerDependencies:
       '@electric-sql/pglite': '>=0.5.0'
@@ -4675,7 +4675,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.62.0':
     optional: true
 
-  '@seshuk/payload-plugin-tooling@0.2.2(@payloadcms/db-sqlite@4.0.0-canary.37(payload@4.0.0-canary.37(@typescript/typescript6@6.0.2)(graphql@16.13.1)))(oxfmt@0.71.0)(oxlint@1.86.0)(payload@4.0.0-canary.37(@typescript/typescript6@6.0.2)(graphql@16.13.1))(tsdown@0.23.0(@typescript/typescript6@6.0.2)(tsx@4.22.4))(vitest@5.0.3)':
+  '@seshuk/payload-plugin-tooling@0.2.3(@payloadcms/db-sqlite@4.0.0-canary.37(payload@4.0.0-canary.37(@typescript/typescript6@6.0.2)(graphql@16.13.1)))(oxfmt@0.71.0)(oxlint@1.86.0)(payload@4.0.0-canary.37(@typescript/typescript6@6.0.2)(graphql@16.13.1))(tsdown@0.23.0(@typescript/typescript6@6.0.2)(tsx@4.22.4))(vitest@5.0.3)':
     optionalDependencies:
       '@payloadcms/db-sqlite': 4.0.0-canary.37(payload@4.0.0-canary.37(@typescript/typescript6@6.0.2)(graphql@16.13.1))
       oxfmt: 0.71.0
