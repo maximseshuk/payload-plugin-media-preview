@@ -185,9 +185,15 @@ test.describe('Media Preview Plugin', () => {
     })
   }
 
-  test('stream adapter: falls back to the native player that autoplays only in fullscreen', async ({ page }) => {
+  test('stream adapter: falls back to the native player that fills the preview and autoplays only in fullscreen', async ({
+    page,
+  }) => {
     await uploadFile(page, 'media-stream', { fixture: 'test-video.mp4' })
     await expect(page.locator('.media-preview-file video')).toHaveJSProperty('autoplay', false)
+    const fileBox = (await page.locator('.media-preview-file').boundingBox())!
+    const videoBox = (await page.locator('.media-preview-file video').boundingBox())!
+    expect(videoBox.width).toBeCloseTo(fileBox.width, 0)
+    expect(videoBox.height).toBeCloseTo(fileBox.height, 0)
     const modal = await openFullscreen(page)
     await expect(modal.locator('video')).toHaveJSProperty('autoplay', true)
   })

@@ -18,7 +18,7 @@ export const AudioViewer: React.FC<AudioViewerProps> = ({
   return (
     <audio
       autoPlay={autoPlay}
-      className={className}
+      className={className ? `media-preview-viewer__audio ${className}` : 'media-preview-viewer__audio'}
       controls={controls}
       loop={loop}
       muted={muted}

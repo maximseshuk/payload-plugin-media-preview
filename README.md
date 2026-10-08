@@ -443,6 +443,8 @@ The plugin exports four built-in viewer components that you can use in adapters 
 | `AudioViewer`  | `@seshuk/payload-plugin-media-preview/client#AudioViewer`  | `AudioViewerProps`  |
 | `IframeViewer` | `@seshuk/payload-plugin-media-preview/client#IframeViewer` | `IframeViewerProps` |
 
+The plugin sets the size of the preview, so you don't need to. Your own component fills the preview area in the popup, the modal and the edit view. The built-in viewers look the same as the plugin's own previews. They always have the plugin class and add your `className` after it: `media-preview-viewer__media` for `ImageViewer` and `VideoViewer`, `media-preview-viewer__audio` for `AudioViewer` and `media-preview-viewer__frame` for `IframeViewer`.
+
 ### Adapter Props Reference
 
 **`ImageViewerProps`**

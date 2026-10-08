@@ -18,7 +18,7 @@ export const VideoViewer: React.FC<VideoViewerProps> = ({
   return (
     <video
       autoPlay={autoPlay}
-      className={className}
+      className={className ? `media-preview-viewer__media ${className}` : 'media-preview-viewer__media'}
       controls={controls}
       loop={loop}
       muted={muted}

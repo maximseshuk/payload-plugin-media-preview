@@ -16,7 +16,7 @@ export const IframeViewer: React.FC<IframeViewerProps> = ({
     <iframe
       allow={allow}
       allowFullScreen={allowFullScreen}
-      className={className}
+      className={className ? `media-preview-viewer__frame ${className}` : 'media-preview-viewer__frame'}
       loading={loading}
       src={src}
       title={title}
