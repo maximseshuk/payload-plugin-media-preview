@@ -79,7 +79,7 @@ test.describe('Media Preview Plugin', () => {
     const download = card.locator('a[download]')
     await expect(download).toBeVisible()
     await expect(download).toHaveAttribute('href', fileUrl('media-default', 'test-archive.zip'))
-    await expect(download).toHaveAttribute('download', 'test-archive.zip')
+    await expect(download).toHaveAttribute('download', 'test-archive-original.zip')
     await expect(page.locator('.file-preview .thumbnail')).toHaveCount(0)
     await expect(page.locator('.media-preview-file__fullscreen')).toHaveCount(0)
   })
@@ -87,7 +87,7 @@ test.describe('Media Preview Plugin', () => {
   test('text: opens fullscreen modal', async ({ page }) => {
     await uploadFile(page, 'media-default', { fixture: 'test-text.txt' })
     const modal = await openFullscreen(page)
-    await expect(modal.locator('.media-preview-modal__title')).toHaveText('test-text.txt')
+    await expect(modal.locator('.media-preview-modal__title')).toHaveText('test-text-original.txt')
     await expect(modal.locator('.view-lines')).toContainText('Second line')
     await page.locator('button.media-preview-modal__close').click()
     await expect(modal).not.toBeVisible()
@@ -211,18 +211,18 @@ test.describe('Media Preview Plugin', () => {
     await expect(popup.locator('iframe')).toHaveAttribute('src', 'https://example.com/async/a2')
   })
 
-  const cellPopups: [string, string, string, RegExp | string][] = [
-    ['image', 'test-image.png', 'img', fileUrl('media-default', 'test-image.png')],
-    ['video', 'test-video.mp4', 'video source', fileUrl('media-default', 'test-video.mp4')],
-    ['audio', 'test-audio.mp3', 'audio source', fileUrl('media-default', 'test-audio.mp3')],
-    ['pdf', 'test-document.pdf', 'iframe', fileUrl('media-default', 'test-document.pdf')],
-    ['text', 'test-text.txt', '.view-lines', 'Second line'],
+  const cellPopups: [string, string, string, string, RegExp | string][] = [
+    ['image', 'test-image.png', 'test-image-original.png', 'img', fileUrl('media-default', 'test-image.png')],
+    ['video', 'test-video.mp4', 'test-video-original.mp4', 'video source', fileUrl('media-default', 'test-video.mp4')],
+    ['audio', 'test-audio.mp3', 'test-audio-original.mp3', 'audio source', fileUrl('media-default', 'test-audio.mp3')],
+    ['pdf', 'test-document.pdf', 'test-document-original.pdf', 'iframe', fileUrl('media-default', 'test-document.pdf')],
+    ['text', 'test-text.txt', 'test-text-original.txt', '.view-lines', 'Second line'],
   ]
 
-  for (const [kind, fixture, selector, expected] of cellPopups) {
+  for (const [kind, fixture, filename, selector, expected] of cellPopups) {
     test(`${kind}: shows the file in cell popup`, async ({ page }) => {
       await uploadFile(page, 'media-default', { fixture })
-      const preview = (await openCellPreview(page, 'media-default', fixture)).locator(selector)
+      const preview = (await openCellPreview(page, 'media-default', filename)).locator(selector)
       await (typeof expected === 'string'
         ? expect(preview).toContainText(expected)
         : expect(preview).toHaveAttribute('src', expected))
@@ -231,7 +231,7 @@ test.describe('Media Preview Plugin', () => {
 
   test('video: unmounts the cell popup player on second click', async ({ page }) => {
     await uploadFile(page, 'media-default', { fixture: 'test-video.mp4' })
-    const popup = await openCellPreview(page, 'media-default', 'test-video.mp4')
+    const popup = await openCellPreview(page, 'media-default', 'test-video-original.mp4')
     await expect(popup.locator('video')).toHaveJSProperty('autoplay', true)
     await page.locator('.cell-mediaPreview button').click()
     await expect(popup).not.toBeAttached()
@@ -248,8 +248,8 @@ test.describe('Media Preview Plugin', () => {
 
   test('fullscreen: opens the cell preview in a modal that reopens after each close', async ({ page }) => {
     await uploadFile(page, 'media-fullscreen')
-    const modal = await openCellPreview(page, 'media-fullscreen', 'test-image.png', '.media-preview-modal')
-    await expect(modal.locator('.media-preview-modal__title')).toHaveText('test-image.png')
+    const modal = await openCellPreview(page, 'media-fullscreen', 'test-image-original.png', '.media-preview-modal')
+    await expect(modal.locator('.media-preview-modal__title')).toHaveText('test-image-original.png')
     await expect(modal.locator('img')).toHaveAttribute('src', fileUrl('media-fullscreen', 'test-image.png'))
     await expect(page.locator('.media-preview-popup')).toHaveCount(0)
 
@@ -269,9 +269,9 @@ test.describe('Media Preview Plugin', () => {
   test('fullscreen: opens only the modal of the clicked row', async ({ page }) => {
     await uploadFile(page, 'media-fullscreen')
     await uploadFile(page, 'media-fullscreen', { fixture: 'test-image.jpg' })
-    const modal = await openCellPreview(page, 'media-fullscreen', 'test-image.jpg', '.media-preview-modal')
+    const modal = await openCellPreview(page, 'media-fullscreen', 'test-image-original.jpg', '.media-preview-modal')
     await expect(modal).toHaveCount(1)
-    await expect(modal.locator('.media-preview-modal__title')).toHaveText('test-image.jpg')
+    await expect(modal.locator('.media-preview-modal__title')).toHaveText('test-image-original.jpg')
     await expect(modal.locator('img')).toHaveAttribute('src', fileUrl('media-fullscreen', 'test-image.jpg'))
   })
 
@@ -353,7 +353,7 @@ test.describe('Media Preview Plugin', () => {
 
     test('auto mode opens the cell preview in a modal', async ({ page }) => {
       await uploadFile(page, 'media-default')
-      const modal = await openCellPreview(page, 'media-default', 'test-image.png', '.media-preview-modal')
+      const modal = await openCellPreview(page, 'media-default', 'test-image-original.png', '.media-preview-modal')
       await expect(modal.locator('img')).toHaveAttribute('src', fileUrl('media-default', 'test-image.png'))
       await expect(page.locator('.media-preview-popup')).toHaveCount(0)
     })

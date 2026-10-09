@@ -4,7 +4,7 @@ Payload 4 plugin `@seshuk/payload-plugin-media-preview`. Preview uploads in admi
 
 ## Environment
 
-- pnpm 12. Node.js 24.15+. Payload 4 (pinned `4.0.0-canary.38`, peers exact). Next.js 16.4+.
+- pnpm 12. Node.js 24.15+. Payload 4 (dev pinned `4.0.0-beta.0`, peers `^4.0.0-0`). Next.js 16.4+.
 - `@payloadcms/ui` client code: import context-using components and hooks from the root `@payloadcms/ui` only. A deep import gets its own module copy and crashes with `useConfig(...) is undefined`. Deep imports allowed only for context-free modules (icons, `elements/RenderServerComponent`), guarded by `tests/unit/payloadUiImports.spec.ts`.
 - Shared dev config from `@seshuk/payload-plugin-tooling` (oxlint, oxfmt, tsconfig, tsdown, test DB, CI/release workflows, changelog).
 - No secrets. Dev app on SQLite `tests/payload.db`, e2e on in-memory SQLite.
