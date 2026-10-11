@@ -105,6 +105,12 @@ test.describe('Media Preview Plugin', () => {
     await expect(table).toContainText('says "hi"')
   })
 
+  test('csv: opens fullscreen modal over the table header', async ({ page }) => {
+    await uploadFile(page, 'media-default', { fixture: 'test-table.csv' })
+    const modal = await openFullscreen(page)
+    await expect(modal.locator('table')).toContainText('says "hi"')
+  })
+
   test('docx: shows the private server hint on localhost', async ({ page }) => {
     await uploadFile(page, 'media-external', { fixture: 'test-document.docx' })
     await expect(page.locator('.media-preview-file .media-preview-card')).toContainText(
