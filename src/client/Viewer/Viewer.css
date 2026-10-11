@@ -68,6 +68,7 @@
   width: 100%;
   max-height: 100%;
   overflow: auto;
+  isolation: isolate;
   border: var(--stroke-width-small) solid var(--color-border);
   border-radius: var(--radius-medium);
   background: var(--color-bg);
