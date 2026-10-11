@@ -106,6 +106,7 @@ export default buildConfigWithDefaults({
     },
   },
   collections: [
+    createUploadCollection('media'),
     createUploadCollection('media-default'),
     createUploadCollection('media-fullscreen'),
     createUploadCollection('media-newtab'),
@@ -147,6 +148,7 @@ export default buildConfigWithDefaults({
         'media-custom': {
           adapters: [customAdapter],
         },
+        media: true,
         'media-default': true,
         'media-external': {
           externalViewer: true,

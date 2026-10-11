@@ -24,8 +24,27 @@
 - Adapters for your own viewers
 - No database fields
 
+## Screenshots
+
+The preview column in the list view:
+
+![The list view with the preview popup open on an image](media/screenshots/list-popup.png)
+
+Code with syntax highlighting in the edit view:
+
+![A TypeScript file in the edit view](media/screenshots/edit-code.png)
+
+A CSV file as a table in the fullscreen modal:
+
+![A CSV file in the fullscreen modal](media/screenshots/csv-modal.png)
+
+A download card for files with no preview:
+
+![The download card for a ZIP file](media/screenshots/download-card.png)
+
 ## Table of Contents
 
+- [Screenshots](#screenshots)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
