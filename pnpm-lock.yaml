@@ -188,23 +188,23 @@ importers:
         specifier: ^16.4.0
         version: 16.4.0
       '@payloadcms/db-sqlite':
-        specifier: 4.0.0-beta.0
-        version: 4.0.0-beta.0(payload@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1))
+        specifier: 4.0.0-canary.39
+        version: 4.0.0-canary.39(payload@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1))
       '@payloadcms/next':
-        specifier: 4.0.0-beta.0
-        version: 4.0.0-beta.0(@types/react@19.3.0)(@typescript/typescript6@6.0.2)(graphql@16.13.1)(monaco-editor@0.55.1)(next@16.4.0(@playwright/test@1.63.0)(@types/node@26.6.4)(babel-plugin-macros@3.1.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(sass@1.77.4))(payload@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: 4.0.0-canary.39
+        version: 4.0.0-canary.39(@types/react@19.3.0)(@typescript/typescript6@6.0.2)(graphql@16.13.1)(monaco-editor@0.55.1)(next@16.4.0(@playwright/test@1.63.0)(@types/node@26.6.4)(babel-plugin-macros@3.1.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(sass@1.77.4))(payload@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@payloadcms/translations':
-        specifier: 4.0.0-beta.0
-        version: 4.0.0-beta.0
+        specifier: 4.0.0-canary.39
+        version: 4.0.0-canary.39
       '@payloadcms/ui':
-        specifier: 4.0.0-beta.0
-        version: 4.0.0-beta.0(@types/react@19.3.0)(@typescript/typescript6@6.0.2)(monaco-editor@0.55.1)(payload@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: 4.0.0-canary.39
+        version: 4.0.0-canary.39(@types/react@19.3.0)(@typescript/typescript6@6.0.2)(monaco-editor@0.55.1)(payload@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@playwright/test':
         specifier: ^1.60.0
         version: 1.63.0
       '@seshuk/payload-plugin-tooling':
         specifier: 0.2.4
-        version: 0.2.4(@payloadcms/db-sqlite@4.0.0-beta.0(payload@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1)))(oxfmt@0.71.0)(oxlint@1.86.0)(payload@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1))(tsdown@0.23.0(@typescript/typescript6@6.0.2)(tsx@4.22.4))(vitest@5.0.3)
+        version: 0.2.4(@payloadcms/db-sqlite@4.0.0-canary.39(payload@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1)))(oxfmt@0.71.0)(oxlint@1.86.0)(payload@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1))(tsdown@0.23.0(@typescript/typescript6@6.0.2)(tsx@4.23.15))(vitest@5.0.3)
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.4
@@ -233,8 +233,8 @@ importers:
         specifier: ^1.86.0
         version: 1.86.0
       payload:
-        specifier: 4.0.0-beta.0
-        version: 4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1)
+        specifier: 4.0.0-canary.39
+        version: 4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1)
       react:
         specifier: 'catalog:'
         version: 19.3.0
@@ -243,13 +243,13 @@ importers:
         version: 19.3.0(react@19.3.0)
       tsdown:
         specifier: ^0.23.0
-        version: 0.23.0(@typescript/typescript6@6.0.2)(tsx@4.22.4)
+        version: 0.23.0(@typescript/typescript6@6.0.2)(tsx@4.23.15)
       typescript:
         specifier: 'catalog:'
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: ^5.0.3
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(vite@7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.22.4))
+        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(vite@7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.23.15))
 
 packages:
 
@@ -1584,39 +1584,39 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@payloadcms/db-sqlite@4.0.0-beta.0':
-    resolution: {integrity: sha512-MlQBlPbIg/tMFGXEzfuP+xZGm3vMebuMXTYVSgzizpA2hZQZbZAowkM2MKqpyfN8s2BfzL1DB9Oz/JlcOD4JDg==}
+  '@payloadcms/db-sqlite@4.0.0-canary.39':
+    resolution: {integrity: sha512-W5B8vunsJvyxX3sFSzARQW8NDm81Of3T9oklTCMjjYyVsxJfWpXSUgZc8qs59eAYmbMkx1uoNds79da9V9JkzA==}
     peerDependencies:
-      payload: 4.0.0-beta.0
+      payload: 4.0.0-canary.39
 
-  '@payloadcms/drizzle@4.0.0-beta.0':
-    resolution: {integrity: sha512-UuOLOENnJSt5AcHxtDap0XUiJwJ7sOdTSVQMA+jmasf7IsBoiPXohfO+bUj05hm9eU6QWzvK8Psp5PDsqSA/dQ==}
+  '@payloadcms/drizzle@4.0.0-canary.39':
+    resolution: {integrity: sha512-WmdyzSzfJpEFt5/cR+VLiXDQs8bVBeHclwYYQQ9boM4dwg7NCvpLH7Pe0r+X5u6lsCi0T2zRVlfH+c/qMOGJfw==}
     peerDependencies:
-      payload: 4.0.0-beta.0
+      payload: 4.0.0-canary.39
 
-  '@payloadcms/graphql@4.0.0-beta.0':
-    resolution: {integrity: sha512-w+eavvxipQjhjXbsmiR25aiggmp/o/CJ3kDQ/wyvLSrW8HwIxbX0s8rUcGo2RtezGJ1F2LQdZdhNeQBLhGlWpA==}
+  '@payloadcms/graphql@4.0.0-canary.39':
+    resolution: {integrity: sha512-p6nOeauC0bOCAKrFKuKfE/8DmOgic0TCYrnk8vGXzolIKj/O6346UlTAn2b3vnEPnueWCC96plEKamnmfPHHdQ==}
     hasBin: true
     peerDependencies:
       graphql: ^16.8.1
-      payload: 4.0.0-beta.0
+      payload: 4.0.0-canary.39
 
-  '@payloadcms/next@4.0.0-beta.0':
-    resolution: {integrity: sha512-KHGJnqgMJtLCOVF1w6axTCmm/B+RYq8jgkCTSnW11QKeoLSu+71V4RpzAnXJk0onq5JYtvw1imzEfP4Z82jo4g==}
+  '@payloadcms/next@4.0.0-canary.39':
+    resolution: {integrity: sha512-RILLZPB5BZxoyCHvwWJVTZfMP5E10U/tNdhWvUVW7yy0YKF1G91+vZJOLdxBYda0l/GSEIH2VzGcHA4Qcz1/rQ==}
     engines: {node: '>=24.15.0'}
     peerDependencies:
       graphql: ^16.8.1
       next: '>=16.4.0 <17.0.0'
-      payload: 4.0.0-beta.0
+      payload: 4.0.0-canary.39
 
-  '@payloadcms/translations@4.0.0-beta.0':
-    resolution: {integrity: sha512-/7xz7eBWYvQFiUu9v8CJM2RZpISYvu7xPtBiQ7PYx1xwHOb409W6SB1toEZHLeIpUvEsQaF+J4G4M1P5/D+P9Q==}
+  '@payloadcms/translations@4.0.0-canary.39':
+    resolution: {integrity: sha512-EsOgjLlO9/ggqf0gPjtb0rdviT0TZF1NhWyA+FNiRmzxc7Icnb+OU4bWUtCUxnSOZvIt7yon6u1HpfAfwtvRKQ==}
 
-  '@payloadcms/ui@4.0.0-beta.0':
-    resolution: {integrity: sha512-EnV4VlluR6DZUfkkfCpbQE62xGoSnsT0MhG1T7lmvMtUoOnbJ7nAtcGBtsS0n1j+G8cTl8D4J/u5IaGR5gbBTw==}
+  '@payloadcms/ui@4.0.0-canary.39':
+    resolution: {integrity: sha512-MIh9GQdwvzk/xjaXFtC9QSuDpExREBfUqNc1L3vcKPWD1ezQL2r7JefiD9cLVF8ODQUMOWUGz7kHQ7qERsG3Vw==}
     engines: {node: '>=24.15.0'}
     peerDependencies:
-      payload: 4.0.0-beta.0
+      payload: 4.0.0-canary.39
       react: ^19.0.1 || ^19.1.2 || ^19.2.1
       react-dom: ^19.0.1 || ^19.1.2 || ^19.2.1
 
@@ -2916,8 +2916,8 @@ packages:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
     engines: {node: '>=8'}
 
-  payload@4.0.0-beta.0:
-    resolution: {integrity: sha512-eOFGdWPyGMlghjJ3sys4JqRJBEP1NNElOenUvXddkHU39LwqSrnJYrvERI3cuD4duxz7VYPePo52giGcctsMbA==}
+  payload@4.0.0-canary.39:
+    resolution: {integrity: sha512-i1ShASySENdpzhlQSugLJwIzTxb7hTBBPB8aSKE9NrL0Vgr57EDCzuQu5m+RSZW4UMtm7u5yqbjTPVn5vAgwiQ==}
     engines: {node: '>=24.15.0'}
     hasBin: true
     peerDependencies:
@@ -3313,11 +3313,6 @@ packages:
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
-
-  tsx@4.22.4:
-    resolution: {integrity: sha512-X8EX+XV4QR5xCsrgxaED954zTDfY8KqlDtskKEL0cHhyS/P8b4IFOvGDQpsC9Q1XnLq915wEfwwY/zzskCtmhg==}
-    engines: {node: '>=18.0.0'}
-    hasBin: true
 
   tsx@4.23.15:
     resolution: {integrity: sha512-Yiex1Ovn8z2xPpOWckIiysV1SSyRMY9BkLF++q0yKiDxCqRhosKfMg3janKkiLBwZ5c/YryloKwGZcrEmtwxKw==}
@@ -4369,14 +4364,14 @@ snapshots:
   '@oxlint/binding-win32-x64-msvc@1.86.0':
     optional: true
 
-  '@payloadcms/db-sqlite@4.0.0-beta.0(payload@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1))':
+  '@payloadcms/db-sqlite@4.0.0-canary.39(payload@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1))':
     dependencies:
       '@libsql/client': 0.14.0
-      '@payloadcms/drizzle': 4.0.0-beta.0(@libsql/client@0.14.0)(payload@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1))
+      '@payloadcms/drizzle': 4.0.0-canary.39(@libsql/client@0.14.0)(payload@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1))
       console-table-printer: 2.15.0
       drizzle-kit: 0.31.7
       drizzle-orm: 0.45.2(@libsql/client@0.14.0)
-      payload: 4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1)
+      payload: 4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1)
       prompts: 2.4.2
       to-snake-case: 1.0.0
       uuid: 14.0.0
@@ -4413,12 +4408,12 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@payloadcms/drizzle@4.0.0-beta.0(@libsql/client@0.14.0)(payload@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1))':
+  '@payloadcms/drizzle@4.0.0-canary.39(@libsql/client@0.14.0)(payload@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1))':
     dependencies:
       console-table-printer: 2.15.0
       dequal: 2.0.3
       drizzle-orm: 0.45.2(@libsql/client@0.14.0)
-      payload: 4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1)
+      payload: 4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1)
       prompts: 2.4.2
       to-snake-case: 1.0.0
       uuid: 14.0.0
@@ -4453,25 +4448,25 @@ snapshots:
       - sql.js
       - sqlite3
 
-  '@payloadcms/graphql@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1)(payload@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1))':
+  '@payloadcms/graphql@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1)(payload@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1))':
     dependencies:
       graphql: 16.13.1
       graphql-scalars: 1.22.2(graphql@16.13.1)
-      payload: 4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1)
+      payload: 4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1)
       pluralize: 8.0.0
       ts-essentials: 10.0.3(@typescript/typescript6@6.0.2)
       tsx: 4.23.15
     transitivePeerDependencies:
       - typescript
 
-  '@payloadcms/next@4.0.0-beta.0(@types/react@19.3.0)(@typescript/typescript6@6.0.2)(graphql@16.13.1)(monaco-editor@0.55.1)(next@16.4.0(@playwright/test@1.63.0)(@types/node@26.6.4)(babel-plugin-macros@3.1.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(sass@1.77.4))(payload@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@payloadcms/next@4.0.0-canary.39(@types/react@19.3.0)(@typescript/typescript6@6.0.2)(graphql@16.13.1)(monaco-editor@0.55.1)(next@16.4.0(@playwright/test@1.63.0)(@types/node@26.6.4)(babel-plugin-macros@3.1.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(sass@1.77.4))(payload@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@dnd-kit/core': 6.3.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@dnd-kit/modifiers': 9.0.0(@dnd-kit/core@6.3.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)
       '@dnd-kit/sortable': 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)
-      '@payloadcms/graphql': 4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1)(payload@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1))
-      '@payloadcms/translations': 4.0.0-beta.0
-      '@payloadcms/ui': 4.0.0-beta.0(@types/react@19.3.0)(@typescript/typescript6@6.0.2)(monaco-editor@0.55.1)(payload@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@payloadcms/graphql': 4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1)(payload@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1))
+      '@payloadcms/translations': 4.0.0-canary.39
+      '@payloadcms/ui': 4.0.0-canary.39(@types/react@19.3.0)(@typescript/typescript6@6.0.2)(monaco-editor@0.55.1)(payload@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       busboy: 1.6.0
       dequal: 2.0.3
       file-type: 22.0.1
@@ -4480,7 +4475,7 @@ snapshots:
       graphql-playground-html: 1.6.30
       next: 16.4.0(@playwright/test@1.63.0)(@types/node@26.6.4)(babel-plugin-macros@3.1.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(sass@1.77.4)
       path-to-regexp: 6.3.0
-      payload: 4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1)
+      payload: 4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1)
       qs-esm: 8.0.1
       sass: 1.77.4
       uuid: 14.0.0
@@ -4493,11 +4488,11 @@ snapshots:
       - supports-color
       - typescript
 
-  '@payloadcms/translations@4.0.0-beta.0':
+  '@payloadcms/translations@4.0.0-canary.39':
     dependencies:
       date-fns: 4.4.0
 
-  '@payloadcms/ui@4.0.0-beta.0(@types/react@19.3.0)(@typescript/typescript6@6.0.2)(monaco-editor@0.55.1)(payload@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@payloadcms/ui@4.0.0-canary.39(@types/react@19.3.0)(@typescript/typescript6@6.0.2)(monaco-editor@0.55.1)(payload@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@date-fns/tz': 1.2.0
       '@dnd-kit/core': 6.3.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -4509,7 +4504,7 @@ snapshots:
       '@faceless-ui/window-info': 3.0.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@floating-ui/dom': 1.7.6
       '@monaco-editor/react': 4.7.0(monaco-editor@0.55.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@payloadcms/translations': 4.0.0-beta.0
+      '@payloadcms/translations': 4.0.0-canary.39
       '@swc/helpers': 0.5.23
       bson-objectid: 2.0.4
       date-fns: 4.4.0
@@ -4517,7 +4512,7 @@ snapshots:
       md5: 2.3.0
       object-to-formdata: 4.5.1
       path-to-regexp: 6.3.0
-      payload: 4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1)
+      payload: 4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1)
       qs-esm: 8.0.1
       react: 19.3.0
       react-datepicker: 9.1.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -4668,14 +4663,14 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.62.0':
     optional: true
 
-  '@seshuk/payload-plugin-tooling@0.2.4(@payloadcms/db-sqlite@4.0.0-beta.0(payload@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1)))(oxfmt@0.71.0)(oxlint@1.86.0)(payload@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1))(tsdown@0.23.0(@typescript/typescript6@6.0.2)(tsx@4.22.4))(vitest@5.0.3)':
+  '@seshuk/payload-plugin-tooling@0.2.4(@payloadcms/db-sqlite@4.0.0-canary.39(payload@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1)))(oxfmt@0.71.0)(oxlint@1.86.0)(payload@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1))(tsdown@0.23.0(@typescript/typescript6@6.0.2)(tsx@4.23.15))(vitest@5.0.3)':
     optionalDependencies:
-      '@payloadcms/db-sqlite': 4.0.0-beta.0(payload@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1))
+      '@payloadcms/db-sqlite': 4.0.0-canary.39(payload@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1))
       oxfmt: 0.71.0
       oxlint: 1.86.0
-      payload: 4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1)
-      tsdown: 0.23.0(@typescript/typescript6@6.0.2)(tsx@4.22.4)
-      vitest: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(vite@7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.22.4))
+      payload: 4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1)
+      tsdown: 0.23.0(@typescript/typescript6@6.0.2)(tsx@4.23.15)
+      vitest: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(vite@7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.23.15))
 
   '@standard-schema/spec@1.1.0': {}
 
@@ -4808,7 +4803,7 @@ snapshots:
       obug: 2.2.1
       std-env: 4.3.0
       tinyrainbow: 3.2.0
-      vitest: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(vite@7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.22.4))
+      vitest: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(vite@7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.23.15))
 
   '@vitest/istanbul-lib-coverage@1.0.2': {}
 
@@ -4816,14 +4811,14 @@ snapshots:
     dependencies:
       '@vitest/istanbul-lib-coverage': 1.0.2
 
-  '@vitest/mocker@5.0.3(vite@7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.22.4))':
+  '@vitest/mocker@5.0.3(vite@7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.23.15))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       '@vitest/spy': 5.0.3
       estree-walker: 3.0.3
       magic-string: 1.4.2
     optionalDependencies:
-      vite: 7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.22.4)
+      vite: 7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.23.15)
 
   '@vitest/spy@5.0.3': {}
 
@@ -5524,10 +5519,10 @@ snapshots:
 
   path-type@4.0.0: {}
 
-  payload@4.0.0-beta.0(@typescript/typescript6@6.0.2)(graphql@16.13.1):
+  payload@4.0.0-canary.39(@typescript/typescript6@6.0.2)(graphql@16.13.1):
     dependencies:
       '@next/env': 16.4.0
-      '@payloadcms/translations': 4.0.0-beta.0
+      '@payloadcms/translations': 4.0.0-canary.39
       '@standard-schema/spec': 1.1.0
       '@types/busboy': 1.5.4
       bson-objectid: 2.0.4
@@ -5948,7 +5943,7 @@ snapshots:
     optionalDependencies:
       typescript: '@typescript/typescript6@6.0.2'
 
-  tsdown@0.23.0(@typescript/typescript6@6.0.2)(tsx@4.22.4):
+  tsdown@0.23.0(@typescript/typescript6@6.0.2)(tsx@4.23.15):
     dependencies:
       cac: 7.0.0
       defu: 6.1.7
@@ -5965,7 +5960,7 @@ snapshots:
       unconfig-core: 7.5.0
       verkit: 0.4.1
     optionalDependencies:
-      tsx: 4.22.4
+      tsx: 4.23.15
       typescript: '@typescript/typescript6@6.0.2'
     transitivePeerDependencies:
       - '@typescript/native-preview'
@@ -5975,13 +5970,6 @@ snapshots:
       - vue-tsc
 
   tslib@2.8.1: {}
-
-  tsx@4.22.4:
-    dependencies:
-      esbuild: 0.28.1
-    optionalDependencies:
-      fsevents: 2.3.3
-    optional: true
 
   tsx@4.23.15:
     dependencies:
@@ -6042,7 +6030,7 @@ snapshots:
 
   verkit@0.4.1: {}
 
-  vite@7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.22.4):
+  vite@7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.23.15):
     dependencies:
       esbuild: 0.27.7
       fdir: 6.5.0(picomatch@4.0.7)
@@ -6054,12 +6042,12 @@ snapshots:
       '@types/node': 26.6.4
       fsevents: 2.3.3
       sass: 1.77.4
-      tsx: 4.22.4
+      tsx: 4.23.15
 
-  vitest@5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(vite@7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.22.4)):
+  vitest@5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(vite@7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.23.15)):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.3(vite@7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.22.4))
+      '@vitest/mocker': 5.0.3(vite@7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.23.15))
       chai: 6.2.2
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
@@ -6070,7 +6058,7 @@ snapshots:
       tinybench: 6.2.0
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
-      vite: 7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.22.4)
+      vite: 7.3.1(@types/node@26.6.4)(sass@1.77.4)(tsx@4.23.15)
       why-is-node-running: 3.2.1
     optionalDependencies:
       '@types/node': 26.6.4
