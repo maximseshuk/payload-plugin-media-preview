@@ -1,6 +1,6 @@
 {
   "name": "@seshuk/payload-plugin-media-preview",
-  "version": "2.0.0-beta.4",
+  "version": "2.0.0-beta.5",
   "description": "Payload plugin for previewing images, videos, audio, and documents in the admin panel",
   "keywords": [
     "audio",
@@ -100,10 +100,10 @@
   },
   "devDependencies": {
     "@next/env": "^16.4.0",
-    "@payloadcms/db-sqlite": "4.0.0-beta.2",
-    "@payloadcms/next": "4.0.0-beta.2",
-    "@payloadcms/translations": "4.0.0-beta.2",
-    "@payloadcms/ui": "4.0.0-beta.2",
+    "@payloadcms/db-sqlite": "4.0.0-beta.4",
+    "@payloadcms/next": "4.0.0-beta.4",
+    "@payloadcms/translations": "4.0.0-beta.4",
+    "@payloadcms/ui": "4.0.0-beta.4",
     "@playwright/test": "^1.60.0",
     "@seshuk/payload-plugin-tooling": "0.2.4",
     "@types/node": "catalog:",
@@ -115,7 +115,7 @@
     "next": "16.4.2",
     "oxfmt": "^0.73.0",
     "oxlint": "^1.86.0",
-    "payload": "4.0.0-beta.2",
+    "payload": "4.0.0-beta.4",
     "react": "catalog:",
     "react-dom": "catalog:",
     "tsdown": "^0.23.0",
@@ -123,9 +123,9 @@
     "vitest": "^5.0.3"
   },
   "peerDependencies": {
-    "@payloadcms/translations": "^4.0.0-0",
-    "@payloadcms/ui": "^4.0.0-0",
-    "payload": "^4.0.0-0",
+    "@payloadcms/translations": ">=4.0.0-beta.4 <4.0.0-canary.0 || ^4.0.0",
+    "@payloadcms/ui": ">=4.0.0-beta.4 <4.0.0-canary.0 || ^4.0.0",
+    "payload": ">=4.0.0-beta.4 <4.0.0-canary.0 || ^4.0.0",
     "react": "^19.0.1 || ^19.1.2 || ^19.2.1",
     "react-dom": "^19.0.1 || ^19.1.2 || ^19.2.1"
   },
@@ -137,11 +137,11 @@
     },
     "runtime": {
       "name": "node",
-      "version": ">=24.15.0",
+      "version": ">=24.22.1",
       "onFail": "warn"
     }
   },
   "engines": {
-    "node": ">=24.15.0"
+    "node": ">=24.22.1"
   }
 }
