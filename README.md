@@ -68,10 +68,10 @@ A download card for files with no preview:
 
 ## Requirements
 
-- Payload 4, with `@payloadcms/ui` and `@payloadcms/translations` in the same version
+- Payload `4.0.0-beta.4` or later, with `@payloadcms/ui` and `@payloadcms/translations` in the same version
 - Next.js `>=16.4.0`
 - React 19
-- Node.js `>=24.15.0`
+- Node.js `>=24.22.1`
 
 ## Installation
 
@@ -668,7 +668,7 @@ import type {
 
 ## Migrating from 1.x
 
-2.x needs Payload 4, Next.js 16.4+ and Node.js 24.15+. Payload 3 users stay on 1.x.
+2.x needs Payload 4, Next.js 16.4+ and Node.js 24.22.1+. Payload 3 users stay on 1.x.
 
 - `mode` and `contentMode` move from the collection into `field`. The old keys throw at startup, for example `collections.media.mode was renamed to collections.media.field.mode`.
 

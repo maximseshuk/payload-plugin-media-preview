@@ -1,4 +1,4 @@
-nodeVersion: 24.15.0
+nodeVersion: 24.22.1
 pmOnFail: download
 
 catalog:
@@ -14,10 +14,10 @@ allowBuilds:
   sharp: true
 minimumReleaseAgeExclude:
   - '@seshuk/payload-plugin-tooling'
-  - '@payloadcms/db-sqlite@4.0.0-beta.0'
-  - '@payloadcms/drizzle@4.0.0-beta.0'
-  - '@payloadcms/graphql@4.0.0-beta.0'
-  - '@payloadcms/next@4.0.0-beta.0'
-  - '@payloadcms/translations@4.0.0-beta.0'
-  - '@payloadcms/ui@4.0.0-beta.0'
-  - payload@4.0.0-beta.0
+  - '@payloadcms/db-sqlite@4.0.0-beta.4'
+  - '@payloadcms/drizzle@4.0.0-beta.4'
+  - '@payloadcms/graphql@4.0.0-beta.4'
+  - '@payloadcms/next@4.0.0-beta.4'
+  - '@payloadcms/translations@4.0.0-beta.4'
+  - '@payloadcms/ui@4.0.0-beta.4'
+  - payload@4.0.0-beta.4
