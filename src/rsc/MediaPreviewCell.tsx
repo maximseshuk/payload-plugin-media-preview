@@ -12,14 +12,14 @@ type Props = {
   mode?: MediaPreviewMode
 } & DefaultServerCellComponentProps
 
-export const MediaPreviewCell = async ({
+export const MediaPreviewCell: React.FC<Props> = async ({
   adapterNames,
   collectionSlug,
   contentMode,
   mode = 'auto',
   payload: payloadInstance,
   rowData,
-}: Props) => {
+}) => {
   if (!rowData || !collectionSlug) {
     return null
   }

@@ -1,7 +1,7 @@
 import type { AcceptedLanguages } from '@payloadcms/translations'
 import { insertField } from '@seshuk/payload-plugin-tooling/fields'
 import { definePlugin } from 'payload'
-import type { AdminDependencies, CollectionConfig, Config, SelectFn, SelectType } from 'payload'
+import type { AdminDependencies, CollectionConfig, Config, Plugin, SelectFn, SelectType } from 'payload'
 
 import { endpoints } from '@/server/endpoints.js'
 import { mediaPreviewField } from '@/server/field.js'
@@ -75,7 +75,7 @@ const withPreviewSelect =
     return resolved && selectsPreview(resolved) ? { mediaPreview: false } : resolved
   }
 
-export const mediaPreview = definePlugin<MediaPreviewPluginOptions>({
+export const mediaPreview: (options: MediaPreviewPluginOptions) => Plugin = definePlugin<MediaPreviewPluginOptions>({
   slug: '@seshuk/payload-plugin-media-preview',
   plugin: ({ config: incomingConfig, options }) => {
     for (const [slug, collOptions] of Object.entries(options.collections)) {
