@@ -1,15 +1,15 @@
 export const PLUGIN_KEY = '@seshuk/payload-plugin-media-preview'
 
-export const GOOGLE_VIEWER_MAX_SIZE = 25 * 1024 * 1024
-export const MICROSOFT_VIEWER_MAX_SIZE = 10 * 1024 * 1024
-export const MICROSOFT_EXCEL_MAX_SIZE = 5 * 1024 * 1024
-export const TEXT_PREVIEW_MAX_SIZE = 1024 * 1024
+export const GOOGLE_VIEWER_MAX_SIZE: number = 25 * 1024 * 1024
+export const MICROSOFT_VIEWER_MAX_SIZE: number = 10 * 1024 * 1024
+export const MICROSOFT_EXCEL_MAX_SIZE: number = 5 * 1024 * 1024
+export const TEXT_PREVIEW_MAX_SIZE: number = 1024 * 1024
 export const DEFAULT_SIGNED_URL_EXPIRES_IN = 600
 
 export const SIGN_URL_PATH = '/media-preview/url'
 export const FILE_PATH = '/media-preview/file'
 
-export const MICROSOFT_OFFICE_TYPES = [
+export const MICROSOFT_OFFICE_TYPES: string[] = [
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/vnd.ms-excel',
@@ -18,12 +18,12 @@ export const MICROSOFT_OFFICE_TYPES = [
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 ]
 
-export const MICROSOFT_EXCEL_TYPES = [
+export const MICROSOFT_EXCEL_TYPES: string[] = [
   'application/vnd.ms-excel',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 ]
 
-export const GOOGLE_VIEWER_TYPES = [
+export const GOOGLE_VIEWER_TYPES: string[] = [
   'application/vnd.apple.pages',
   'application/postscript',
   'image/vnd.adobe.photoshop',
@@ -32,7 +32,7 @@ export const GOOGLE_VIEWER_TYPES = [
   'application/vnd.ms-xpsdocument',
 ]
 
-export const TEXT_TYPES = [
+export const TEXT_TYPES: string[] = [
   'text/*',
   'application/json',
   'application/xml',
@@ -42,7 +42,7 @@ export const TEXT_TYPES = [
   'application/x-yaml',
 ]
 
-export const TEXT_EXTENSIONS = [
+export const TEXT_EXTENSIONS: string[] = [
   'cjs',
   'conf',
   'css',

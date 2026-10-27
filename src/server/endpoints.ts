@@ -22,7 +22,11 @@ const contentDisposition = (filename: string) =>
     ? `inline; filename="${filename.replace(/["\\]/g, '\\$&')}"`
     : `inline; filename*=UTF-8''${encodeURIComponent(filename).replace(/['()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)}`
 
-export const getExternalFileUrl = async (req: PayloadRequest, collectionSlug: string, doc: Doc) => {
+export const getExternalFileUrl = async (
+  req: PayloadRequest,
+  collectionSlug: string,
+  doc: Doc,
+): Promise<string | null> => {
   const { config, secret } = req.payload
   const data = getPluginData(config)
   const settings = data.collections[collectionSlug]

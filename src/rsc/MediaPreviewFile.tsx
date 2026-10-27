@@ -9,7 +9,7 @@ import { getCollectionAdapters, getPluginData } from '@/server/settings.js'
 
 type Props = { collectionSlug: string } & Partial<UploadFilePreviewClientProps> & ServerProps
 
-export const MediaPreviewFile = async (props: Props) => {
+export const MediaPreviewFile: React.FC<Props> = async (props) => {
   const { id, collectionSlug, filename, filesize, fileSrc, height, mimeType, payload, user, width } = props
   const fileDoc = { id, filename, filesize, height, mimeType, url: fileSrc, width }
   const data = getPluginData(payload.config)
